@@ -1,0 +1,7 @@
+[
+  { "post": "/about", "to": "home#about" },
+  { "post": "/contact", "to": "home#contact" },
+  { "get": "/about", "to": "home#about" },
+  { "get": "/contact", "to": "home#contact" },
+  { "get": "/", "to": "home#index" }
+]
