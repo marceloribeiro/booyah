@@ -21,6 +21,7 @@ class ApplicationRouter:
         return None
 
     def respond(self, environment):
+        print('-------------------------------')
         print('DEBUG ' + environment['REQUEST_METHOD'] + ': ' + environment['PATH_INFO'])
         controller_action = self.get_controller_action(environment)
 

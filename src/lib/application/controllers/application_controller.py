@@ -7,7 +7,7 @@ class ApplicationController:
     def get_action(self, action):
         return getattr(self, action)
 
-    def render(self, data):
+    def render(self, data = {}):
       return ApplicationResponse(self.environment, data)
 
     def is_get_request(self):

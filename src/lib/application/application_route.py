@@ -54,5 +54,8 @@ class ApplicationRoute:
         module = importlib.import_module(module_name + '.' + controller_name)
         controller_class = getattr(module, self.to_camel_case(controller_name))
 
+        environment['controller_name'] = controller_name.replace('_controller', '')
+        environment['action_name'] = action_name
+
         print('DEBUG Processing: ' + controller_class.__name__ + ' => ' + action_name)
         return controller_class(environment).get_action(action_name)
