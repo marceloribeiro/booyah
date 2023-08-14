@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[project]
+name = "booyah"
+version = "0.0.1"
+authors = [
+  { name="Marcelo Ribeiro", email="themarceloribeiro@gmail.com" },
+]
+description = "A joyful python web framework"
+readme = "README.md"
+requires-python = ">= 3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+[project.urls]
+"Homepage" = "https://github.com/marceloribeiro/booyah"
+"Bug Tracker" = "https://github.com/marceloribeiro/booyah/issues"
