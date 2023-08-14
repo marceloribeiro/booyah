@@ -1,6 +1,6 @@
 # Welcome to BOOYAH!
 
-We are an new python web framework that aims to be simple, fast and easy to use.
+Booyah is a new web framework written in Python that aims to be easy and fast to use.
 
 ## How to run
 

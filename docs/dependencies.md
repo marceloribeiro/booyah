@@ -2,9 +2,8 @@
 
 ## Setup Environment
 
-Isolating dependencies is important if your projects run on different versions for the same library. 
+Isolating dependencies is important if your projects run on different versions for the same library.
 This is where virtualenv comes to place.
-
 
 You will need to install `pyenv` and `pyenv-virtualenv` to manage your python versions and virtual environments.
 
@@ -63,8 +62,7 @@ Remember to activate the virtual environment before installing the dependencies.
 $ pyenv activate booyah
 ```
 
-We are using pip to manage our dependencies. 
-Make sure you have the latest version of pip installed:
+We are using pip to manage our dependencies. Make sure you have the latest version of pip installed:
 
 ```sh
 (booyah) $ pip install --upgrade pip
