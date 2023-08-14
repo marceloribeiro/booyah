@@ -1,10 +1,10 @@
+from lib.application.application_router import ApplicationRouter
+from config.routes import ApplicationRoutes
+
 def application(environment, start_response):
-    """Simplest possible application object"""
-    data = b'Hello, World!\n'
-    status = '200 OK'
-    response_headers = [
-        ('Content-type', 'text/plain'),
-        ('Content-Length', str(len(data)))
-    ]
-    start_response(status, response_headers)
-    return iter([data])
+    ApplicationRoutes.load_routes()
+    router = ApplicationRouter.get_instance()
+    response = router.respond(environment)
+
+    start_response(response.status, response.response_headers())
+    return iter([response.response_body()])
