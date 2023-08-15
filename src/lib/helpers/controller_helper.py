@@ -31,21 +31,19 @@ def set_response_format(route_data, environment):
         environment['RESPONSE_FORMAT'] = DEFAULT_RESPONSE_FORMAT
     environment['CONTENT_TYPE'] = content_type_from_response_format(environment['RESPONSE_FORMAT'])
 
-def content_type_from_response_format(response_format):
-    content_types = {
+def content_types():
+    return {
         RESPONSE_FORMAT_HTML: 'text/html',
         RESPONSE_FORMAT_JSON: 'application/json',
         RESPONSE_FORMAT_TEXT: 'text/plain'
     }
-    return content_types.get(response_format, 'text/html')
+
+def content_type_from_response_format(response_format):
+    return content_types().get(response_format, 'text/html')
 
 def get_format_from_content_type(http_accept):
     content_type = http_accept.split(',')[0]
-    formats = {
-        'text/html': RESPONSE_FORMAT_HTML,
-        'application/json': RESPONSE_FORMAT_JSON,
-        'text/plain': RESPONSE_FORMAT_TEXT
-    }
+    formats = { content_type: format for format, content_type in content_types().items() }
     return formats.get(content_type, RESPONSE_FORMAT_HTML)
 
 def get_controller_action_from_string(controller_string, environment):
