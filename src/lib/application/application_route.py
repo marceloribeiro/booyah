@@ -3,6 +3,10 @@ import re
 class ApplicationRoute:
     def __init__(self, route_data) -> None:
         self.route_data = route_data
+        if 'format' in self.route_data.keys():
+            self.format = self.route_data['format']
+        else:
+            self.format = 'html'
 
     def match(self, environment):
         http_method = environment['REQUEST_METHOD'].lower()

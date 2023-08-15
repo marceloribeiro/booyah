@@ -24,10 +24,10 @@ class ApplicationRouter:
     def respond(self, environment):
         print('-------------------------------')
         print('DEBUG ' + environment['REQUEST_METHOD'] + ': ' + environment['PATH_INFO'])
-        action = self.action(environment)
+        controller_action = self.action(environment)
 
-        if action:
-            response = action()
+        if controller_action:
+            response = controller_action()
         else:
             response = self.not_found(environment)
 

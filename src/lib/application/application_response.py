@@ -4,9 +4,6 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 class ApplicationResponse:
     APP_NAME = 'booyah'
     DEFAULT_RESPONSE_ENCODING = 'utf-8'
-    RESPONSE_FORMAT_HTML = 'html'
-    RESPONSE_FORMAT_TEXT = 'text'
-    RESPONSE_FORMAT_JSON = 'json'
     DEFAULT_HTTP_STATUS = '200 OK'
 
     def __init__(self, environment, data = {}, headers = {}, status = DEFAULT_HTTP_STATUS):
@@ -25,30 +22,18 @@ class ApplicationResponse:
             return self.headers
         else:
           return [
-              ('Content-type', self.get_content_type()),
+              ('Content-type', self.environment['CONTENT_TYPE']),
               ('Content-Length', str(len(self.body)))
           ]
 
-    def get_content_type(self):
-        accepts = self.environment['HTTP_ACCEPT'].split(',')[0]
-        return accepts
-
     def format(self):
-        content_type = self.get_content_type()
-        if (content_type == 'text/html'):
-            return self.RESPONSE_FORMAT_HTML
-        elif (content_type == 'application/json'):
-            return self.RESPONSE_FORMAT_JSON
-        elif (content_type == 'text/plain'):
-            return self.RESPONSE_FORMAT_TEXT
-        else:
-            return self.RESPONSE_FORMAT_HTML
+        return self.environment['RESPONSE_FORMAT']
 
     def response_body(self):
         return getattr(self, self.format() + '_body')()
 
     def text_body(self):
-        self.body = self.data
+        self.body = self.data['text']
         return bytes(self.body, self.DEFAULT_RESPONSE_ENCODING)
 
     def html_body(self):
@@ -62,5 +47,6 @@ class ApplicationResponse:
 
     def get_template_path(self):
         template_path = self.environment['controller_name'] + '/' + self.environment['action_name'] + '.html'
-        print('DEBUG Rendering: ' + template_path)
+        print(self.environment['HTTP_ACCEPT'])
+        print('DEBUG Rendering: ' + template_path + ', format: ' + self.format())
         return template_path
