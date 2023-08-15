@@ -48,7 +48,6 @@ class Logger:
             config.read(CONFIG_FILE)
         
         self._log_file_path = Template(config['DEFAULT']['log_file_path']).substitute(environment=ENV, root=base_path)
-        print(self._log_file_path)
         self.log_level = log_levels.get(config['DEFAULT']['log_level'], DEFAULT_LOG_LEVEL)
 
         os.makedirs(os.path.dirname(self._log_file_path), exist_ok=True)
