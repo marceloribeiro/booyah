@@ -32,26 +32,21 @@ def set_response_format(route_data, environment):
     environment['CONTENT_TYPE'] = content_type_from_response_format(environment['RESPONSE_FORMAT'])
 
 def content_type_from_response_format(response_format):
-    if response_format == RESPONSE_FORMAT_HTML:
-        return 'text/html'
-    elif response_format == RESPONSE_FORMAT_JSON:
-        return 'application/json'
-    elif response_format == RESPONSE_FORMAT_TEXT:
-        return 'text/plain'
-    else:
-        return 'text/html'
+    content_types = {
+        RESPONSE_FORMAT_HTML: 'text/html',
+        RESPONSE_FORMAT_JSON: 'application/json',
+        RESPONSE_FORMAT_TEXT: 'text/plain'
+    }
+    return content_types.get(response_format, 'text/html')
 
 def get_format_from_content_type(http_accept):
     content_type = http_accept.split(',')[0]
-
-    if (content_type == 'text/html'):
-        return RESPONSE_FORMAT_HTML
-    elif (content_type == 'application/json'):
-        return RESPONSE_FORMAT_JSON
-    elif (content_type == 'text/plain'):
-        return RESPONSE_FORMAT_TEXT
-    else:
-        return RESPONSE_FORMAT_HTML
+    formats = {
+        'text/html': RESPONSE_FORMAT_HTML,
+        'application/json': RESPONSE_FORMAT_JSON,
+        'text/plain': RESPONSE_FORMAT_TEXT
+    }
+    return formats.get(content_type, RESPONSE_FORMAT_HTML)
 
 def get_controller_action_from_string(controller_string, environment):
     controller_name = DEFAULT_CONTROLLER_NAME
