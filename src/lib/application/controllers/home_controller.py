@@ -1,4 +1,7 @@
+import os
 from lib.application.controllers.application_controller import ApplicationController
+from db.adapters.base_adapter import BaseAdapter
+from lib.models.user import User
 
 class HomeController(ApplicationController):
     def index(self):
@@ -8,7 +11,14 @@ class HomeController(ApplicationController):
         return self.render({'text': 'Home Controller, About Action'})
 
     def status(self):
-        return self.render({'text': 'Home Controller, Status Action'})
+        db_adapter = BaseAdapter.get_instance()
+
+        return self.render({
+            'environment': os.getenv('BOOYAH_ENV'),
+            'adapter': db_adapter.__class__.__name__,
+            'user_table': User.table_name(),
+            'table_columns': User.get_table_columns()
+        })
 
     def plain(self):
         return self.render({'text': 'Home Controller, Plain Action'})
