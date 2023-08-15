@@ -1,16 +1,18 @@
+import logging
 import configparser
 import os
 from pathlib import Path
 from string import Template
-from datetime import datetime
 
 CONFIG_FILE = 'config.ini'
-INFO = 0
-DEBUG = 1
-WARN = 2
-ERROR = 3
-FATAL = 4
-NAMES = ['INFO', 'DEBUG', 'WARN', 'ERROR', 'FATAL']
+DEFAULT_LOG_LEVEL = 'INFO'
+log_levels = {
+  'DEBUG': logging.DEBUG,
+  'INFO': logging.INFO,
+  'WARNING': logging.WARNING,
+  'ERROR': logging.ERROR,
+  'CRITICAL': logging.CRITICAL
+}
 
 ENV = 'development'
 
@@ -24,62 +26,32 @@ class Logger:
     config = configparser.ConfigParser()
     config['DEFAULT'] = {
       'log_file_path': os.path.join(Path.cwd(), 'logs', '$environment.log'),
-      'log_level': DEBUG,
-      'log_format': '$datetime $levelname $message'
+      'log_level': DEFAULT_LOG_LEVEL,
     }
-    config.read(CONFIG_FILE)
-    self._log_file_path = Template(config['DEFAULT']['log_file_path']).substitute(environment=ENV)
-    self.log_level = int(config['DEFAULT']['log_level'])
-    self.log_format = config['DEFAULT']['log_format']
-  
-  def can_write(self, level):
-    """
-    Check if log level param can be written with current log level
-    """
-    if self.log_level == INFO:
-      return level in [ INFO, WARN, ERROR, FATAL ]
-    elif self.log_level == DEBUG:
-      return True
-    elif self.log_level == WARN:
-      return level in [ WARN, ERROR, FATAL ]
-    elif self.log_level == ERROR:
-      return level in [ ERROR, FATAL ]
-    elif self.log_level == FATAL:
-      return level == FATAL
-    else:
-      return False
-  
-  def format(self, content):
-    current_datetime = datetime.now()
-    return Template(self.log_format).substitute(
-      message=content,
-      datetime=current_datetime.strftime('%Y-%m-%d %H:%M:%S')
-    )
 
-  def write(self, level, content):
-    """
-    Writes a log if allowed by level
-    """
-    if not self.can_write(int(level)):
-      return
+    if not os.path.exists(CONFIG_FILE):
+      with open(CONFIG_FILE, 'w') as configfile:
+        config.write(configfile)
+    else:
+      config.read(CONFIG_FILE)
     
+    self._log_file_path = Template(config['DEFAULT']['log_file_path']).substitute(environment=ENV)
+    self.log_level = log_levels.get(config['DEFAULT']['log_level'], DEFAULT_LOG_LEVEL)
+
     os.makedirs(os.path.dirname(self._log_file_path), exist_ok=True)
-    formatted_log_message = self.format(content)
-    print(formatted_log_message)
-    with open(self._log_file_path, 'a+') as f:
-      f.write(formatted_log_message + "\n")
+    logging.basicConfig(filename=self._log_file_path, level=self.log_level, format="%(asctime)s - %(levelname)s - %(message)s")
   
   def info(self, content):
-    self.write(INFO, content)
+    logging.info(content)
 
   def debug(self, content):
-    self.write(DEBUG, content)
+    logging.debug(content)
 
   def warn(self, content):
-    self.write(WARN, content)
+    logging.warning(content)
 
   def error(self, content):
-    self.write(ERROR, content)
+    logging.error(content)
 
   def fatal(self, content):
-    self.write(FATAL, content)
+    logging.critical(content)
