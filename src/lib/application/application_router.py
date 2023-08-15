@@ -1,5 +1,6 @@
 from lib.application.application_route import ApplicationRoute
 from lib.application.application_response import ApplicationResponse
+from lib.helpers.controller_helper import get_controller_action
 
 class ApplicationRouter:
     def __init__(self):
@@ -14,19 +15,19 @@ class ApplicationRouter:
         route = ApplicationRoute(route_data)
         self.routes.append(route)
 
-    def get_controller_action(self, environment):
+    def action(self, environment):
         for route in self.routes:
             if route.match(environment):
-                return route.get_controller_action(environment)
+                return get_controller_action(route.route_data, environment)
         return None
 
     def respond(self, environment):
         print('-------------------------------')
         print('DEBUG ' + environment['REQUEST_METHOD'] + ': ' + environment['PATH_INFO'])
-        controller_action = self.get_controller_action(environment)
+        action = self.action(environment)
 
-        if controller_action:
-            response = controller_action()
+        if action:
+            response = action()
         else:
             response = self.not_found(environment)
 
