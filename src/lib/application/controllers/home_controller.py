@@ -6,3 +6,9 @@ class HomeController(ApplicationController):
 
     def about(self):
         return self.render({'text': 'Home Controller, About Action'})
+
+    def status(self):
+        return self.render({'text': 'Home Controller, Status Action'})
+
+    def plain(self):
+        return self.render({'text': 'Home Controller, Plain Action'})
