@@ -4,4 +4,9 @@ __pycache__/
 env/
 venv/
 booyah/
+
+# logs
 logs/
+
+# OS generated files
+.DS_Store
