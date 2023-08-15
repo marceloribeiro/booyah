@@ -1,5 +1,6 @@
 from lib.application.application_router import ApplicationRouter
 import json
+from lib.logger import logger
 
 ROUTES_FILE = 'config/routes.json'
 
@@ -11,7 +12,7 @@ class ApplicationRoutes:
 
         for route in routes:
             self.application_router.add_route(route)
-            print('DEBUG Registering route', route)
+            logger.debug('Registering route:', route)
 
         routese_file.close()
 

@@ -1,6 +1,7 @@
 import importlib
 import re
 from lib.helpers.application_helper import to_camel_case
+from ..logger import logger
 
 DEFAULT_CONTROLLER_NAME = 'application_controller'
 DEFAULT_ACTION_NAME = 'index'
@@ -69,5 +70,5 @@ def get_controller_action_from_string(controller_string, environment):
     environment['controller_name'] = controller_name.replace(CONTROLLER_SUFFIX, '')
     environment['action_name'] = action_name
 
-    print('DEBUG Processing: ' + controller_class.__name__ + ' => ' + action_name)
+    logger.debug('Processing:', controller_class.__name__, '=>', action_name)
     return controller_class(environment).get_action(action_name)
