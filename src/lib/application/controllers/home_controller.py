@@ -2,7 +2,7 @@ from lib.application.controllers.application_controller import ApplicationContro
 
 class HomeController(ApplicationController):
     def index(self):
-        return self.render('Home Controller, Index Action')
+        return self.render({'text': 'Home Controller, Index Action'})
 
     def about(self):
-        return self.render('Home Controller, About Action')
+        return self.render({'text': 'Home Controller, About Action'})
