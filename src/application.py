@@ -1,11 +1,13 @@
-from lib.application.application_router import ApplicationRouter
-from config.routes import ApplicationRoutes
 from py_dotenv import read_dotenv
 import os
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 read_dotenv(dotenv_path)
 print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
+
+from lib.application.application_router import ApplicationRouter
+from config.routes import ApplicationRoutes
+
 
 def application(environment, start_response):
     ApplicationRoutes.load_routes()

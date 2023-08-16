@@ -1,6 +1,7 @@
 from lib.application.application_route import ApplicationRoute
 from lib.application.application_response import ApplicationResponse
 from lib.helpers.controller_helper import get_controller_action
+from ..logger import logger
 
 class ApplicationRouter:
     def __init__(self):
@@ -22,8 +23,7 @@ class ApplicationRouter:
         return None
 
     def respond(self, environment):
-        print('-------------------------------')
-        print('DEBUG ' + environment['REQUEST_METHOD'] + ': ' + environment['PATH_INFO'])
+        logger.debug(environment['REQUEST_METHOD'] + ':', environment['PATH_INFO'])
         controller_action = self.action(environment)
 
         if controller_action:

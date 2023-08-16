@@ -1,5 +1,6 @@
 import json
 from jinja2 import Environment, PackageLoader, select_autoescape
+from ..logger import logger
 
 class ApplicationResponse:
     APP_NAME = 'booyah'
@@ -47,6 +48,6 @@ class ApplicationResponse:
 
     def get_template_path(self):
         template_path = self.environment['controller_name'] + '/' + self.environment['action_name'] + '.html'
-        print(self.environment['HTTP_ACCEPT'])
-        print('DEBUG Rendering: ' + template_path + ', format: ' + self.format())
+        logger.debug("http accept:", self.environment['HTTP_ACCEPT'])
+        logger.debug("rendering:", template_path, ', format:', self.format())
         return template_path
