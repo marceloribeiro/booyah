@@ -42,7 +42,9 @@ class PostgresqlAdapter:
         self.connect()
         cursor = self.connection.cursor()
         cursor.execute(query)
+        result = cursor.fetchone()
         self.connection.commit()
+        return result
 
     def fetch(self, query):
         self.connect()
@@ -66,13 +68,6 @@ class PostgresqlAdapter:
         columns = [item for row in cursor.fetchall() for item in row]
         return columns
 
-    def last_insert_id(self, table_name):
-        query = f"SELECT id FROM {table_name} ORDER BY id DESC LIMIT 1"
-        records = self.fetch(query)
-        if not records:
-            return None
-        return records[0][0]
-
     def insert(self, table_name, attributes):
         if attributes.get('created_at') is None:
             attributes['created_at'] = datetime.now()
@@ -81,11 +76,9 @@ class PostgresqlAdapter:
         self.format_attributes(attributes)
 
         columns = ', '.join(attributes.keys())
-        values = ', '.join([f"'{value}'" for value in attributes.values()])
-        query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-        logger.debug("DB:", query)
-        self.execute(query)
-        return self.last_insert_id(table_name)
+        values = ', '.join([f"{value}" for value in attributes.values()])
+        query = f"INSERT INTO {table_name} ({columns}) VALUES ({values}) RETURNING id, created_at, updated_at"
+        return self.execute(query)
 
     def update(self, table_name, id, attributes):
         if attributes.get('updated_at') is None:
@@ -93,14 +86,14 @@ class PostgresqlAdapter:
         self.format_attributes(attributes)
 
         values = ', '.join([f"{key} = {value}" for key, value in attributes.items()])
-        query = f"UPDATE {table_name} SET {values} WHERE id = {id}"
+        query = f"UPDATE {table_name} SET {values} WHERE id = {id} returning updated_at"
         logger.debug("DB:", query)
-        self.execute(query)
+        return self.execute(query)
 
     def delete(self, table_name, id):
-        query = f"DELETE FROM {table_name} WHERE id = {id}"
+        query = f"DELETE FROM {table_name} WHERE id = {id} returning id"
         logger.debug("DB:", query)
-        self.execute(query)
+        return self.execute(query)
 
     def format_attributes(self, attributes):
         for key, value in attributes.items():

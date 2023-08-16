@@ -5,9 +5,9 @@ from lib.serializers.user_serializer import UserSerializer
 class UsersController(ApplicationController):
     def index(self):
         if self.params.get('id'):
-            users = users = User.where('id = ?', self.params['id'])
+            users = User.where('id = ?', self.params['id'])
         elif self.params.get('first_name'):
-            users = users = User.where('lower(first_name) like ?', f"%{self.params['first_name'].lower()}%")
+            users = User.where('lower(first_name) like ?', f"%{self.params['first_name'].lower()}%")
         else:
             users = User.all()
 
@@ -33,8 +33,8 @@ class UsersController(ApplicationController):
 
     def destroy(self):
         user = User.find(self.params['id'])
-        user.destroy()
-        return self.render({ "deleted": True })
+        deleted_id = user.destroy()
+        return self.render({ "deleted": True, "deleted_id": deleted_id })
 
     def user_params(self):
         return { key: value for key, value in self.params['user'].items() if key in self.permitted_params() }

@@ -15,7 +15,7 @@ class ApplicationController:
         self.load_params_from_route()
         self.load_params_from_query_string()
         self.load_params_from_gunicorn_body()
-        logger.debug("PARAMS: ", self.params)
+        logger.debug("PARAMS:", self.params)
 
     def load_params_from_route(self):
         matching_route = self.environment['MATCHING_ROUTE']
@@ -34,7 +34,7 @@ class ApplicationController:
     def load_params_from_query_string(self):
         query_string = self.environment['QUERY_STRING']
         params = {}
-        if query_string != '':
+        if query_string:
             for param in query_string.split('&'):
                 key, value = param.split('=')
                 params[key] = value
@@ -48,7 +48,7 @@ class ApplicationController:
         content_type = self.environment['CONTENT_TYPE']
 
         params = {}
-        if content_length > 0:
+        if content_length:
             body = self.environment['wsgi.input'].read(content_length)
             if content_type == 'application/json':
                 params = json.loads(body.decode('utf-8'))
@@ -59,7 +59,7 @@ class ApplicationController:
         self.params.update(params)
 
     def render(self, data = {}):
-      return ApplicationResponse(self.environment, data)
+        return ApplicationResponse(self.environment, data)
 
     def is_get_request(self):
         return self.environment['REQUEST_METHOD'] == 'GET'

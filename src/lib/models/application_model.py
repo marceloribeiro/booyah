@@ -63,7 +63,6 @@ class ApplicationModel:
             self.insert()
         else:
             self.update()
-        self.reload()
 
     def reload(self):
         if self.id:
@@ -73,14 +72,17 @@ class ApplicationModel:
         return not hasattr(self, 'id')
 
     def insert(self):
-        self.id = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
+        data = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
+        self.id = data[0]
+        self.created_at = data[1]
+        self.updated_at = data[2]
 
     def update(self, attributes = None):
         self_attributes = self.to_dict()
         if attributes != None:
             self_attributes.update(attributes)
-        self.db_adapter().update(self.table_name(), self.id, self_attributes)
-        self.reload()
+        data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.updated_at = data[0]
 
     def patch_update(self, attributes = None):
         self_attributes = self.to_dict()
@@ -88,11 +90,13 @@ class ApplicationModel:
             for key in attributes:
                 if attributes.get(key) != None:
                     self_attributes[key] = attributes[key]
-        self.db_adapter().update(self.table_name(), self.id, self_attributes)
-        self.reload()
+        data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.updated_at = data[0]
 
     def destroy(self):
-        self.db_adapter().delete(self.table_name(), self.id)
+        data = self.db_adapter().delete(self.table_name(), self.id)
+        deleted_id = data[0]
+        return deleted_id
 
     def get_table_values(self):
         return [ self.serialized_attribute(column) for column in self.get_table_columns() ]
