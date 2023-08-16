@@ -103,12 +103,12 @@ class ModelQueryBuilder:
     # Iteratable methods
     def __iter__(self):
         self.current_index = 0
-        self.results = self.results()
+        self._results = self.results()
         return self
 
     def __next__(self):
         try:
-            result = self.results[self.current_index]
+            result = self._results[self.current_index]
         except IndexError:
             raise StopIteration
         self.current_index += 1
