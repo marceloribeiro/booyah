@@ -1,6 +1,7 @@
 import psycopg
 import os
 from datetime import datetime
+from lib.logger import logger
 
 class PostgresqlAdapter:
     @staticmethod
@@ -46,11 +47,11 @@ class PostgresqlAdapter:
     def fetch(self, query):
         self.connect()
         cursor = self.connection.cursor()
-        print("DEBUG DB: ", query)
+        logger.debug("DB: ", query)
         try:
             cursor.execute(query)
         except Exception as e:
-            print("ERROR: ", e)
+            logger.fatal("DB FETCH: ", e)
             self.close_connection()
             return []
         records = cursor.fetchall()
@@ -60,7 +61,7 @@ class PostgresqlAdapter:
         self.connect()
         cursor = self.connection.cursor()
         query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
-        print("DEBUG DB: ", query)
+        logger.debug("DB: ", query)
         cursor.execute(query)
         columns = [item for row in cursor.fetchall() for item in row]
         return columns
@@ -81,7 +82,7 @@ class PostgresqlAdapter:
         columns = ', '.join(attributes.keys())
         values = ', '.join([f"'{value}'" for value in attributes.values()])
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-        print("DEBUG DB: ", query)
+        logger.debug("DB: ", query)
         self.execute(query)
         return self.last_insert_id(table_name)
 
@@ -92,12 +93,12 @@ class PostgresqlAdapter:
 
         values = ', '.join([f"{key} = {value}" for key, value in attributes.items()])
         query = f"UPDATE {table_name} SET {values} WHERE id = {id}"
-        print("DEBUG DB: ", query)
+        logger.debug("DB: ", query)
         self.execute(query)
 
     def delete(self, table_name, id):
         query = f"DELETE FROM {table_name} WHERE id = {id}"
-        print("DEBUG DB: ", query)
+        logger.debug("DB: ", query)
         self.execute(query)
 
     def format_attributes(self, attributes):

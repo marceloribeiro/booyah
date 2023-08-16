@@ -1,5 +1,6 @@
 from lib.application.application_response import ApplicationResponse
 import json
+from lib.logger import logger
 
 class ApplicationController:
     def __init__(self, environment):
@@ -14,7 +15,7 @@ class ApplicationController:
         self.load_params_from_route()
         self.load_params_from_query_string()
         self.load_params_from_gunicorn_body()
-        print("PARAMS:", self.params)
+        logger.debug("PARAMS: ", self.params)
 
     def load_params_from_route(self):
         matching_route = self.environment['MATCHING_ROUTE']
