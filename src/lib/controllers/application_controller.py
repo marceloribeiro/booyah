@@ -3,9 +3,29 @@ from lib.application.application_response import ApplicationResponse
 class ApplicationController:
     def __init__(self, environment):
         self.environment = environment
+        self.params = {}
 
     def get_action(self, action):
+        self.load_params()
         return getattr(self, action)
+
+    def load_params(self):
+        self.load_params_from_route()
+        print("PARAMS:", self.params)
+
+    def load_params_from_route(self):
+        matching_route = self.environment['MATCHING_ROUTE']
+        matching_route_params = self.environment['MATCHING_ROUTE_PARAMS']
+        params = {}
+
+        if matching_route != None:
+            parts = matching_route.split('/')
+            position = 0
+            for i, part in enumerate(parts):
+                if part.startswith('{') and part.endswith('}'):
+                    params[part[1:-1]] = matching_route_params[position]
+                    position += 1
+        self.params.update(params)
 
     def render(self, data = {}):
       return ApplicationResponse(self.environment, data)

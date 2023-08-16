@@ -32,6 +32,11 @@ class ApplicationModel:
         self.load_query_builder()
         return self.query_builder.all().results()
 
+    @classmethod
+    def find(self, id):
+        self.load_query_builder()
+        return self.query_builder.find(id).results()[0]
+
     def __init__(self, attributes):
         for key in attributes:
             if key in self.get_table_columns():

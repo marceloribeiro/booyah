@@ -1,4 +1,5 @@
 [
+  { "get": "/users/{id}", "to": "users#show", "format": "json" },
   { "get": "/users", "to": "users#index", "format": "json" },
   { "get": "/plain", "to": "home#plain", "format": "text" },
   { "get": "/status", "to": "home#status", "format": "json" },

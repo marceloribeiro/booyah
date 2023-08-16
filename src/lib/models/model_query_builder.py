@@ -16,13 +16,26 @@ class ModelQueryBuilder:
         self.db_adapter = BaseAdapter.get_instance()
 
     def all(self):
+        self.select_all_columns()
+        return self
+
+    def find(self, id):
+        self.select_all_columns()
+        self.where(f"{self.model_class.table_name()}.id = {id}")
+        return self
+
+    def select_all_columns(self):
         columns = map(lambda column: f"{self.model_class.table_name()}.{column}", self.model_class.get_table_columns())
         self.select(", ".join(columns))
-        return self
+        self
 
     def select(self, *args):
         self.selected_attributes += args
         self.select_query = f"SELECT {','.join(self.selected_attributes)} FROM {self.model_class.table_name()}"
+        return self
+
+    def where(self, *args):
+        self.where_conditions += args
         return self
 
     def build_query(self):
@@ -39,6 +52,8 @@ class ModelQueryBuilder:
             query += f" LIMIT {self.limit_amount}"
         if self.offset_amount:
             query += f" OFFSET {self.offset_amount}"
+
+        print("DEBUG DB: ", query)
         return query
 
     def model_from_result(self, result):
@@ -48,4 +63,16 @@ class ModelQueryBuilder:
         full_query = self.build_query()
         raw_results = self.db_adapter.fetch(full_query)
         results = list(map(lambda result: self.model_from_result(result), raw_results))
+        self.cleanup()
         return results
+
+    def cleanup(self):
+        self.select_query = ''
+        self.selected_attributes = []
+        self.where_conditions = []
+        self.joins = []
+        self.order_by_attributes = []
+        self.group_by_attributes = []
+        self.limit_amount = None
+        self.offset_amount = None
+        self.scope = None
