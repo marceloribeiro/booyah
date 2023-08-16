@@ -19,7 +19,7 @@ class ApplicationRoute:
 
         if http_method not in self.route_data.keys():
             return False
-        if self.route_data.get(http_method) == None:
+        if self.route_data.get(http_method) is None:
             return False
 
         if path_info != '/':

@@ -41,7 +41,7 @@ class ApplicationController:
         self.params.update(params)
 
     def load_params_from_gunicorn_body(self):
-        if self.environment.get('CONTENT_LENGTH') == None:
+        if self.environment.get('CONTENT_LENGTH') is None:
             return
 
         content_length = int(self.environment['CONTENT_LENGTH'])

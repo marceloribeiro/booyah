@@ -16,7 +16,7 @@ class ApplicationModel:
 
     @classmethod
     def get_table_columns(self):
-        if self.table_columns == None:
+        if self.table_columns is None:
             self.table_columns = self.db_adapter().table_columns(self.table_name())
         return self.table_columns
 
@@ -96,6 +96,10 @@ class ApplicationModel:
 
     def get_table_values(self):
         return [ self.serialized_attribute(column) for column in self.get_table_columns() ]
+
+    def compact_to_dict(self):
+        dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
+        return { k: v for k, v in dicttionary.items() if v is not None }
 
     def to_dict(self):
         dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
