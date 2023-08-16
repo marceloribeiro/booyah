@@ -1,5 +1,21 @@
 from db.adapters.base_adapter import BaseAdapter
-import json
+
+EQUAL_OPERATOR = '= ?'
+LIKE_OPERATOR = 'like ?'
+DIFFERENT_OPERATOR = '!= ?'
+GREATER_THAN_OPERATOR = '> ?'
+GREATER_THAN_OR_EQUAL_OPERATOR = '>= ?'
+LESS_THAN_OPERATOR = '< ?'
+LESS_THAN_OR_EQUAL_OPERATOR = '<= ?'
+QUERY_OPERATORS = {
+    'eq': EQUAL_OPERATOR,
+    'like': LIKE_OPERATOR,
+    'not_like': DIFFERENT_OPERATOR,
+    'gt': GREATER_THAN_OPERATOR,
+    'gte': GREATER_THAN_OR_EQUAL_OPERATOR,
+    'lt': LESS_THAN_OPERATOR,
+    'lte': LESS_THAN_OR_EQUAL_OPERATOR
+}
 
 class ModelQueryBuilder:
     def __init__(self, model_class):
@@ -35,11 +51,20 @@ class ModelQueryBuilder:
         return self
 
     def where(self, *args):
-        self.where_conditions += args
+        condition = f"{args[0]}"
+        if len(args) > 1:
+            for operator in QUERY_OPERATORS.values():
+                if operator in condition:
+                    condition = condition.replace(' ?', f" '{args[1]}'")
+                    break
+        self.where_conditions.append(condition)
         return self
 
     def build_query(self):
+        if self.select_query == '':
+            self.select_all_columns()
         query = self.select_query
+
         if self.joins:
             query += ' ' + ' '.join(self.joins)
         if self.where_conditions:

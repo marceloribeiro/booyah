@@ -34,6 +34,7 @@ class PostgresqlAdapter:
     def close_connection(self):
         if self.connection:
             self.connection.close()
+            self.connection = None
 
     def execute(self, query):
         self.connect()
@@ -44,7 +45,12 @@ class PostgresqlAdapter:
     def fetch(self, query):
         self.connect()
         cursor = self.connection.cursor()
-        cursor.execute(query)
+        try:
+            cursor.execute(query)
+        except Exception as e:
+            print("ERROR: ", e)
+            self.close_connection()
+            return []
         records = cursor.fetchall()
         return records
 

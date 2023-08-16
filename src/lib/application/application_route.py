@@ -15,13 +15,14 @@ class ApplicationRoute:
 
     def match(self, environment):
         http_method = environment['REQUEST_METHOD'].lower()
+        path_info = re.sub(r'/$', '', re.sub(r'/\?', '?', environment['PATH_INFO']))
         self.regex_pattern = self._compile_regex(self.route_data[http_method])
 
         if http_method not in self.route_data.keys():
             return False
         if self.route_data[http_method] == None:
             return False
-        match = self.regex_pattern.match(environment['RAW_URI'])
+        match = self.regex_pattern.match(path_info)
 
         if match:
             environment['MATCHING_ROUTE'] = self.route_data[http_method]
