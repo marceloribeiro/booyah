@@ -10,7 +10,7 @@ ENV = os.getenv('BOOYAH_ENV')
 class Logger:
     """
     Used to handle server logs by levels
-    You can config log_level and log_file_path in configuration file
+    You can config LOG_LEVEL and LOG_FILE_PATH in .env file
     """
 
     def find_parent_dir(self, start_directory, target_name):
