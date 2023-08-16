@@ -42,6 +42,12 @@ class ApplicationModel:
         self.load_query_builder()
         return self.query_builder.where(column, value).results()
 
+    @classmethod
+    def create(self, attributes):
+        self.model = self(attributes)
+        self.model.save()
+        return self.model
+
     def __init__(self, attributes):
         for key in attributes:
             if key in self.get_table_columns():
@@ -51,6 +57,45 @@ class ApplicationModel:
         if hasattr(self, attribute):
             return getattr(self, attribute)
         return None
+
+    def save(self):
+        if self.is_new_record():
+            self.insert()
+        else:
+            self.update()
+        self.reload()
+
+    def reload(self):
+        if self.id:
+            self.__init__(self.__class__.find(self.id).to_dict())
+
+    def is_new_record(self):
+        return not hasattr(self, 'id')
+
+    def insert(self):
+        self.id = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
+
+    def update(self, attributes = None):
+        self_attributes = self.to_dict()
+        if attributes != None:
+            self_attributes.update(attributes)
+        self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.reload()
+
+    def patch_update(self, attributes = None):
+        self_attributes = self.to_dict()
+        if attributes != None:
+            for key in attributes:
+                if attributes.get(key) != None:
+                    self_attributes[key] = attributes[key]
+        self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.reload()
+
+    def destroy(self):
+        self.db_adapter().delete(self.table_name(), self.id)
+
+    def get_table_values(self):
+        return [ self.serialized_attribute(column) for column in self.get_table_columns() ]
 
     def to_dict(self):
         dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }

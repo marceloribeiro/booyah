@@ -77,8 +77,6 @@ class ModelQueryBuilder:
             query += f" LIMIT {self.limit_amount}"
         if self.offset_amount:
             query += f" OFFSET {self.offset_amount}"
-
-        print("DEBUG DB: ", query)
         return query
 
     def model_from_result(self, result):

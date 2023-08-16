@@ -1,4 +1,5 @@
 from lib.application.application_response import ApplicationResponse
+import json
 
 class ApplicationController:
     def __init__(self, environment):
@@ -12,6 +13,7 @@ class ApplicationController:
     def load_params(self):
         self.load_params_from_route()
         self.load_params_from_query_string()
+        self.load_params_from_gunicorn_body()
         print("PARAMS:", self.params)
 
     def load_params_from_route(self):
@@ -35,6 +37,24 @@ class ApplicationController:
             for param in query_string.split('&'):
                 key, value = param.split('=')
                 params[key] = value
+        self.params.update(params)
+
+    def load_params_from_gunicorn_body(self):
+        if self.environment.get('CONTENT_LENGTH') == None:
+            return
+
+        content_length = int(self.environment['CONTENT_LENGTH'])
+        content_type = self.environment['CONTENT_TYPE']
+
+        params = {}
+        if content_length > 0:
+            body = self.environment['wsgi.input'].read(content_length)
+            if content_type == 'application/json':
+                params = json.loads(body.decode('utf-8'))
+            else:
+                for param in body.decode('utf-8').split('&'):
+                    key, value = param.split('=')
+                    params[key] = value
         self.params.update(params)
 
     def render(self, data = {}):
