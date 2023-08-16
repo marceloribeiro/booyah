@@ -1,20 +1,11 @@
 import logging
-import configparser
 import os
 from pathlib import Path
 from string import Template
 
-CONFIG_FILE = 'config.ini'
-DEFAULT_LOG_LEVEL = 'DEBUG'
-log_levels = {
-    'DEBUG': logging.DEBUG,
-    'INFO': logging.INFO,
-    'WARNING': logging.WARNING,
-    'ERROR': logging.ERROR,
-    'CRITICAL': logging.CRITICAL
-}
-
-ENV = 'development'
+LOG_LEVEL = os.getenv('LOG_LEVEL')
+LOG_FILE_PATH = os.getenv('LOG_FILE_PATH')
+ENV = os.getenv('BOOYAH_ENV')
 
 class Logger:
     """
@@ -33,28 +24,14 @@ class Logger:
         return None
     
     def __init__(self):
-        config = configparser.ConfigParser()
         base_path = os.path.dirname(self.find_parent_dir(Path.cwd(), 'src'))
-        default_log_file_path = '$root/logs/$environment.log'
-        config['DEFAULT'] = {
-            'log_file_path': default_log_file_path,
-            'log_level': DEFAULT_LOG_LEVEL,
-        }
+        log_file_path = Template(LOG_FILE_PATH).substitute(environment=ENV, root=base_path)
 
-        if not os.path.exists(CONFIG_FILE):
-            with open(CONFIG_FILE, 'w') as configfile:
-                config.write(configfile)
-        else:
-            config.read(CONFIG_FILE)
-        
-        self._log_file_path = Template(config['DEFAULT']['log_file_path']).substitute(environment=ENV, root=base_path)
-        self.log_level = log_levels.get(config['DEFAULT']['log_level'], DEFAULT_LOG_LEVEL)
-
-        os.makedirs(os.path.dirname(self._log_file_path), exist_ok=True)
+        os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
         logging.basicConfig(
-            level=self.log_level,
+            level=LOG_LEVEL,
             format="%(asctime)s - %(levelname)s - %(message)s",
-            handlers=[logging.FileHandler(self._log_file_path, mode='a+'),logging.StreamHandler()]
+            handlers=[logging.FileHandler(log_file_path, mode='a+'),logging.StreamHandler()]
         )
 
     def format(self, args, delimiter=' '):
