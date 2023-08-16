@@ -54,7 +54,7 @@ def get_controller_action_from_string(controller_string, environment):
     parts = controller_string.split('.')
     module_name = '.'.join(parts[:-1])
     if module_name == '':
-        module_name = 'lib.application.controllers'
+        module_name = 'lib.controllers'
     controller_action = parts[-1]
 
     if re.search('#', controller_action):

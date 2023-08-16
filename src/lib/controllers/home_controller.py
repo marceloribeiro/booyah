@@ -1,5 +1,5 @@
 import os
-from lib.application.controllers.application_controller import ApplicationController
+from lib.controllers.application_controller import ApplicationController
 from db.adapters.base_adapter import BaseAdapter
 from lib.models.user import User
 

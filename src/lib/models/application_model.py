@@ -1,7 +1,10 @@
 from db.adapters.base_adapter import BaseAdapter
+from lib.models.model_query_builder import ModelQueryBuilder
+import json
 
 class ApplicationModel:
     table_columns = None
+    query_builder = None
 
     @classmethod
     def db_adapter(self):
@@ -18,5 +21,30 @@ class ApplicationModel:
         return self.table_columns
 
     @classmethod
-    def find(self, id):
-        return self.db_adapter().find(self.table_name(), id)
+    def load_query_builder(self):
+        if self.query_builder != None:
+            return self.query_builder
+        self.query_builder = ModelQueryBuilder(self)
+        return self.query_builder
+
+    @classmethod
+    def all(self):
+        self.load_query_builder()
+        return self.query_builder.all().results()
+
+    def __init__(self, attributes):
+        for key in attributes:
+            if key in self.get_table_columns():
+                setattr(self, key, attributes[key])
+
+    def serialized_attribute(self, attribute):
+        if hasattr(self, attribute):
+            return getattr(self, attribute)
+        return None
+
+    def to_dict(self):
+        dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
+        return json.loads(json.dumps(dicttionary, default=str))
+
+    def to_json(self):
+        return json.dumps(self.to_dict(), default=str)
