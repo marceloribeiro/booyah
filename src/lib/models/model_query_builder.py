@@ -99,3 +99,35 @@ class ModelQueryBuilder:
         self.limit_amount = None
         self.offset_amount = None
         self.scope = None
+
+    # Iteratable methods
+    def __iter__(self):
+        self.current_index = 0
+        self.results = self.results()
+        return self
+
+    def __next__(self):
+        try:
+            result = self.results[self.current_index]
+        except IndexError:
+            raise StopIteration
+        self.current_index += 1
+        return result
+
+    def __len__(self):
+        return len(self.results())
+
+    def __getitem__(self, key):
+        return self.results()[key]
+
+    def __setitem__(self, key, value):
+        self.results()[key] = value
+
+    def __delitem__(self, key):
+        del self.results()[key]
+
+    def __contains__(self, item):
+        return item in self.results()
+
+    def __reversed__(self):
+        return reversed(self.results())

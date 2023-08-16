@@ -4,7 +4,7 @@ import json
 
 class ApplicationModel:
     table_columns = None
-    query_builder = None
+    _query_builder = None
 
     @classmethod
     def db_adapter(self):
@@ -21,26 +21,23 @@ class ApplicationModel:
         return self.table_columns
 
     @classmethod
-    def load_query_builder(self):
-        if self.query_builder != None:
-            return self.query_builder
-        self.query_builder = ModelQueryBuilder(self)
-        return self.query_builder
+    def query_builder(self):
+        if self._query_builder != None:
+            return self._query_builder
+        self._query_builder = ModelQueryBuilder(self)
+        return self._query_builder
 
     @classmethod
     def all(self):
-        self.load_query_builder()
-        return self.query_builder.all().results()
+        return self.query_builder().all()
 
     @classmethod
     def find(self, id):
-        self.load_query_builder()
-        return self.query_builder.find(id).results()[0]
+        return self.query_builder().find(id).results()[0]
 
     @classmethod
     def where(self, column, value):
-        self.load_query_builder()
-        return self.query_builder.where(column, value).results()
+        return self.query_builder().where(column, value)
 
     @classmethod
     def create(self, attributes):
