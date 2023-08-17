@@ -1,7 +1,7 @@
-from lib.application.application_route import ApplicationRoute
-from lib.application.application_response import ApplicationResponse
+from lib.router.application_route import ApplicationRoute
+from lib.response.application_response import ApplicationResponse
 from lib.helpers.controller_helper import get_controller_action
-from ..logger import logger
+from lib.logger import logger
 
 class ApplicationRouter:
     def __init__(self):

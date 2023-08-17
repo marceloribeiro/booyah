@@ -1,7 +1,7 @@
 import importlib
 import re
 from lib.helpers.application_helper import to_camel_case
-from ..logger import logger
+from lib.logger import logger
 
 DEFAULT_CONTROLLER_NAME = 'application_controller'
 DEFAULT_ACTION_NAME = 'index'

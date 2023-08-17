@@ -5,8 +5,8 @@ from lib.logger import logger
 
 class PostgresqlAdapter:
     @staticmethod
-    def get_instance():
-        if not hasattr(PostgresqlAdapter, 'instance'):
+    def get_instance(force_new=False):
+        if not hasattr(PostgresqlAdapter, 'instance') or force_new:
             PostgresqlAdapter.instance = PostgresqlAdapter()
         return PostgresqlAdapter.instance
 
@@ -38,13 +38,15 @@ class PostgresqlAdapter:
             self.connection.close()
             self.connection = None
 
-    def execute(self, query):
+    def execute(self, query, expect_result=True):
         self.connect()
         cursor = self.connection.cursor()
         cursor.execute(query)
-        result = cursor.fetchone()
-        self.connection.commit()
-        return result
+        if expect_result:
+            result = cursor.fetchone()
+            self.connection.commit()
+            return result
+        return None
 
     def fetch(self, query):
         self.connect()

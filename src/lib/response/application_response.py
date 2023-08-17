@@ -1,6 +1,6 @@
 import json
 from jinja2 import Environment, PackageLoader, select_autoescape
-from ..logger import logger
+from lib.logger import logger
 
 class ApplicationResponse:
     APP_NAME = 'booyah'
@@ -23,15 +23,19 @@ class ApplicationResponse:
             return self.headers
         else:
           return [
-              ('Content-type', self.environment['CONTENT_TYPE']),
+              ('Content-type', self.environment.get('CONTENT_TYPE', '')),
               ('Content-Length', str(len(self.body)))
           ]
 
     def format(self):
-        return self.environment['RESPONSE_FORMAT']
+        return self.environment.get('RESPONSE_FORMAT')
 
     def response_body(self):
-        return getattr(self, self.format() + '_body')()
+        format = self.format()
+        if format:
+            return getattr(self, format + '_body')()
+        else:
+            return bytes(self.data, self.DEFAULT_RESPONSE_ENCODING)
 
     def text_body(self):
         self.body = self.data['text']

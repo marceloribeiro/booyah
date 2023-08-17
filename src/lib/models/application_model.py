@@ -40,6 +40,10 @@ class ApplicationModel:
         return self.query_builder().where(column, value)
 
     @classmethod
+    def first(self):
+        return self.query_builder().first()
+
+    @classmethod
     def create(self, attributes):
         self.model = self(attributes)
         self.model.save()

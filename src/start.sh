@@ -1,6 +1,7 @@
 if [[ "$VIRTUAL_ENV" == "" ]]
 then
     echo "Please run under a pyenv environment"
+    echo "i.e: pyenv activate booyah"
     exit
 fi
 

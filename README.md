@@ -10,10 +10,23 @@ First setup the Pyenv and download the dependencies. Check the [docs](docs/depen
 After that, you can run the project with:
 
 ```sh
+cd src/
 (booyah) $ gunicorn application
 ```
 
 Simple as that!
+
+# Running tests
+
+```
+cd src/
+pytest tests
+```
+
+# Running the console
+```
+ ./bin/booyahc
+```
 
 ## How to contribute
 
