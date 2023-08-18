@@ -21,6 +21,14 @@ class ApplicationModel:
         return self.table_columns
 
     @classmethod
+    def create_table(self, table_columns):
+        self.db_adapter().create_table(self.table_name(), table_columns)
+
+    @classmethod
+    def drop_table(self):
+        self.db_adapter().drop_table(self.table_name())
+
+    @classmethod
     def query_builder(self):
         if self._query_builder != None:
             return self._query_builder
@@ -33,7 +41,11 @@ class ApplicationModel:
 
     @classmethod
     def find(self, id):
-        return self.query_builder().find(id).results()[0]
+        try:
+            user = self.query_builder().find(id).results()[0]
+            return user
+        except IndexError:
+            return None
 
     @classmethod
     def where(self, column, value):
@@ -42,6 +54,10 @@ class ApplicationModel:
     @classmethod
     def first(self):
         return self.query_builder().first()
+
+    @classmethod
+    def last(self):
+        return self.query_builder().last()
 
     @classmethod
     def create(self, attributes):
@@ -64,6 +80,8 @@ class ApplicationModel:
             self.insert()
         else:
             self.update()
+        self.reload()
+        return self
 
     def reload(self):
         if self.id:
@@ -77,6 +95,7 @@ class ApplicationModel:
         self.id = data[0]
         self.created_at = data[1]
         self.updated_at = data[2]
+        return self
 
     def update(self, attributes = None):
         self_attributes = self.to_dict()
@@ -84,6 +103,8 @@ class ApplicationModel:
             self_attributes.update(attributes)
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
         self.updated_at = data[0]
+        self.reload()
+        return self
 
     def patch_update(self, attributes = None):
         self_attributes = self.to_dict()
@@ -93,6 +114,8 @@ class ApplicationModel:
                     self_attributes[key] = attributes[key]
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
         self.updated_at = data[0]
+        self.reload()
+        return self
 
     def destroy(self):
         data = self.db_adapter().delete(self.table_name(), self.id)

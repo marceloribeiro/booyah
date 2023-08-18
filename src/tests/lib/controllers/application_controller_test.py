@@ -3,7 +3,6 @@ import io
 
 class HomeController(ApplicationController):
     def index(self):
-        print('inside', True)
         return self.render({'text': 'Home Controller, Index Action'})
 
 class TestApplicationController:

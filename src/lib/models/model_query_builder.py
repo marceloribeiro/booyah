@@ -26,8 +26,8 @@ class ModelQueryBuilder:
         self.joins = []
         self.order_by_attributes = []
         self.group_by_attributes = []
-        self.limit_amount = None
-        self.offset_amount = None
+        self.limit = None
+        self.offset = None
         self.scope = None
         self.db_adapter = BaseAdapter.get_instance()
 
@@ -55,10 +55,17 @@ class ModelQueryBuilder:
         if len(args) > 1:
             for operator in QUERY_OPERATORS.values():
                 if operator in condition:
-                    condition = condition.replace(' ?', f" '{args[1]}'")
-                    break
+                    condition = condition.replace(' ?', f" {self.quote_if_needed(args[1])}")
+                    self.where_conditions.append(condition)
+                    return self
+            condition = f"{condition} = {self.quote_if_needed(args[1])}"
         self.where_conditions.append(condition)
         return self
+
+    def quote_if_needed(self, value):
+        if isinstance(value, str):
+            return f"'{value}'"
+        return value
 
     def build_query(self):
         if self.select_query == '':
@@ -73,10 +80,10 @@ class ModelQueryBuilder:
             query += ' GROUP BY ' + ','.join(self.group_by_attributes)
         if self.order_by_attributes:
             query += ' ORDER BY ' + ','.join(self.order_by_attributes)
-        if self.limit_amount:
-            query += f" LIMIT {self.limit_amount}"
-        if self.offset_amount:
-            query += f" OFFSET {self.offset_amount}"
+        if self.limit:
+            query += f" LIMIT {self.limit}"
+        if self.offset:
+            query += f" OFFSET {self.offset}"
         return query
 
     def model_from_result(self, result):
@@ -89,6 +96,30 @@ class ModelQueryBuilder:
         self.cleanup()
         return results
 
+    def count(self):
+        full_query = self.build_query()
+        full_query = f"SELECT COUNT(*) FROM ({full_query}) AS count"
+        raw_results = self.db_adapter.fetch(full_query)
+        self.cleanup()
+        return raw_results[0][0]
+
+    def first(self):
+        self.limit = 1
+        results = self.results()
+        if results:
+            return results[0]
+        return None
+
+    def last(self):
+        results = self.results()
+        if results:
+            return results[len(results) - 1]
+        return None
+
+    def each(self, callback):
+        for result in self.results():
+            callback(result)
+
     def cleanup(self):
         self.select_query = ''
         self.selected_attributes = []
@@ -96,8 +127,8 @@ class ModelQueryBuilder:
         self.joins = []
         self.order_by_attributes = []
         self.group_by_attributes = []
-        self.limit_amount = None
-        self.offset_amount = None
+        self.limit = None
+        self.offset = None
         self.scope = None
 
     # Iteratable methods
