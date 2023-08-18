@@ -30,7 +30,9 @@ def set_response_format(route_data, environment):
         environment['RESPONSE_FORMAT'] = format_from_header
     else:
         environment['RESPONSE_FORMAT'] = DEFAULT_RESPONSE_FORMAT
+
     environment['CONTENT_TYPE'] = content_type_from_response_format(environment['RESPONSE_FORMAT'])
+    return environment['RESPONSE_FORMAT']
 
 def content_types():
     return {
