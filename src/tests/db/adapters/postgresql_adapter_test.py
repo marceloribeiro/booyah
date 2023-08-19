@@ -42,7 +42,7 @@ class TestPostgresqlAdapter:
     assert self.adapter.fetch('SELECT id, name FROM test_table') == [(1, 'test')]
 
   def test_table_columns(self):
-    assert self.adapter.table_columns('test_table') == ['id', 'created_at', 'updated_at', 'name']
+    assert self.adapter.table_columns('test_table') == ['created_at', 'id', 'name', 'updated_at']
 
   def test_insert(self):
     self.adapter.insert('test_table', {'name': 'test'})

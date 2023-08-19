@@ -18,6 +18,9 @@ class ApplicationModel:
     def get_table_columns(self):
         if self.table_columns is None:
             self.table_columns = self.db_adapter().table_columns(self.table_name())
+        if self.table_columns:
+            self.table_columns.sort()
+
         return self.table_columns
 
     @classmethod
@@ -50,6 +53,42 @@ class ApplicationModel:
     @classmethod
     def where(self, column, value):
         return self.query_builder().where(column, value)
+
+    @classmethod
+    def join(self, table, condition):
+        return self.query_builder().join(table, condition)
+
+    @classmethod
+    def left_join(self, table, condition):
+        return self.query_builder().left_join(table, condition)
+
+    @classmethod
+    def right_join(self, table, condition):
+        return self.query_builder().right_join(table, condition)
+
+    @classmethod
+    def order(self, order):
+        return self.query_builder().order(order)
+
+    @classmethod
+    def group(self, group):
+        return self.query_builder().group(group)
+
+    @classmethod
+    def limit(self, limit):
+        return self.query_builder().limit(limit)
+
+    @classmethod
+    def offset(self, offset):
+        return self.query_builder().offset(offset)
+
+    @classmethod
+    def page(self, page):
+        return self.query_builder().page(page)
+
+    @classmethod
+    def per_page(self, per_page):
+        return self.query_builder().per_page(per_page)
 
     @classmethod
     def first(self):

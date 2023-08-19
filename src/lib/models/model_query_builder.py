@@ -26,8 +26,8 @@ class ModelQueryBuilder:
         self.joins = []
         self.order_by_attributes = []
         self.group_by_attributes = []
-        self.limit = None
-        self.offset = None
+        self._limit = None
+        self._offset = None
         self.scope = None
         self.db_adapter = BaseAdapter.get_instance()
 
@@ -67,6 +67,50 @@ class ModelQueryBuilder:
             return f"'{value}'"
         return value
 
+    def offset(self, offset):
+        self._offset = offset
+        return self
+
+    def limit(self, limit):
+        self._limit = limit
+        return self
+
+    def per_page(self, per_page):
+        self._limit = per_page
+        return self
+
+    def page(self, page):
+        self._offset = (page - 1) * self._limit
+        return self
+
+    def order(self, *args):
+        self.order_by_attributes += args
+        return self
+
+    def group(self, *args):
+        self.group_by_attributes += args
+        return self
+
+    def join(self, *args):
+        join_clause = {
+            'table': args[0],
+            'on': args[1],
+            'type': 'INNER'
+        }
+        if len(args) > 2:
+            join_clause['type'] = args[2]
+        join_clause = f"{join_clause['type']} JOIN {join_clause['table']} ON ({join_clause['on']}) "
+        self.joins.append(join_clause)
+        return self
+
+    def left_join(self, *args):
+        self.join(args[0], args[1], 'LEFT')
+        return self
+
+    def right_join(self, *args):
+        self.join(args[0], args[1], 'RIGHT')
+        return self
+
     def build_query(self):
         if self.select_query == '':
             self.select_all_columns()
@@ -80,19 +124,21 @@ class ModelQueryBuilder:
             query += ' GROUP BY ' + ','.join(self.group_by_attributes)
         if self.order_by_attributes:
             query += ' ORDER BY ' + ','.join(self.order_by_attributes)
-        if self.limit:
-            query += f" LIMIT {self.limit}"
-        if self.offset:
-            query += f" OFFSET {self.offset}"
-        return query
+        if self._limit:
+            query += f" LIMIT {self._limit}"
+        if self._offset:
+            query += f" OFFSET {self._offset}"
+        return query.strip()
 
     def model_from_result(self, result):
         return self.model_class(dict(zip(self.model_class.get_table_columns(), result)))
 
-    def results(self):
+    def raw_results(self):
         full_query = self.build_query()
-        raw_results = self.db_adapter.fetch(full_query)
-        results = list(map(lambda result: self.model_from_result(result), raw_results))
+        return self.db_adapter.fetch(full_query)
+
+    def results(self):
+        results = list(map(lambda result: self.model_from_result(result), self.raw_results()))
         self.cleanup()
         return results
 
@@ -127,8 +173,8 @@ class ModelQueryBuilder:
         self.joins = []
         self.order_by_attributes = []
         self.group_by_attributes = []
-        self.limit = None
-        self.offset = None
+        self._limit = None
+        self._offset = None
         self.scope = None
 
     # Iteratable methods

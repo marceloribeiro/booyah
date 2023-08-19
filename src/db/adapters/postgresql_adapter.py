@@ -68,6 +68,7 @@ class PostgresqlAdapter:
         logger.debug("DB:", query, color='blue', bold=True)
         cursor.execute(query)
         columns = [item for row in cursor.fetchall() for item in row]
+        columns.sort()
         return columns
 
     def create_table(self, table_name, table_columns):
@@ -104,7 +105,8 @@ class PostgresqlAdapter:
     def update(self, table_name, id, attributes):
         if attributes.get('updated_at') is None:
             attributes['updated_at'] = datetime.now()
-        attributes.pop('created_at')
+        if 'created_at' in attributes:
+            attributes.pop('created_at')
 
         self.format_attributes(attributes)
 
