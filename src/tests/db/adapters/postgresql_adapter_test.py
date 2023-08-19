@@ -5,15 +5,11 @@ import os
 class TestPostgresqlAdapter:
   @pytest.fixture(autouse=True)
   def run_around_tests(self):
-      os.environ["DB_DATABASE"] = f"{os.getenv('DB_DATABASE')}_test"
       self.adapter = PostgresqlAdapter.get_instance(True)
       self.create_test_table()
-
       yield
-
       self.adapter.execute('DROP TABLE IF EXISTS test_table', False)
       self.adapter.close_connection()
-      os.environ["DB_DATABASE"] = os.getenv('DB_DATABASE').replace('_test', '')
 
   def test_load_config(self):
     assert self.adapter.host == 'localhost'
