@@ -1,24 +1,22 @@
 import argparse
 import os
 from .helpers.string_functions import to_class_name, convert_to_snake_case
+from .helpers.io import print_error, print_success, prompt_override_file
 from .helpers.system_check import current_dir_is_booyah_root
-
-def print_error(message):
-    icon = "❌"
-    print(f"{icon} {message}")
-
-def print_success(message):
-    icon = "\033[32m✔\033[0m"
-    print(f"{icon} {message}")
 
 def generate_controller(target_folder, controller_name, actions):
     class_name = to_class_name(controller_name, plural=True)
     template_path = os.path.join(os.path.dirname(__file__), "templates", "controller")
     target_file = os.path.join(target_folder, convert_to_snake_case(class_name) + '_controller.py')
     
+    is_creation = True
     if os.path.exists(target_file):
-        print_error(f'controller already exists ({target_file})')
-        return False
+        if prompt_override_file(target_file) == False:
+            print_error(f'controller already exists ({target_file})')
+            return False
+        else:
+            is_creation = False
+            os.remove(target_file)
     
     actions.append('index')
     actions = list(set(actions))
@@ -34,7 +32,7 @@ def generate_controller(target_folder, controller_name, actions):
     with open(target_file, "w") as output_file:
         output_file.write(content)
 
-    print_success('controller created')
+    print_success(f"controller {('created' if is_creation else 'overridden')}")
     return content
 
 

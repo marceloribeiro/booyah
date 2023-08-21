@@ -1,7 +1,3 @@
-def print_error(message):
-    icon = "❌"
-    print(f"{icon} {message}")
-
 # First step, adding helper folder to sys path to be able to import functions
 import os
 import sys
@@ -9,6 +5,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
 from helpers.system_check import current_dir_is_booyah_root
+from helpers.io import print_error
 
 # If not a booyah root project folder, abort
 if not current_dir_is_booyah_root():
