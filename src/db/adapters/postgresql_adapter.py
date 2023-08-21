@@ -19,7 +19,6 @@ class PostgresqlAdapter:
         self.user = os.getenv('DB_USERNAME')
         self.password = os.getenv('DB_PASSWORD')
         self.database = os.getenv('DB_DATABASE')
-        print(f'Load db config: {self.host} {self.port} { self.user} {self.database}')
         self.connection = None
 
     def connect(self):
