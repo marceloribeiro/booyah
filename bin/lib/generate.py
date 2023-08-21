@@ -1,13 +1,24 @@
-import argparse
+# First step, adding helper folder to sys path to be able to import functions
 import os
-from .helpers.string_functions import to_class_name, convert_to_snake_case
-from .helpers.io import print_error, print_success, prompt_override_file
-from .helpers.system_check import current_dir_is_booyah_root
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
+# add lib path to be able to use application helper
+
+import argparse
+from helpers.io import print_error, print_success, prompt_override_file
+from helpers.system_check import current_dir_is_booyah_root, booyah_lib_path
+
+sys.path.append(booyah_lib_path())
+
+import extensions.strings
+globals()['String'] = extensions.strings.String
 
 def generate_controller(target_folder, controller_name, actions):
-    class_name = to_class_name(controller_name, plural=True)
+    class_name = String(controller_name).classify().pluralize()
     template_path = os.path.join(os.path.dirname(__file__), "templates", "controller")
-    target_file = os.path.join(target_folder, convert_to_snake_case(class_name) + '_controller.py')
+    target_file = os.path.join(target_folder, class_name.underscore() + '_controller.py')
     
     is_creation = True
     if os.path.exists(target_file):
