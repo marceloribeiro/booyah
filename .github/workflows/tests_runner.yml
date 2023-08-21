@@ -3,9 +3,27 @@ name: Pytest runner
 on: [push]
 
 jobs:
-  build:
+  Test:
 
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     strategy:
       matrix:
         python-version: ["3.11"]
@@ -32,3 +50,9 @@ jobs:
         run: |
           cd src
           pytest
+        env:
+          DB_HOST: "postgres://postgres:postgres@localhost:5432/postgres"
+          DB_PORT: "5432"
+          DB_USERNAME: "postgres"
+          DB_PASSWORD: "postgres"
+          DB_DATABASE: "postgres"
