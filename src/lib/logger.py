@@ -20,9 +20,9 @@ class Logger:
             if os.path.basename(current_directory) == target_name:
                 return current_directory
             current_directory = os.path.dirname(current_directory)
-        
+
         return None
-    
+
     def __init__(self):
         base_path = os.path.dirname(self.find_parent_dir(__file__, 'src'))
         log_file_path = Template(LOG_FILE_PATH).substitute(environment=ENV, root=base_path)
@@ -38,7 +38,7 @@ class Logger:
         if color:
             return self.colorize_message(delimiter.join([str(arg) for arg in args]), color, bold)
         return delimiter.join([str(arg) for arg in args])
-    
+
     def info(self, *args, delimiter=' ', color=None, bold=False):
         logging.info(self.format(args, delimiter, color, bold))
 
