@@ -12,8 +12,8 @@ from helpers.system_check import current_dir_is_booyah_root, booyah_lib_path
 
 sys.path.append(booyah_lib_path())
 
-import extensions.strings
-globals()['String'] = extensions.strings.String
+import extensions.string
+globals()['String'] = extensions.string.String
 
 def generate_controller(target_folder, controller_name, actions):
     class_name = String(controller_name).classify().pluralize()

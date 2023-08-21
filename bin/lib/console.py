@@ -25,8 +25,8 @@ src_path = os.path.join(parent_dir, 'src')
 def configure():
     os.chdir(src_path)
     sys.path.insert(0, src_path)
-    import lib.extensions.strings
-    globals()['String'] = lib.extensions.strings.String
+    import lib.extensions.string
+    globals()['String'] = lib.extensions.string.String
 
 def load_models():
     folder_path = os.path.join(src_path, 'lib', 'models')
