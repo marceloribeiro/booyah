@@ -51,6 +51,7 @@ jobs:
           cd src
           pytest
         env:
+          BOOYAH_ENV: "test"
           DB_HOST: "postgres://postgres:postgres@localhost:5432/postgres"
           DB_PORT: "5432"
           DB_USERNAME: "postgres"

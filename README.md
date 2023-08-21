@@ -1,5 +1,4 @@
-![tests runner]
-(https://github.com/marceloribeiro/booyah/actions/workflows/tests_runner.yml/badge.svg)
+![alt TestRunner](https://github.com/marceloribeiro/booyah/actions/workflows/tests_runner.yml/badge.svg)
 
 # Welcome to BOOYAH!
 
