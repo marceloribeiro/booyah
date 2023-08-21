@@ -3,7 +3,8 @@ import os
 from py_dotenv import read_dotenv
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env.test')
-read_dotenv(dotenv_path)
+if os.path.isfile(dotenv_path):
+    read_dotenv(dotenv_path)
 print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
 
 def pytest_configure(config):
