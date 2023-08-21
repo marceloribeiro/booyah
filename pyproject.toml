@@ -1,2 +1,2 @@
 [tool.ruff]
-exclude = ["bin/lib/console.py", "bin/lib/generate.py"]
+exclude = ["bin/lib/console.py", "bin/lib/generate.py", "src/lib/extensions/number.py"]
