@@ -1,6 +1,15 @@
 name: Pytest runner
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'bin/**'
+      - 'dist/**'
+      - "src/public/**"
+      - "src/app/**"
+      - "src/generators/**"
+      - "src/server/**"
 
 jobs:
   Test:
