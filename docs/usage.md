@@ -6,6 +6,37 @@ You can easily generate a controller file with given actions using command line:
 $ booyah generate controller HelloWorld action1 action2
 ```
 
+or just
+
+```sh
+$ booyah g controller HelloWorld action1 action2
+```
+
+**Create a new Booyah project**
+
+To start a new booyah project run the 'new' command followed by the project name, it will create a project folder in the current directory.
+
+```sh
+$ booyah new ProjectName
+```
+
+**Console**
+
+You can start booyah console to test models, inflections, it is a python console with booyah framework loaded.
+
+```sh
+$ booyah c
+```
+
+**Start Server**
+
+To start booyah server, running with gunicorn http server, just run in the project folder following command:
+
+```sh
+$ booyah s
+```
+
+
 **Logging**
 
 Check for configurations in .env file, you can change LOG_LEVEL and LOG_FILE_PATH.
