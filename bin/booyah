@@ -1,13 +1,60 @@
 #!/usr/bin/env python
 
 import sys
-from lib import generate
+import os
+import subprocess
+import argparse
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "generate":
+    parser = argparse.ArgumentParser(description="Booyah console HELP - Commands list")
+    subparsers = parser.add_subparsers(title="Commands", dest="command")
+
+    generate_parser = subparsers.add_parser("generate", aliases=["g"], help="Generate controller with given name and actions")
+    generate_parser.add_argument("generator", help="Name of the generator")
+    generate_parser.add_argument("args", nargs="*", help="Generator args")
+
+    new_parser = subparsers.add_parser("new", help="Create a new project with given name")
+    s_parser = subparsers.add_parser("s", help="Starts the booyah server")
+    c_parser = subparsers.add_parser("c", help="Starts the booyah console")
+
+    args = parser.parse_args()
+    if args.command == "generate":
+        print("Generating files and code...")
+        from lib import generate
         generate.main(sys.argv[2:])
+    elif args.command == "new":
+        print("Creating a new project...")
+    elif args.command == "s":
+        print("Starting server...")
+        start_server()
+    elif args.command == "c":
+        print("Starting booyah console...")
+        run_console()
+
+def run_console():
+    require_under_virtual_env()
+    script_path = os.path.realpath(sys.argv[0])
+    script_directory = os.path.dirname(script_path)
+    lib_path = os.path.realpath(script_directory + '/../src')
+    python_command = f'PYTHONSTARTUP={lib_path}/generators/console.py python'
+    subprocess.call(python_command, shell=True)
+
+def require_under_virtual_env():
+    if "VIRTUAL_ENV" not in os.environ:
+        print("Please run under a pyenv environment")
+        print("i.e: pyenv activate booyah")
+        sys.exit(1)
+
+def start_server():
+    require_under_virtual_env()
+    if subprocess.run(["command", "-v", "pip"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode == 0:
+        pip_command = "pip"
     else:
-        print("Usage: booyah generate ...")
+        pip_command = "pip3"
+    os.chdir('src')
+    subprocess.run([pip_command, "install", "-r", "requirements.txt"])
+    subprocess.run(["gunicorn", "application"])
+    os.chdir('..')
 
 if __name__ == '__main__':
     main()
