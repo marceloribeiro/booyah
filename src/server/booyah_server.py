@@ -1,3 +1,6 @@
+import subprocess
+import os
+
 class BooyahServer:
 
     @classmethod
@@ -7,7 +10,6 @@ class BooyahServer:
         enter the src dir of current folder
         start gunicorn application server
         """
-        require_under_virtual_env()
         if subprocess.run(["command", "-v", "pip"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode == 0:
             pip_command = "pip"
         else:

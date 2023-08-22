@@ -52,33 +52,47 @@ def copy_booyah_version(target_folder):
         os.makedirs(target_folder, exist_ok=True)
         shutil.copy2(source_file_path, target_file_path)
 
+def copy_folders_and_files(source_folder, destination_folder, config):
+    for folder, content in config.items():
+        source_folder_path = os.path.join(source_folder, folder)
+        destination_folder_path = os.path.join(destination_folder, folder)
+
+        # Create the destination folder if it doesn't exist
+        os.makedirs(destination_folder_path, exist_ok=True)
+
+        if isinstance(content, list):
+            for file in content:
+                source_file_path = os.path.join(source_folder_path, file)
+                destination_file_path = os.path.join(destination_folder_path, file)
+
+                # Copy the file from source to destination
+                shutil.copy2(source_file_path, destination_file_path)
+        elif isinstance(content, dict):
+            copy_folders_and_files(source_folder_path, destination_folder_path, content)
+
+
 def create_project(project_name):
     """
     Copy folders required to run a new booyah project
     """
-    try:
-        # Define project structure
-        project_structure = {
-            'app': ['models', 'controllers'],
-            'config': [],
-            'public': [],
-            'db': [],
-        }
+    # Define project structure
+    config = {
+        'app': {
+            'models': ['application_model.py'],
+            'controllers': ['application_controller.py']
+        },
+        'config': ['routes.json', 'routes.py', '__init__.py'],
+        'public': ['index.html'],
+        'db': {'adapters': ['base_adapter.py', 'postgresql_adapter.py'] },
+    }
 
-        # Create project directory
-        if not os.path.exists(project_name):
-            os.makedirs(project_name)
+    config2 = {
+        'app': ['__init__.py'],
+    }
 
-        # Copy template files
-        #shutil.copytree('template_project', project_name)
+    source_folder = os.path.realpath(os.path.join(current_dir, '../'))
+    destination_folder = project_name
+    copy_folders_and_files(source_folder, destination_folder, config)
+    copy_folders_and_files(source_folder, destination_folder, config2)
 
-        # Create directories based on project structure
-        for directory, subdirectories in project_structure.items():
-            dir_path = os.path.join(project_name, directory)
-            os.makedirs(dir_path)
-            for subdirectory in subdirectories:
-                os.makedirs(os.path.join(dir_path, subdirectory))
-
-        print(f"Project '{project_name}' created successfully.")
-    except Exception as e:
-        print("Error:", e)
+    print(f"Project '{project_name}' created successfully.")

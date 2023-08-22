@@ -26,7 +26,6 @@ def main():
 
     s_parser = subparsers.add_parser("s", help="Starts the booyah server")
     c_parser = subparsers.add_parser("c", help="Starts the booyah console")
-    v_parser = subparsers.add_parser("--version", help="Returns booyah version")
 
     args = parser.parse_args()
     if args.version:

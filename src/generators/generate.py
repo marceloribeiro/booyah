@@ -49,7 +49,7 @@ def generate_controller(target_folder, controller_name, actions):
     with open(target_file, "w") as output_file:
         output_file.write(content)
 
-    print_success(f"controller {('created' if is_creation else 'overridden')}")
+    print_success(f"controller {('created' if is_creation else 'overridden')} {target_file}")
     return content
 
 
@@ -68,7 +68,7 @@ def main(args):
     args = parser.parse_args(args)
 
     if args.generate == 'controller':
-        base_folder = os.path.abspath(os.path.join(os.path.abspath("."), "src/app/controllers"))
+        base_folder = os.path.abspath(os.path.join(os.path.abspath("."), "app/controllers"))
         generate_controller(base_folder, args.resource, args.actions)
     else:
         print(f"Unknown generator: {args.generate}")

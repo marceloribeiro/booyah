@@ -4,7 +4,7 @@ import subprocess
 
 class BooyahRunner:
     def run_g(self):
-        self.generate()
+        self.run_generate()
 
     def run_new(self):
         print("Creating a new project...")
@@ -16,13 +16,14 @@ class BooyahRunner:
         print("Starting server...")
         sys.path.append(self.src_path())
         from server.booyah_server import BooyahServer
+        self.require_under_virtual_env()
         BooyahServer.run()
 
     def run_generate(self):
         print("Generating files and code...")
         sys.path.append(self.src_path())
-        import generators
-        generators.generate.main(sys.argv[2:])
+        from generators import generate
+        generate.main(sys.argv[2:])
 
     def run_c(self):
         """
