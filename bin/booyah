@@ -7,6 +7,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="Booyah console HELP - Commands list")
+    parser.add_argument("--version", action="store_true", help="Show the version")
     subparsers = parser.add_subparsers(title="Commands", dest="command")
 
     generate_parser = subparsers.add_parser("generate", aliases=["g"], help="Generate controller with given name and actions")
@@ -14,10 +15,16 @@ def main():
     generate_parser.add_argument("args", nargs="*", help="Generator args")
 
     new_parser = subparsers.add_parser("new", help="Create a new project with given name")
+    new_parser.add_argument("project_name", help="The project name")
+
     s_parser = subparsers.add_parser("s", help="Starts the booyah server")
     c_parser = subparsers.add_parser("c", help="Starts the booyah console")
+    v_parser = subparsers.add_parser("--version", help="Returns booyah version")
 
     args = parser.parse_args()
+    if args.version:
+        print("version 1.0.0")  # Replace with your actual version number
+        return
     if args.command == "generate" or args.command == "g":
         print("Generating files and code...")
         sys.path.append(src_path())
@@ -25,6 +32,9 @@ def main():
         generate.main(sys.argv[2:])
     elif args.command == "new":
         print("Creating a new project...")
+        sys.path.append(src_path())
+        from generators import generate_new
+        generate_new.main(sys.argv[2:])
     elif args.command == "s":
         print("Starting server...")
         start_server()

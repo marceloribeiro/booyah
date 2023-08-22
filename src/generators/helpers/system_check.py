@@ -17,3 +17,13 @@ def booyah_extensions_path():
     if os.path.exists("../src/lib/extensions"):
         return os.path.abspath("../src/lib/extensions")
     return False
+
+def prompt_replace(target_path):
+    if os.path.exists(target_path):
+        response = input(f"'{target_path}' already exists. Do you want to replace it? (yes/no): ")
+        if response.lower() == "yes":
+            return True
+        else:
+            return False
+    else:
+        return True

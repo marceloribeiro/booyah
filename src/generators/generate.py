@@ -4,13 +4,9 @@ import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
-# add lib path to be able to use application helper
-
 import argparse
 from helpers.io import print_error, print_success, prompt_override_file
 from helpers.system_check import current_dir_is_booyah_root, booyah_src_path
-
-print(f'Adding src to path: {booyah_src_path()}')
 sys.path.append(booyah_src_path())
 
 import lib.extensions.string
