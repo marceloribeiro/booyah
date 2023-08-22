@@ -18,9 +18,10 @@ def main():
     c_parser = subparsers.add_parser("c", help="Starts the booyah console")
 
     args = parser.parse_args()
-    if args.command == "generate":
+    if args.command == "generate" or args.command == "g":
         print("Generating files and code...")
-        from lib import generate
+        sys.path.append(src_path())
+        from generators import generate
         generate.main(sys.argv[2:])
     elif args.command == "new":
         print("Creating a new project...")
@@ -33,11 +34,13 @@ def main():
 
 def run_console():
     require_under_virtual_env()
+    python_command = f'PYTHONSTARTUP={src_path()}/generators/console.py python'
+    subprocess.call(python_command, shell=True)
+
+def src_path():
     script_path = os.path.realpath(sys.argv[0])
     script_directory = os.path.dirname(script_path)
-    lib_path = os.path.realpath(script_directory + '/../src')
-    python_command = f'PYTHONSTARTUP={lib_path}/generators/console.py python'
-    subprocess.call(python_command, shell=True)
+    return os.path.realpath(script_directory + '/../src')
 
 def require_under_virtual_env():
     if "VIRTUAL_ENV" not in os.environ:
