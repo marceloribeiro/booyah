@@ -18,3 +18,6 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/marceloribeiro/booyah"
 "Bug Tracker" = "https://github.com/marceloribeiro/booyah/issues"
+
+[tool.ruff]
+exclude = ["bin/lib/console.py", "bin/lib/generate.py", "src/lib/extensions/number.py"]

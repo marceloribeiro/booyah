@@ -8,5 +8,8 @@ booyah/
 # logs
 logs/
 
+# local config
+src/tests/.env.test
+
 # OS generated files
 .DS_Store

@@ -1,3 +1,5 @@
+![alt TestRunner](https://github.com/marceloribeiro/booyah/actions/workflows/tests_runner.yml/badge.svg)
+
 # Welcome to BOOYAH!
 
 Booyah is a new web framework written in Python that aims to be easy and fast to use.

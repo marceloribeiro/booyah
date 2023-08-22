@@ -12,11 +12,11 @@ class TestPostgresqlAdapter:
       self.adapter.close_connection()
 
   def test_load_config(self):
-    assert self.adapter.host == 'localhost'
-    assert self.adapter.port == '5432'
-    assert self.adapter.user == 'postgres'
-    assert self.adapter.password == ''
-    assert self.adapter.database == 'booyah_test'
+    assert self.adapter.host == os.getenv('DB_HOST')
+    assert self.adapter.port == os.getenv('DB_PORT')
+    assert self.adapter.user == os.getenv('DB_USERNAME')
+    assert self.adapter.password == os.getenv('DB_PASSWORD')
+    assert self.adapter.database == os.getenv('DB_DATABASE')
 
   def test_connect(self):
     assert self.adapter.connect() != None

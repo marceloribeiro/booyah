@@ -8,12 +8,13 @@ sys.path.append(current_dir)
 
 import argparse
 from helpers.io import print_error, print_success, prompt_override_file
-from helpers.system_check import current_dir_is_booyah_root, booyah_lib_path
+from helpers.system_check import current_dir_is_booyah_root, booyah_src_path
 
-sys.path.append(booyah_lib_path())
+print(f'Adding src to path: {booyah_src_path()}')
+sys.path.append(booyah_src_path())
 
-import extensions.string
-globals()['String'] = extensions.string.String
+import lib.extensions.string
+globals()['String'] = lib.extensions.string.String
 
 def generate_controller(target_folder, controller_name, actions):
     class_name = String(controller_name).classify().pluralize()
