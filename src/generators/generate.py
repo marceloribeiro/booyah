@@ -2,17 +2,26 @@
 import os
 import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# this append is required to be able to import helpers
 sys.path.append(current_dir)
 
 import argparse
 from helpers.io import print_error, print_success, prompt_override_file
 from helpers.system_check import current_dir_is_booyah_root, booyah_src_path
+
+# this append is required to be able to import lib.extensions.string
 sys.path.append(booyah_src_path())
 
 import lib.extensions.string
 globals()['String'] = lib.extensions.string.String
 
 def generate_controller(target_folder, controller_name, actions):
+    """
+    Create a controller file using the template file controller and replacing placeholder
+    Using naming conventions and creating custom actions
+    It prompts to override if already exists
+    """
     class_name = String(controller_name).classify().pluralize()
     template_path = os.path.join(os.path.dirname(__file__), "templates", "controller")
     target_file = os.path.join(target_folder, class_name.underscore() + '_controller.py')
@@ -45,6 +54,9 @@ def generate_controller(target_folder, controller_name, actions):
 
 
 def main(args):
+    """
+    Read args from command line to redirect to correct function
+    """
     if not current_dir_is_booyah_root():
         print_error('Not a booyah root project folder')
         return None

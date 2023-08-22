@@ -43,22 +43,37 @@ def main():
         run_console()
 
 def run_console():
+    """
+    Starts python console by running generators/console.py to configure it
+    """
     require_under_virtual_env()
     python_command = f'PYTHONSTARTUP={src_path()}/generators/console.py python'
     subprocess.call(python_command, shell=True)
 
 def src_path():
+    """
+    src_path point to internal booyah module (using this booyah file to find the path)
+    not a current booyah project path src
+    '"""
     script_path = os.path.realpath(sys.argv[0])
     script_directory = os.path.dirname(script_path)
     return os.path.realpath(script_directory + '/../src')
 
 def require_under_virtual_env():
+    """
+    Verify if running this command under a virtual env
+    """
     if "VIRTUAL_ENV" not in os.environ:
         print("Please run under a pyenv environment")
         print("i.e: pyenv activate booyah")
         sys.exit(1)
 
 def start_server():
+    """
+    Check if pip installed and install requirements.txt
+    enter the src dir of current folder
+    start gunicorn application server
+    """
     require_under_virtual_env()
     if subprocess.run(["command", "-v", "pip"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode == 0:
         pip_command = "pip"
