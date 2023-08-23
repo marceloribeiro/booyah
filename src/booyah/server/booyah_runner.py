@@ -9,8 +9,7 @@ class BooyahRunner:
 
     def run_new(self):
         print("Creating a new project...")
-        sys.path.append(self.src_path())
-        from generators import generate_new
+        from booyah.generators import generate_new
         generate_new.main(sys.argv[2:])
 
     def run_s(self):

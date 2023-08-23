@@ -4,19 +4,13 @@ import sys
 import shutil
 import argparse
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
+booyah_root = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
-# this append is required to be able to import helpers
-sys.path.append(current_dir)
+from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
+from booyah.generators.helpers.system_check import current_dir_is_booyah_root, prompt_replace
 
-from helpers.io import print_error, print_success, prompt_override_file
-from helpers.system_check import current_dir_is_booyah_root, booyah_src_path, prompt_replace
-
-# this append is required to be able to import lib.extensions.string
-sys.path.append(booyah_src_path())
-
-import lib.extensions.string
-globals()['String'] = lib.extensions.string.String
+import booyah.extensions.string
+globals()['String'] = booyah.extensions.string.String
 
 def main(args):
     """
@@ -46,7 +40,7 @@ def copy_booyah_version(target_folder):
     """
     Copy .booyah_version file from system lib (used to check if the folder is a booyah project)
     """
-    source_file_path = os.path.realpath(os.path.join(current_dir, '../../.booyah_version'))
+    source_file_path = os.path.realpath(os.path.join(booyah_root, '.booyah_version'))
     target_file_path = os.path.join(target_folder, '.booyah_version')
     if prompt_replace(target_file_path):
         os.makedirs(target_folder, exist_ok=True)
@@ -90,7 +84,7 @@ def create_project(project_name):
         'app': ['__init__.py'],
     }
 
-    source_folder = os.path.realpath(os.path.join(current_dir, '../'))
+    source_folder = os.path.realpath(os.path.join(booyah_root, '../'))
     destination_folder = project_name
     copy_folders_and_files(source_folder, destination_folder, config)
     copy_folders_and_files(source_folder, destination_folder, config2)
