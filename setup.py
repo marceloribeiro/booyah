@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="booyah",
-    version="0.0.8",
+    version="0.0.10",
     author = "Marcelo Ribeiro",
     author_email = "themarceloribeiro@gmail.com",
     description = "A joyful python web framework",
