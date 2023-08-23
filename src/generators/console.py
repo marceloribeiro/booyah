@@ -1,7 +1,8 @@
-# First step, adding helper folder to sys path to be able to import functions
 import os
 import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# this append is required to be able to import helpers
 sys.path.append(current_dir)
 
 from helpers.system_check import current_dir_is_booyah_root
@@ -23,12 +24,18 @@ read_dotenv(dotenv_path)
 src_path = os.path.join(parent_dir, 'src')
 
 def configure():
+    """
+    Load extensions to console
+    """
     os.chdir(src_path)
     sys.path.insert(0, src_path)
     import lib.extensions.string
     globals()['String'] = lib.extensions.string.String
 
 def load_models():
+    """
+    Load all models from lib/models, except some system files
+    """
     folder_path = os.path.join(src_path, 'lib', 'models')
     ignore_list = ['application_model.py', 'model_query_builder.py']
     file_names = [f for f in os.listdir(folder_path) if f.endswith(".py") and f not in ignore_list and not f.startswith('_')]
