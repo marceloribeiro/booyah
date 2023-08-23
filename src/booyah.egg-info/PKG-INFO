@@ -1,0 +1,51 @@
+Metadata-Version: 2.1
+Name: booyah
+Version: 0.0.8
+Summary: A joyful python web framework
+Home-page: https://github.com/marceloribeiro/booyah
+Author: Marcelo Ribeiro
+Author-email: Marcelo Ribeiro <themarceloribeiro@gmail.com>
+Project-URL: Homepage, https://github.com/marceloribeiro/booyah
+Project-URL: Bug Tracker, https://github.com/marceloribeiro/booyah/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+![alt TestRunner](https://github.com/marceloribeiro/booyah/actions/workflows/tests_runner.yml/badge.svg)
+
+# Welcome to BOOYAH!
+
+Booyah is a new web framework written in Python that aims to be easy and fast to use.
+
+## How to run
+
+First setup the Pyenv and download the dependencies. Check the [docs](docs/dependencies.md) for more information.
+
+
+After that, you can run the project with:
+
+```sh
+cd src/
+(booyah) $ gunicorn application
+```
+
+Simple as that!
+
+# Running tests
+
+```
+cd src/
+pytest tests
+```
+
+# Running the console
+```
+ ./bin/booyahc
+```
+
+## How to contribute
+
+Pick a issue and send a pull request. We will be happy to review it.

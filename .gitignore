@@ -8,7 +8,7 @@ venv/
 logs/
 
 # local config
-src/tests/.env.test
+src/tests/.env
 
 # OS generated files
 .DS_Store
