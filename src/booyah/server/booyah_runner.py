@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+from booyah.generators.helpers.system_check import booyah_path
 
 class BooyahRunner:
     def run_g(self):
@@ -31,17 +32,8 @@ class BooyahRunner:
         """
         print("Starting booyah console...")
         self.require_under_virtual_env()
-        python_command = f'PYTHONSTARTUP={self.src_path()}/generators/console.py python'
+        python_command = f'PYTHONSTARTUP={booyah_path()}/generators/console.py python'
         subprocess.call(python_command, shell=True)
-    
-    def src_path(self):
-        """
-        src_path point to internal booyah module (using this booyah file to find the path)
-        not a current booyah project path src
-        '"""
-        script_path = os.path.realpath(sys.argv[0])
-        script_directory = os.path.dirname(script_path)
-        return os.path.realpath(script_directory + '/../src')
 
     def require_under_virtual_env(self):
         """

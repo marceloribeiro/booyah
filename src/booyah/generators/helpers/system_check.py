@@ -3,20 +3,10 @@ import os
 def current_dir_is_booyah_root():
     return os.path.exists(".booyah_version") and os.path.isfile(".booyah_version")
 
-def booyah_src_path():
-    if os.path.exists("../src"):
-        return os.path.abspath("../src")
-    return False
-
-def booyah_lib_path():
-    if os.path.exists("../src/lib"):
-        return os.path.abspath("../src/lib")
-    return False
-
-def booyah_extensions_path():
-    if os.path.exists("../src/lib/extensions"):
-        return os.path.abspath("../src/lib/extensions")
-    return False
+def booyah_path():
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.dirname(os.path.dirname(current_file_dir))
+    return os.path.realpath(project_dir)
 
 def prompt_replace(target_path):
     if os.path.exists(target_path):
