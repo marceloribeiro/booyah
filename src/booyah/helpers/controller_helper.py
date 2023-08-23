@@ -1,7 +1,7 @@
 import importlib
 import re
-from lib.helpers.application_helper import to_camel_case
-from lib.logger import logger
+from booyah.helpers.application_helper import to_camel_case
+from booyah.logger import logger
 
 DEFAULT_CONTROLLER_NAME = 'application_controller'
 DEFAULT_ACTION_NAME = 'index'
@@ -56,7 +56,7 @@ def get_controller_action_from_string(controller_string, environment):
     parts = controller_string.split('.')
     module_name = '.'.join(parts[:-1])
     if not module_name:
-        module_name = 'lib.controllers'
+        module_name = 'booyah.controllers'
     controller_action = parts[-1]
 
     if re.search('#', controller_action):

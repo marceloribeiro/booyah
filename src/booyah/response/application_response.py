@@ -1,6 +1,6 @@
 import json
 from jinja2 import Environment, PackageLoader, select_autoescape
-from lib.logger import logger
+from booyah.logger import logger
 
 class ApplicationResponse:
     APP_NAME = 'booyah'

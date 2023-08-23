@@ -1,7 +1,7 @@
-from lib.router.application_route import ApplicationRoute
-from lib.response.application_response import ApplicationResponse
-from lib.helpers.controller_helper import get_controller_action
-from lib.logger import logger
+from booyah.router.application_route import ApplicationRoute
+from booyah.response.application_response import ApplicationResponse
+from booyah.helpers.controller_helper import get_controller_action
+from booyah.logger import logger
 
 class ApplicationRouter:
     def __init__(self):

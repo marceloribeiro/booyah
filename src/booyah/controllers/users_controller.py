@@ -1,6 +1,6 @@
-from lib.controllers.application_controller import ApplicationController
-from lib.models.user import User
-from lib.serializers.user_serializer import UserSerializer
+from booyah.controllers.application_controller import ApplicationController
+from booyah.models.user import User
+from booyah.serializers.user_serializer import UserSerializer
 
 class UsersController(ApplicationController):
     def index(self):

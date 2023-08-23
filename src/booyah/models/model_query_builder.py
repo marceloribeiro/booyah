@@ -1,4 +1,4 @@
-from db.adapters.base_adapter import BaseAdapter
+from booyah.db.adapters.base_adapter import BaseAdapter
 
 EQUAL_OPERATOR = '= ?'
 LIKE_OPERATOR = 'like ?'

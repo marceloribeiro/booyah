@@ -1,5 +1,5 @@
-from db.adapters.base_adapter import BaseAdapter
-from lib.models.model_query_builder import ModelQueryBuilder
+from booyah.db.adapters.base_adapter import BaseAdapter
+from booyah.models.model_query_builder import ModelQueryBuilder
 import json
 
 class ApplicationModel:

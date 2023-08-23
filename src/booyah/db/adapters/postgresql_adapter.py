@@ -1,7 +1,7 @@
 import psycopg
 import os
 from datetime import datetime
-from lib.logger import logger
+from booyah.logger import logger
 
 class PostgresqlAdapter:
     @staticmethod

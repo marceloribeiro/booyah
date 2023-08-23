@@ -1,6 +1,6 @@
 import inflection
-import lib.extensions.string
-globals()['String'] = lib.extensions.string.String
+import booyah.extensions.string
+globals()['String'] = booyah.extensions.string.String
 
 class Number(str):
     def __add__(self, other):

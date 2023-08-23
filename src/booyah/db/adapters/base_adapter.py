@@ -1,7 +1,7 @@
 import os
 import sys
-from lib.helpers.application_helper import to_camel_case
-from db.adapters.postgresql_adapter import PostgresqlAdapter
+from booyah.helpers.application_helper import to_camel_case
+from booyah.db.adapters.postgresql_adapter import PostgresqlAdapter
 
 class BaseAdapter:
     @staticmethod

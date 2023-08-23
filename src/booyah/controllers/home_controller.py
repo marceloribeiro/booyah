@@ -1,7 +1,7 @@
 import os
-from lib.controllers.application_controller import ApplicationController
-from db.adapters.base_adapter import BaseAdapter
-from lib.models.user import User
+from booyah.controllers.application_controller import ApplicationController
+from booyah.db.adapters.base_adapter import BaseAdapter
+from booyah.models.user import User
 
 class HomeController(ApplicationController):
     def index(self):

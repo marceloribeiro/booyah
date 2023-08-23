@@ -1,6 +1,6 @@
-from lib.response.application_response import ApplicationResponse
+from booyah.response.application_response import ApplicationResponse
 import json
-from lib.logger import logger
+from booyah.logger import logger
 
 class ApplicationController:
     def __init__(self, environment):

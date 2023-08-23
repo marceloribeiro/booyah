@@ -14,8 +14,7 @@ class BooyahRunner:
 
     def run_s(self):
         print("Starting server...")
-        sys.path.append(self.src_path())
-        from server.booyah_server import BooyahServer
+        from booyah.server.booyah_server import BooyahServer
         self.require_under_virtual_env()
         BooyahServer.run()
 

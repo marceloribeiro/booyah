@@ -1,6 +1,6 @@
-from lib.router.application_router import ApplicationRouter
+from booyah.router.application_router import ApplicationRouter
 import json
-from lib.logger import logger
+from booyah.logger import logger
 
 ROUTES_FILE_PATH = 'config/routes.json'
 

@@ -31,7 +31,7 @@ def load_models():
     file_names = [f for f in os.listdir(models_folder) if f.endswith(".py") and f not in ignore_list and not f.startswith('_')]
     for file_name in file_names:
         module_name = file_name[:-3]
-        module = importlib.import_module(f"lib.models.{module_name}")
+        module = importlib.import_module(f"booyah.models.{module_name}")
 
         for class_name in dir(module):
             cls = getattr(module, class_name)
