@@ -36,6 +36,13 @@ To start booyah server, running with gunicorn http server, just run in the proje
 $ booyah s
 ```
 
+**Running Booyah From Project Folder**
+
+If you want to run booyah from source folder, you should enter the src folder and run:
+
+```sh
+$ python -m booyah --version
+```
 
 **Logging**
 
