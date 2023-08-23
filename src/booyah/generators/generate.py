@@ -1,22 +1,14 @@
 # First step, adding helper folder to sys path to be able to import functions
 import os
 import sys
-current_dir = os.path.dirname(os.path.abspath(__file__))
-
-# this append is required to be able to import helpers
-sys.path.append(current_dir)
-
 import argparse
-from helpers.io import print_error, print_success, prompt_override_file
-from helpers.system_check import current_dir_is_booyah_root, booyah_src_path
+from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
+from booyah.generators.helpers.system_check import current_dir_is_booyah_root
+import booyah.extensions.string
 
-# this append is required to be able to import lib.extensions.string
-sys.path.append(booyah_src_path())
+globals()['String'] = booyah.extensions.string.String
 
-import lib.extensions.string
-globals()['String'] = lib.extensions.string.String
-
-def generate_controller(target_folder, controller_name, actions):
+def generate_controller(project_module, target_folder, controller_name, actions):
     """
     Create a controller file using the template file controller and replacing placeholder
     Using naming conventions and creating custom actions
@@ -42,7 +34,7 @@ def generate_controller(target_folder, controller_name, actions):
         template_content = template_file.read()
 
     # Replace placeholders using the unique delimiter
-    content = template_content.replace('%{controller_name}%', class_name)
+    content = template_content.replace('%{controller_name}%', class_name).replace('%{project_module}%', project_module)
     content = content.replace('%{actions}%', '\n    '.join([f"def {action}(self):\n        pass\n" for action in actions]))
 
     os.makedirs(os.path.dirname(target_file), exist_ok=True)
@@ -69,6 +61,7 @@ def main(args):
 
     if args.generate == 'controller':
         base_folder = os.path.abspath(os.path.join(os.path.abspath("."), "app/controllers"))
-        generate_controller(base_folder, args.resource, args.actions)
+        project_module = os.path.basename(os.getcwd())
+        generate_controller(project_module, base_folder, args.resource, args.actions)
     else:
         print(f"Unknown generator: {args.generate}")

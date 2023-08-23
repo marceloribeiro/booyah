@@ -22,8 +22,7 @@ class BooyahRunner:
 
     def run_generate(self):
         print("Generating files and code...")
-        sys.path.append(self.src_path())
-        from generators import generate
+        from booyah.generators import generate
         generate.main(sys.argv[2:])
 
     def run_c(self):
