@@ -1,4 +1,4 @@
-from db.adapters.base_adapter import BaseAdapter
+from booyah.db.adapters.base_adapter import BaseAdapter
 
 class TestBaseAdapter:
     def test_get_instance(self):

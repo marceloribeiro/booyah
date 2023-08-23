@@ -1,4 +1,4 @@
-from lib.router.application_route import ApplicationRoute
+from booyah.router.application_route import ApplicationRoute
 
 class TestApplicationRoute:
     def setup_method(self):

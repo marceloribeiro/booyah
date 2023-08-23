@@ -1,4 +1,4 @@
-from lib.extensions.number import *
+from booyah.extensions.number import *
 
 class TestNumberExtension():
 

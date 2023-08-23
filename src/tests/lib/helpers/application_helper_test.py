@@ -1,4 +1,4 @@
-from lib.helpers.application_helper import *
+from booyah.helpers.application_helper import *
 
 class TestApplicationHelper():
     def test_to_camel_case(self):
