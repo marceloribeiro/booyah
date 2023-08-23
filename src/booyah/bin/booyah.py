@@ -2,7 +2,7 @@
 
 import os
 import sys
-from server.booyah_runner import BooyahRunner
+from booyah.server.booyah_runner import BooyahRunner
 import argparse
 
 BOOYAH_COMMAND_VERSION = '1.0.0'
