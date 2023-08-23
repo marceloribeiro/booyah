@@ -2,17 +2,12 @@
 
 import os
 import sys
-
-script_path = os.path.realpath(sys.argv[0])
-bin_directory = os.path.dirname(script_path)
-sys.path.append(os.path.realpath(bin_directory + '/../src'))
-
 from server.booyah_runner import BooyahRunner
 import argparse
 
 BOOYAH_COMMAND_VERSION = '1.0.0'
 
-def main():
+def run():
     parser = argparse.ArgumentParser(description="Booyah console HELP - Commands list")
     parser.add_argument("--version", action="store_true", help="Show the version")
     subparsers = parser.add_subparsers(title="Commands", dest="command")
@@ -29,10 +24,7 @@ def main():
 
     args = parser.parse_args()
     if args.version:
-        print(f"Booyah version {BOOYAH_COMMAND_VERSION}")  # Replace with your actual version number
+        print(f"Booyah command-line version {BOOYAH_COMMAND_VERSION}")  # Replace with your actual version number
         return
     elif args.command:
         getattr(BooyahRunner(), f"run_{args.command}")()
-
-if __name__ == '__main__':
-    main()
