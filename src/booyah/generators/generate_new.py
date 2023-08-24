@@ -88,9 +88,9 @@ def create_project(project_name):
             'models': ['application_model.py'],
             'controllers': ['application_controller.py']
         },
-        'config': ['routes.json', 'routes.py', '__init__.py'],
+        'config': ['routes.json', '__init__.py'],
         'public': ['index.html'],
-        'db': {'adapters': ['base_adapter.py', 'postgresql_adapter.py'] },
+        'db': ['__init__.py'],
     }
 
     config2 = {

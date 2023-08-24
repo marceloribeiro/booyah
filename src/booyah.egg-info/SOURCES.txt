@@ -13,6 +13,8 @@ src/booyah.egg-info/entry_points.txt
 src/booyah.egg-info/top_level.txt
 src/booyah/bin/__init__.py
 src/booyah/bin/booyah.py
+src/booyah/config/__init__.py
+src/booyah/config/routes.py
 src/booyah/controllers/__init__.py
 src/booyah/controllers/application_controller.py
 src/booyah/controllers/home_controller.py
@@ -25,7 +27,6 @@ src/booyah/extensions/__init__.py
 src/booyah/extensions/number.py
 src/booyah/extensions/string.py
 src/booyah/generators/__init__.py
-src/booyah/generators/console.py
 src/booyah/generators/generate.py
 src/booyah/generators/generate_new.py
 src/booyah/generators/helpers/__init__.py
@@ -40,11 +41,7 @@ src/booyah/generators/templates/generate_new/app/controllers/application_control
 src/booyah/generators/templates/generate_new/app/models/__init__.py
 src/booyah/generators/templates/generate_new/app/models/application_model.py
 src/booyah/generators/templates/generate_new/config/__init__.py
-src/booyah/generators/templates/generate_new/config/routes.py
 src/booyah/generators/templates/generate_new/db/__init__.py
-src/booyah/generators/templates/generate_new/db/adapters/__init__.py
-src/booyah/generators/templates/generate_new/db/adapters/base_adapter.py
-src/booyah/generators/templates/generate_new/db/adapters/postgresql_adapter.py
 src/booyah/generators/templates/generate_new/templates/__init__.py
 src/booyah/generators/templates/generate_new/templates/home/__init__.py
 src/booyah/helpers/__init__.py
@@ -65,5 +62,6 @@ src/booyah/serializers/user_serializer.py
 src/booyah/server/__init__.py
 src/booyah/server/booyah_runner.py
 src/booyah/server/booyah_server.py
+src/booyah/server/console.py
 src/booyah/templates/__init__.py
 src/booyah/templates/home/__init__.py
