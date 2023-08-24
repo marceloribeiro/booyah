@@ -29,7 +29,7 @@ class BooyahRunner:
         """
         print("Starting booyah console...")
         self.require_under_virtual_env()
-        python_command = f'PYTHONSTARTUP={booyah_path()}/generators/console.py python'
+        python_command = f'PYTHONSTARTUP={booyah_path()}/server/console.py python'
         subprocess.call(python_command, shell=True)
 
     def require_under_virtual_env(self):
