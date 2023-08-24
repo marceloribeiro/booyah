@@ -6,6 +6,7 @@ from string import Template
 LOG_LEVEL = os.getenv('LOG_LEVEL')
 LOG_FILE_PATH = os.getenv('LOG_FILE_PATH')
 ENV = os.getenv('BOOYAH_ENV')
+ROOT_PROJECT_PATH = os.getenv('ROOT_PROJECT_PATH')
 
 class Logger:
     """
@@ -13,19 +14,8 @@ class Logger:
     You can config LOG_LEVEL and LOG_FILE_PATH in .env file
     """
 
-    def find_parent_dir(self, start_directory, target_name):
-        current_directory = os.path.abspath(start_directory)
-
-        while current_directory != os.path.dirname(current_directory):
-            if os.path.basename(current_directory) == target_name:
-                return current_directory
-            current_directory = os.path.dirname(current_directory)
-
-        return None
-
     def __init__(self):
-        base_path = os.path.dirname(__file__)
-        log_file_path = Template(LOG_FILE_PATH).substitute(environment=ENV, root=base_path)
+        log_file_path = Template(LOG_FILE_PATH).substitute(environment=ENV, root=ROOT_PROJECT_PATH)
 
         os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
         logging.basicConfig(
