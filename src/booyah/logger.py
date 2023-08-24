@@ -24,7 +24,7 @@ class Logger:
         return None
 
     def __init__(self):
-        base_path = os.path.dirname(self.find_parent_dir(__file__, 'src'))
+        base_path = os.path.dirname(__file__)
         log_file_path = Template(LOG_FILE_PATH).substitute(environment=ENV, root=base_path)
 
         os.makedirs(os.path.dirname(log_file_path), exist_ok=True)

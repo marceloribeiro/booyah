@@ -1,9 +1,6 @@
 import subprocess
 import os
 
-booyah_root = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-booyah_parent_src = os.path.realpath(os.path.abspath(os.path.join(booyah_root, '..')))
-
 class BooyahServer:
 
     @classmethod
@@ -17,7 +14,5 @@ class BooyahServer:
             pip_command = "pip"
         else:
             pip_command = "pip3"
-        os.chdir(booyah_parent_src)
         subprocess.run([pip_command, "install", "-r", "requirements.txt"])
-        os.chdir(os.getcwd())
         subprocess.run(["gunicorn", "application"])

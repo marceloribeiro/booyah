@@ -1,0 +1,14 @@
+# Server
+BOOYAH_ENV=development
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_ADAPTER=postgresql
+DB_DATABASE=booyah
+DB_USERNAME=postgres
+DB_PASSWORD=
+
+# Logging
+LOG_LEVEL=DEBUG
+LOG_FILE_PATH=$root/logs/$environment.log

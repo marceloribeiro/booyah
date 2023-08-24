@@ -3,6 +3,8 @@ import os
 import sys
 import shutil
 import argparse
+import subprocess
+import re
 
 booyah_root = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
@@ -38,13 +40,24 @@ def main(args):
 
 def copy_booyah_version(target_folder):
     """
-    Copy .booyah_version file from system lib (used to check if the folder is a booyah project)
+    Create .booyah_version file with the current booyah version (used to check if the folder is a booyah project)
     """
-    source_file_path = os.path.realpath(os.path.join(booyah_root, '.booyah_version'))
     target_file_path = os.path.join(target_folder, '.booyah_version')
     if prompt_replace(target_file_path):
         os.makedirs(target_folder, exist_ok=True)
-        shutil.copy2(source_file_path, target_file_path)
+        with open(target_file_path, "w") as file:
+            file.write(get_booyah_version())
+
+def get_booyah_version():
+    try:
+        output = subprocess.check_output(["pip", "show", "booyah"]).decode("utf-8")
+        version_line = re.search(r"Version: (.+)", output)
+        if version_line:
+            return version_line.group(1)
+        else:
+            return 'booyah pip not found'
+    except subprocess.CalledProcessError:
+        return 'booyah pip not found'
 
 def copy_folders_and_files(source_folder, destination_folder, config):
     for folder, content in config.items():
@@ -84,9 +97,12 @@ def create_project(project_name):
         'app': ['__init__.py'],
     }
 
-    source_folder = os.path.realpath(os.path.join(booyah_root, '../'))
+    source_folder = os.path.realpath(os.path.join(booyah_root, 'generators', 'templates', 'generate_new'))
     destination_folder = project_name
     copy_folders_and_files(source_folder, destination_folder, config)
     copy_folders_and_files(source_folder, destination_folder, config2)
+    shutil.copy(os.path.join(source_folder, 'env'), os.path.join(destination_folder, '.env'))
+    shutil.copy(os.path.join(source_folder, 'application.py'), os.path.join(destination_folder, 'application.py'))
+    shutil.copy(os.path.join(source_folder, '__init__.py'), os.path.join(destination_folder, '__init__.py'))
 
     print(f"Project '{project_name}' created successfully.")
