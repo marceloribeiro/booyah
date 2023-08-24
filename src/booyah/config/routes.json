@@ -1,0 +1,12 @@
+[
+  { "delete": "/users/{id}", "to": "users#destroy", "format": "json" },
+  { "put": "/users/{id}", "to": "users#update", "format": "json" },
+  { "patch": "/users/{id}", "to": "users#update", "format": "json" },
+  { "get": "/users/{id}", "to": "users#show", "format": "json" },
+  { "post": "/users", "to": "users#create", "format": "json" },
+  { "get": "/users", "to": "users#index", "format": "json" },
+  { "get": "/plain", "to": "home#plain", "format": "text" },
+  { "get": "/status", "to": "home#status", "format": "json" },
+  { "get": "/about", "to": "home#about" },
+  { "get": "/", "to": "home#index" }
+]
