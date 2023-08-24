@@ -9,7 +9,7 @@ dist/
 logs/
 
 # local config
-src/tests/.env
+/src/tests/.env
 
 # OS generated files
 .DS_Store
