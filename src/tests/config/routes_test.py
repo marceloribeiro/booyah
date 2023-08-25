@@ -1,4 +1,4 @@
-from config.routes import ApplicationRoutes
+from booyah.config.routes import ApplicationRoutes
 
 class TestApplicationRoutes:
     def test_it_loads_routes_from_json_file(self):

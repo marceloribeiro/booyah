@@ -3,13 +3,13 @@ __pycache__/
 # Environments
 env/
 venv/
-booyah/
+dist/
 
 # logs
 logs/
 
 # local config
-src/tests/.env.test
+/src/tests/.env
 
 # OS generated files
 .DS_Store

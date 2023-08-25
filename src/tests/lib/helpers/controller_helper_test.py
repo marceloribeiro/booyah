@@ -1,5 +1,5 @@
-from lib.helpers.controller_helper import *
-from lib.controllers.home_controller import HomeController
+from booyah.helpers.controller_helper import *
+from booyah.controllers.home_controller import HomeController
 
 class TestControllerHelper():
     def setup_method(self):

@@ -1,5 +1,5 @@
-from lib.response.application_response import ApplicationResponse
-from lib.controllers.application_controller import ApplicationController
+from booyah.response.application_response import ApplicationResponse
+from booyah.controllers.application_controller import ApplicationController
 
 class TestApplicationResponse:
     def content_type(self):

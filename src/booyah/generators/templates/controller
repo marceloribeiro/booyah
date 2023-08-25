@@ -1,0 +1,4 @@
+from %{project_module}%.controllers.application_controller import ApplicationController
+
+class %{controller_name}%Controller(ApplicationController):
+    %{actions}%

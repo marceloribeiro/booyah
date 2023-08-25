@@ -1,0 +1,6 @@
+[
+  { "get": "/plain", "to": "home#plain", "format": "text" },
+  { "get": "/status", "to": "home#status", "format": "json" },
+  { "get": "/about", "to": "home#about" },
+  { "get": "/", "to": "home#index" }
+]

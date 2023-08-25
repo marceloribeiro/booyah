@@ -1,9 +1,10 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "booyah"
-version = "0.0.1"
+version = "0.0.14"
 authors = [
   { name="Marcelo Ribeiro", email="themarceloribeiro@gmail.com" },
 ]
@@ -20,4 +21,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/marceloribeiro/booyah/issues"
 
 [tool.ruff]
-exclude = ["bin/lib/console.py", "bin/lib/generate.py", "src/lib/extensions/number.py"]
+exclude = ["src/generators", "src/server"]
+
+[project.scripts]
+booyah = "booyah.__main__:main"

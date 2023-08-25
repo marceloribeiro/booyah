@@ -1,4 +1,4 @@
-from lib.extensions.string import *
+from booyah.extensions.string import *
 class TestClass():
     pass
 

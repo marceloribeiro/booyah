@@ -1,5 +1,5 @@
-from lib.router.application_router import ApplicationRouter
-from lib.controllers.application_controller import ApplicationController
+from booyah.router.application_router import ApplicationRouter
+from booyah.controllers.application_controller import ApplicationController
 
 class UsersController(ApplicationController):
     def index(self):

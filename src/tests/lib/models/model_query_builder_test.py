@@ -1,5 +1,5 @@
-from lib.models.model_query_builder import ModelQueryBuilder
-from lib.models.application_model import ApplicationModel
+from booyah.models.model_query_builder import ModelQueryBuilder
+from booyah.models.application_model import ApplicationModel
 
 class User(ApplicationModel):
     pass

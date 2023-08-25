@@ -1,4 +1,4 @@
-from lib.controllers.application_controller import ApplicationController
+from booyah.controllers.application_controller import ApplicationController
 import io
 
 class HomeController(ApplicationController):

@@ -1,11 +1,10 @@
 from py_dotenv import read_dotenv
 import os
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-read_dotenv(dotenv_path)
+read_dotenv('.env')
 print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
 
-from lib.router.application_router import ApplicationRouter
+from booyah.router.application_router import ApplicationRouter
 from config.routes import ApplicationRoutes
 
 

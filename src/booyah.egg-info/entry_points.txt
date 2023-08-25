@@ -1,0 +1,2 @@
+[console_scripts]
+booyah = booyah.__main__:main

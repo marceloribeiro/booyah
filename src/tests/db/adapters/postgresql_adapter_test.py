@@ -1,4 +1,4 @@
-from db.adapters.postgresql_adapter import PostgresqlAdapter
+from booyah.db.adapters.postgresql_adapter import PostgresqlAdapter
 import pytest
 import os
 
