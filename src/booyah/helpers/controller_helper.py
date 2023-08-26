@@ -1,8 +1,12 @@
 import importlib
 import re
-from booyah.logger import logger
 from booyah.extensions.string import String
+from booyah.helpers.application_helper import import_current_project_folder
+from booyah.logger import logger
+import os
+import sys
 
+import_current_project_folder(sys)
 DEFAULT_CONTROLLER_NAME = 'application_controller'
 DEFAULT_ACTION_NAME = 'index'
 DEFAULT_RESPONSE_FORMAT = 'html'
@@ -56,7 +60,10 @@ def get_controller_action_from_string(controller_string, environment):
     parts = controller_string.split('.')
     module_name = '.'.join(parts[:-1])
     if not module_name:
-        module_name = 'booyah.controllers'
+        if os.environ["ROOT_PROJECT"]:
+            module_name = f'{os.environ["ROOT_PROJECT"]}.app.controllers'
+        else:
+            module_name = 'booyah.controllers'
     controller_action = parts[-1]
 
     if re.search('#', controller_action):
@@ -65,7 +72,7 @@ def get_controller_action_from_string(controller_string, environment):
         action_name = parts[1]
     else:
         controller_name = controller_action + CONTROLLER_SUFFIX
-
+    print(f'importing module {module_name}.{controller_name}')
     module = importlib.import_module(module_name + '.' + controller_name)
     controller_class = getattr(module, String(controller_name).camelize())
 
