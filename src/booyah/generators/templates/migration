@@ -1,0 +1,8 @@
+from booyah.db.migrate.application_migration import ApplicationMigration
+
+class %{migration_name}%(ApplicationMigration):
+    def up(self):
+        super().up(lambda: self.adapter.create_table('%{table_name}%', %{fields}%))
+
+    def down(self):
+        super().down(lambda: self.adapter.drop_table('%{table_name}%'))
