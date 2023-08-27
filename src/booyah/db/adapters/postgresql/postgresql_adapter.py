@@ -2,6 +2,7 @@ import psycopg
 import os
 from datetime import datetime
 from booyah.logger import logger
+from booyah.db.adapters.postgresql.postgresql_schema_helper import PostgresqlSchemaHelper
 
 class PostgresqlAdapter:
     @staticmethod
@@ -41,12 +42,13 @@ class PostgresqlAdapter:
     def execute(self, query, expect_result=True):
         self.connect()
         cursor = self.connection.cursor()
+        logger.debug("DB:", query, color='blue')
         cursor.execute(query)
+        result = None
         if expect_result:
             result = cursor.fetchone()
-            self.connection.commit()
-            return result
-        return None
+        self.connection.commit()
+        return result
 
     def fetch(self, query):
         self.connect()
@@ -60,34 +62,6 @@ class PostgresqlAdapter:
             return []
         records = cursor.fetchall()
         return records
-
-    def table_columns(self, table_name):
-        self.connect()
-        cursor = self.connection.cursor()
-        query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
-        logger.debug("DB:", query, color='blue', bold=True)
-        cursor.execute(query)
-        columns = [item for row in cursor.fetchall() for item in row]
-        columns.sort()
-        return columns
-
-    def create_table(self, table_name, table_columns):
-        self.translate_table_columns(table_columns)
-        self.connect()
-        cursor = self.connection.cursor()
-        columns = ', '.join([f"{key} {value}" for key, value in table_columns.items()])
-        query = f"CREATE TABLE {table_name} ({columns})"
-        logger.debug("DB:", query)
-        cursor.execute(query)
-        self.connection.commit()
-
-    def drop_table(self, table_name):
-        self.connect()
-        cursor = self.connection.cursor()
-        query = f"DROP TABLE IF EXISTS {table_name}"
-        logger.debug("DB:", query)
-        cursor.execute(query)
-        self.connection.commit()
 
     def insert(self, table_name, attributes):
         if attributes.get('created_at') is None:
@@ -135,28 +109,54 @@ class PostgresqlAdapter:
             else:
                 attributes[key] = str(value)
 
-    def translate_table_columns(self, table_columns):
-        for name, type in table_columns.items():
-            table_columns[name] = self.translate_column_type(type)
+    def schema_helper(self):
+        return PostgresqlSchemaHelper.get_instance()
 
-    def column_types(self):
-        return {
-            'primary_key': 'SERIAL PRIMARY KEY',
-            'string': 'VARCHAR(255)',
-            'text': 'TEXT',
-            'integer': 'INTEGER',
-            'float': 'FLOAT',
-            'decimal': 'DECIMAL',
-            'datetime': 'TIMESTAMP',
-            'time': 'TIME',
-            'date': 'DATE',
-            'binary': 'BYTEA',
-            'boolean': 'BOOLEAN',
-            'json': 'JSON',
-            'jsonb': 'JSONB',
-            'uuid': 'UUID',
-            'inet': 'INET',
-        }
+    def create_schema_migrations(self):
+        self.schema_helper().create_schema_migrations()
 
-    def translate_column_type(self, type):
-        return self.column_types().get(type, 'VARCHAR(255)')
+    def migration_has_been_run(self, version):
+        query = f"SELECT version from schema_migrations where version = '{version}'"
+        result = self.fetch(query)
+        if result:
+            return True
+        return False
+
+    def save_version(self, version):
+        query = f"INSERT INTO schema_migrations (version) VALUES ('{version}')"
+        self.execute(query, False)
+
+    def delete_version(self, version):
+        query = f"DELETE FROM schema_migrations WHERE version = '{version}'"
+        self.execute(query, False)
+
+    def get_table_columns(self, table_name):
+        items = self.fetch(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
+        columns = [item for row in items for item in row]
+        columns.sort()
+        return columns
+
+    # Delegated to schema helper
+    def create_table(self, table_name, table_columns):
+        self.schema_helper().create_table(table_name, table_columns)
+
+    def drop_table(self, table_name):
+        self.schema_helper().drop_table(table_name)
+
+    def add_column(self, table_name, column_name, column_type):
+        self.schema_helper().add_column(table_name, column_name, column_type)
+
+    def drop_column(self, table_name, column_name):
+        self.schema_helper().drop_column(table_name, column_name)
+
+    def rename_column(self, table_name, column_name, new_column_name):
+        self.schema_helper().rename_column(table_name, column_name, new_column_name)
+
+    def change_column(self, table_name, column_name, column_type):
+        self.schema_helper().change_column(table_name, column_name, column_type)
+
+    def add_index(self, table_name, column_name):
+        self.schema_helper().add_index(table_name, column_name)
+
+    def remove_index(self, table_name, column_name):
+        self.schema_helper().remove_index(table_name, column_name)
