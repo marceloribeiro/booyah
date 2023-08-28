@@ -18,8 +18,8 @@ class ApplicationModel:
     def get_table_columns(self):
         if self.table_columns is None:
             self.table_columns = self.db_adapter().get_table_columns(self.table_name())
-        if self.table_columns:
-            self.table_columns.sort()
+            if self.table_columns:
+                self.table_columns.sort()
 
         return self.table_columns
 
@@ -139,7 +139,8 @@ class ApplicationModel:
     def update(self, attributes = None):
         self_attributes = self.to_dict()
         if attributes != None:
-            self_attributes.update(attributes)
+            to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
+            self_attributes.update(to_update)
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
         self.updated_at = data[0]
         self.reload()
@@ -148,7 +149,8 @@ class ApplicationModel:
     def patch_update(self, attributes = None):
         self_attributes = self.to_dict()
         if attributes != None:
-            for key in attributes:
+            to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
+            for key in to_update:
                 if attributes.get(key) != None:
                     self_attributes[key] = attributes[key]
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)

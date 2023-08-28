@@ -1,6 +1,7 @@
 [
-  { "get": "/plain", "to": "home#plain", "format": "text" },
-  { "get": "/status", "to": "home#status", "format": "json" },
-  { "get": "/about", "to": "home#about" },
-  { "get": "/", "to": "home#index" }
+  { "get": "/plain", "to": "booyah.controllers.home#plain", "format": "text" },
+  { "get": "/html", "to": "booyah.controllers.home#html", "format": "html" },
+  { "get": "/status", "to": "booyah.controllers.home#status", "format": "json" },
+  { "get": "/about", "to": "booyah.controllers.home#about" },
+  { "get": "/", "to": "booyah.controllers.home#index" }
 ]

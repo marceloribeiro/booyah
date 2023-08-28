@@ -22,7 +22,6 @@ class UsersController(ApplicationController):
 
     def update(self):
         user = User.find(self.params['id'])
-
         if self.is_put_request():
             user.update(self.user_params())
         else:
@@ -39,4 +38,4 @@ class UsersController(ApplicationController):
         return { key: value for key, value in self.params['user'].items() if key in self.permitted_params() }
 
     def permitted_params(self):
-        return ['first_name', 'last_name', 'email', 'password']
+        return ['first_name', 'last_name', 'email', 'password', 'name']

@@ -1,16 +1,18 @@
 from booyah.response.application_response import ApplicationResponse
 import json
+import urllib.parse
 from booyah.logger import logger
 
 class ApplicationController:
     def __init__(self, environment):
         self.environment = environment
         self.params = {}
+        self.__load_params()
 
     def get_action(self, action):
         return getattr(self, action)
 
-    def load_params(self):
+    def __load_params(self):
         self.load_params_from_route()
         self.load_params_from_query_string()
         self.load_params_from_gunicorn_body()
@@ -37,13 +39,24 @@ class ApplicationController:
                 key, value = param.split('=')
                 params[key] = value
         self.params.update(params)
+    
+    def __parse_nested_attributes(self, data):
+        parsed_data = {}
+        for item in data.split('&'):
+            key, value = item.split('=')
+            parts = key.split('[')
+            d = parsed_data
+            for part in parts[:-1]:
+                d = d.setdefault(part, {})
+            d[parts[-1][:-1]] = value
+        return parsed_data
 
     def load_params_from_gunicorn_body(self):
-        if self.environment.get('CONTENT_LENGTH') is None:
+        if self.environment.get('CONTENT_LENGTH') is None or 'CONTENT_TYPE' not in self.environment:
             return
 
-        content_length = int(self.environment['CONTENT_LENGTH'])
         content_type = self.environment['CONTENT_TYPE']
+        content_length = int(self.environment['CONTENT_LENGTH'])
 
         body_params = {}
         if content_length:
@@ -54,6 +67,9 @@ class ApplicationController:
                 except:
                     body_json = body
                 body_params = json.loads(body_json)
+            elif content_type == 'application/x-www-form-urlencoded':
+                decoded_data = urllib.parse.unquote(str(body.decode('utf-8')))
+                body_params = self.__parse_nested_attributes(decoded_data)
             else:
                 for param in body.decode('utf-8').split('&'):
                     key, value = param.split('=')

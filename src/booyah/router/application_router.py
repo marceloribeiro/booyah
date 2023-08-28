@@ -34,5 +34,5 @@ class ApplicationRouter:
         return response
 
     def not_found(self, environment):
-        response = ApplicationResponse(environment, 'Not Found')
+        response = ApplicationResponse(environment,f"No routes matches [{environment['REQUEST_METHOD']}] \"{environment['PATH_INFO']}\"", status='404 Not Found')
         return response
