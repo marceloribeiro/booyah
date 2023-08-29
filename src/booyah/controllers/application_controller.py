@@ -1,4 +1,5 @@
 from booyah.response.application_response import ApplicationResponse
+from booyah.response.redirect_response import RedirectResponse
 import json
 from urllib.parse import parse_qs
 from booyah.logger import logger
@@ -49,7 +50,6 @@ class ApplicationController:
             for k in keys[:-1]:
                 current_dict = current_dict.setdefault(k, {})
             current_dict[keys[-1][:-1]] = value[0]
-        breakpoint()
         return nested_data
 
     def load_params_from_gunicorn_body(self):
@@ -78,6 +78,9 @@ class ApplicationController:
 
     def render(self, data = {}):
         return ApplicationResponse(self.environment, data)
+    
+    def redirect(self, redirect_to):
+        return RedirectResponse(self.environment, redirect_to)
 
     def is_get_request(self):
         return self.environment['REQUEST_METHOD'] == 'GET'

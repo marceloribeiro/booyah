@@ -15,10 +15,16 @@ class UsersController(ApplicationController):
     def show(self):
         user = User.find(self.params['id'])
         return self.render({ "user": UserSerializer(user).to_dict() })
+    
+    def new(self):
+        return self.render({})
 
     def create(self):
         user = User.create(self.user_params())
-        return self.render({ "user": UserSerializer(user).to_dict() })
+        if 'text/html' in self.environment['HTTP_ACCEPT']:
+            return self.redirect(f'/users/{user.id}')
+        else:
+            return self.render({ "user": UserSerializer(user).to_dict() })
 
     def update(self):
         user = User.find(self.params['id'])
