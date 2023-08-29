@@ -1,5 +1,6 @@
 from booyah.controllers.application_controller import ApplicationController
 import io
+import os
 
 class HomeController(ApplicationController):
     def index(self):
@@ -86,9 +87,9 @@ class TestApplicationController:
 
     def test_load_params_from_gunicorn_body(self):
         self._http_method = 'POST'
-        self._content_length = 14
         self._wsgi_input = io.StringIO('{"one": "two"}')
-        self.application_controller = ApplicationController(self.environment())
+        self._content_length = 14
+        self.application_controller = ApplicationController(self.environment(), False)
         self.application_controller.load_params_from_gunicorn_body()
         assert self.application_controller.params == {'one': 'two'}
 
@@ -99,8 +100,8 @@ class TestApplicationController:
         self._matching_route_params = ['1']
         self._query_string = 'foo=bar'
         self._wsgi_input = io.StringIO('{"one": "two"}')
-        self.application_controller = ApplicationController(self.environment())
-        self.application_controller.load_params()
+        self.application_controller = ApplicationController(self.environment(), False)
+        self.application_controller._load_params()
         assert self.application_controller.params == {'id': '1', 'foo': 'bar', 'one': 'two'}
 
     def test_render(self):

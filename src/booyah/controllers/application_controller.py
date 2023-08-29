@@ -5,15 +5,16 @@ from urllib.parse import parse_qs
 from booyah.logger import logger
 
 class ApplicationController:
-    def __init__(self, environment):
+    def __init__(self, environment, load_params=True):
         self.environment = environment
         self.params = {}
-        self.__load_params()
+        if load_params:
+            self._load_params()
 
     def get_action(self, action):
         return getattr(self, action)
 
-    def __load_params(self):
+    def _load_params(self):
         self.load_params_from_route()
         self.load_params_from_query_string()
         self.load_params_from_gunicorn_body()
