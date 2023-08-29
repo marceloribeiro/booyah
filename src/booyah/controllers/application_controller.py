@@ -1,6 +1,6 @@
 from booyah.response.application_response import ApplicationResponse
 import json
-import urllib.parse
+from urllib.parse import parse_qs
 from booyah.logger import logger
 
 class ApplicationController:
@@ -41,15 +41,16 @@ class ApplicationController:
         self.params.update(params)
     
     def __parse_nested_attributes(self, data):
-        parsed_data = {}
-        for item in data.split('&'):
-            key, value = item.split('=')
-            parts = key.split('[')
-            d = parsed_data
-            for part in parts[:-1]:
-                d = d.setdefault(part, {})
-            d[parts[-1][:-1]] = value
-        return parsed_data
+        parsed_data = parse_qs(data)
+        nested_data = {}
+        for key, value in parsed_data.items():
+            keys = key.split("[")
+            current_dict = nested_data
+            for k in keys[:-1]:
+                current_dict = current_dict.setdefault(k, {})
+            current_dict[keys[-1][:-1]] = value[0]
+        breakpoint()
+        return nested_data
 
     def load_params_from_gunicorn_body(self):
         if self.environment.get('CONTENT_LENGTH') is None or 'CONTENT_TYPE' not in self.environment:
@@ -68,8 +69,7 @@ class ApplicationController:
                     body_json = body
                 body_params = json.loads(body_json)
             elif content_type == 'application/x-www-form-urlencoded':
-                decoded_data = urllib.parse.unquote(str(body.decode('utf-8')))
-                body_params = self.__parse_nested_attributes(decoded_data)
+                body_params = self.__parse_nested_attributes(str(body.decode('utf-8')))
             else:
                 for param in body.decode('utf-8').split('&'):
                     key, value = param.split('=')
