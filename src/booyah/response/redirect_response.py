@@ -1,11 +1,7 @@
-import json
 from booyah.logger import logger
 
 class RedirectResponse:
-    APP_NAME = 'booyah'
-    DEFAULT_RESPONSE_ENCODING = 'utf-8'
     DEFAULT_HTTP_STATUS = '302 Found'
-    DEFAULT_CONTENT_TYPE = 'text/html; charset=utf-8'
 
     def __init__(self, environment, redirect_to):
         self.environment = environment
