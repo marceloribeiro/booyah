@@ -5,7 +5,7 @@ import os
 
 host = os.environ.get("LOCAL_SERVER", "http://localhost:8000")
 resource = "/users"
-headers = {} #{"Authorization": "Bearer YOUR_ACCESS_TOKEN"}
+headers = {"Accept": "application/json"} #{"Authorization": "Bearer YOUR_ACCESS_TOKEN"}
     
 create_params = {
     "user": {

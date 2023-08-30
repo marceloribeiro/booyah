@@ -18,6 +18,10 @@ class ApplicationRouter:
 
     def action(self, environment):
         for route in self.routes:
+            if route.exact_match(environment):
+                return get_controller_action(route.route_data, environment)
+
+        for route in self.routes:
             if route.match(environment):
                 return get_controller_action(route.route_data, environment)
         return None

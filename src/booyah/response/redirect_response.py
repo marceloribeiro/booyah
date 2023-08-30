@@ -1,7 +1,7 @@
 from booyah.logger import logger
 
 class RedirectResponse:
-    DEFAULT_HTTP_STATUS = '302 Found'
+    DEFAULT_HTTP_STATUS = '303 See Other'
 
     def __init__(self, environment, redirect_to):
         self.environment = environment
@@ -9,7 +9,9 @@ class RedirectResponse:
         self.redirect_to = redirect_to
 
     def response_headers(self):
-        full_path = self.environment['HTTP_ORIGIN'] + self.redirect_to
+        full_path = self.redirect_to
+        if 'HTTP_ORIGIN' in self.environment:
+            full_path = self.environment['HTTP_ORIGIN'] + self.redirect_to
         logger.debug('REDIRECT:', full_path)
         return [
             ('Location', full_path),

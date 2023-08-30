@@ -3,6 +3,7 @@ from booyah.response.redirect_response import RedirectResponse
 import json
 from urllib.parse import parse_qs
 from booyah.logger import logger
+from booyah.helpers.request_format_helper import RequestFormatHelper
 
 class ApplicationController:
     def __init__(self, environment, load_params=True):
@@ -10,6 +11,9 @@ class ApplicationController:
         self.params = {}
         if load_params:
             self._load_params()
+    
+    def respond_to(self, html=None, json=None, text=None):
+        return RequestFormatHelper(self.environment).respond_to(html, json, text)
 
     def get_action(self, action):
         return getattr(self, action)
@@ -71,6 +75,8 @@ class ApplicationController:
                 body_params = json.loads(body_json)
             elif content_type == 'application/x-www-form-urlencoded':
                 body_params = self.__parse_nested_attributes(str(body.decode('utf-8')))
+            elif 'multipart/form-data' in content_type:
+                raise ValueError("multipart/form-data not supported yet, see ApplicationController load_params_from_gunicorn_body")
             else:
                 for param in body.decode('utf-8').split('&'):
                     key, value = param.split('=')

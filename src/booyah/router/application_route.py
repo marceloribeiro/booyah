@@ -13,6 +13,22 @@ class ApplicationRoute:
         pattern = re.sub(r'{\w+}', r'(.*)', pattern)
         return re.compile(f'^{pattern}$')
 
+    def exact_match(self, environment):
+        http_method = environment['REQUEST_METHOD'].lower()
+        path_info = environment['PATH_INFO']
+
+        if http_method not in self.route_data.keys():
+            return False
+        if self.route_data.get(http_method) is None:
+            return False
+        
+        if path_info == self.route_data.get(http_method):
+            environment['MATCHING_ROUTE'] = self.route_data[http_method]
+            environment['MATCHING_ROUTE_PARAMS'] = []
+            return True
+
+        return False
+
     def match(self, environment):
         http_method = environment['REQUEST_METHOD'].lower()
         path_info = environment['PATH_INFO']
@@ -27,7 +43,6 @@ class ApplicationRoute:
 
         self.regex_pattern = self._compile_regex(self.route_data[http_method])
         match = self.regex_pattern.match(path_info)
-
         if match:
             environment['MATCHING_ROUTE'] = self.route_data[http_method]
             environment['MATCHING_ROUTE_PARAMS'] = match.groups()
