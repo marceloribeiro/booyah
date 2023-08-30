@@ -1,7 +1,7 @@
 import importlib
 import re
-from booyah.helpers.application_helper import to_camel_case
 from booyah.logger import logger
+from booyah.extensions.string import String
 
 DEFAULT_CONTROLLER_NAME = 'application_controller'
 DEFAULT_ACTION_NAME = 'index'
@@ -67,7 +67,7 @@ def get_controller_action_from_string(controller_string, environment):
         controller_name = controller_action + CONTROLLER_SUFFIX
 
     module = importlib.import_module(module_name + '.' + controller_name)
-    controller_class = getattr(module, to_camel_case(controller_name))
+    controller_class = getattr(module, String(controller_name).camelize())
 
     environment['controller_name'] = controller_name.replace(CONTROLLER_SUFFIX, '')
     environment['action_name'] = action_name

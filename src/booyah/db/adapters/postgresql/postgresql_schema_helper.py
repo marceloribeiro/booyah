@@ -67,8 +67,15 @@ class PostgresqlSchemaHelper:
         column_type = self.translate_column_type(column_type)
         self.adapter.execute(f"ALTER TABLE {table_name} ALTER COLUMN {column_name} TYPE {column_type} USING {column_name}::{column_type}", False)
 
-    def add_index(self, table_name, column_name):
-        self.adapter.execute(f"CREATE INDEX {table_name}_{column_name}_index ON {table_name} ({column_name})", False)
+    def add_index(self, table_name, column_names, index_name=None):
+        column_names_csv = ', '.join(column_names)
+        column_names_underscore = '_'.join(column_names)
+        if index_name is None:
+            index_name = f"{table_name}_{column_names_underscore}_index"
+        self.adapter.execute(f"CREATE INDEX {index_name} ON {table_name} ({column_names_csv})", False)
 
-    def remove_index(self, table_name, column_name):
-        self.adapter.execute(f"DROP INDEX {table_name}_{column_name}_index", False)
+    def remove_index(self, table_name, column_names, index_name=None):
+        column_names_underscore = '_'.join(column_names)
+        if index_name is None:
+            index_name = f"{table_name}_{column_names_underscore}_index"
+        self.adapter.execute(f"DROP INDEX {index_name}", False)

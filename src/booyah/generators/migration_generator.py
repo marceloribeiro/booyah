@@ -28,19 +28,43 @@ class MigrationGenerator:
 
       return self._formatted_fields
 
+    def load_table_name(self):
+      if self.is_create_table_migration():
+        self.table_name = self.migration_name.replace('create_table_', '')
+      else:
+        self.table_name = self.migration_name.replace('add_', '').replace('_to_', '_').replace('_table', '')
+
     def load_content(self):
-      if self.fields:
-          self.table_name = self.fields.pop(0)
+      self.load_table_name()
 
       template_content = ''
       with open(self.template_path, "r") as template_file:
           template_content = template_file.read()
       self.content = template_content.replace('%{migration_name}%', self.class_name)
 
-      if self.table_name:
-          self.content = self.content.replace('%{table_name}%', self.table_name)
-      if self.formatted_fields():
-          self.content = self.content.replace('%{fields}%', self.formatted_fields())
+      self.content = self.content.replace('%{up_content}%', self.up_content())
+      self.content = self.content.replace('%{down_content}%', self.down_content())
+
+    def up_content(self):
+        if self.is_create_table_migration():
+            return self.create_table_content()
+        else:
+            return ""
+
+    def down_content(self):
+        if self.is_create_table_migration():
+            return self.drop_table_content()
+        else:
+            return ""
+
+    def is_create_table_migration(self):
+        return self.migration_name.startswith('create_table_')
+
+    def down_content(self):
+        return f"super().down(lambda: self.adapter.drop_table('{self.table_name}'))"
+
+    def create_table_content(self):
+        return f"super().up(lambda: self.adapter.create_table('{self.table_name}', {self.formatted_fields()}))"
 
     def is_existing_migration(self):
         existing_migrations = []

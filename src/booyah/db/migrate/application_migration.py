@@ -16,14 +16,15 @@ class ApplicationMigration:
 
     def get_migrations(self):
         migrations = []
-        for file in os.listdir(self.migrations_folder()):
+        files = os.listdir(self.migrations_folder())
+        files.sort()
+        for file in files:
             if file.endswith('.py') and not file.startswith('application_migration'):
                 migrations.append(file)
         return migrations
 
     def migrate_all(self):
         migrations = self.get_migrations()
-        migrations.sort()
         for migration in migrations:
             version = migration.split('_')[0]
             if not os.getenv('VERSION') or version == os.getenv('VERSION'):
