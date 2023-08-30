@@ -30,6 +30,11 @@ pytest tests
  ./bin/booyahc
 ```
 
+# Remove __pycache__:
+```
+find . | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
+```
+
 ## How to contribute
 
 Pick a issue and send a pull request. We will be happy to review it.

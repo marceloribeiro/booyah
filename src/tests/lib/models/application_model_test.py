@@ -60,11 +60,11 @@ class TestApplicationModel:
 
     def test_create_table(self):
         self.create_users_table()
-        assert User.db_adapter().table_columns(User.table_name()).sort() == ['id', 'name', 'email'].sort()
+        assert User.db_adapter().get_table_columns(User.table_name()).sort() == ['id', 'name', 'email'].sort()
 
     def test_drop_table(self):
         User.drop_table()
-        assert User.db_adapter().table_columns(User.table_name()) == []
+        assert User.db_adapter().get_table_columns(User.table_name()) == []
 
     def test_table_columns(self):
         self.create_users_table()

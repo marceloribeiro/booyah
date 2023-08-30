@@ -1,9 +1,8 @@
-# First step, adding helper folder to sys path to be able to import functions
 import os
-import sys
 import argparse
 from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root
+from booyah.generators.migration_generator import MigrationGenerator
 import booyah.extensions.string
 
 globals()['String'] = booyah.extensions.string.String
@@ -17,7 +16,7 @@ def generate_controller(project_module, target_folder, controller_name, actions)
     class_name = String(controller_name).classify().pluralize()
     template_path = os.path.join(os.path.dirname(__file__), "templates", "controller")
     target_file = os.path.join(target_folder, class_name.underscore() + '_controller.py')
-    
+
     is_creation = True
     if os.path.exists(target_file):
         if prompt_override_file(target_file) == False:
@@ -26,10 +25,10 @@ def generate_controller(project_module, target_folder, controller_name, actions)
         else:
             is_creation = False
             os.remove(target_file)
-    
+
     actions.append('index')
     actions = list(set(actions))
-    
+
     with open(template_path, "r") as template_file:
         template_content = template_file.read()
 
@@ -44,6 +43,9 @@ def generate_controller(project_module, target_folder, controller_name, actions)
     print_success(f"controller {('created' if is_creation else 'overridden')} {target_file}")
     return content
 
+def generate_migration(target_folder, migration_name, extra_arguments):
+    generator = MigrationGenerator(target_folder, migration_name, extra_arguments)
+    generator.perform()
 
 def main(args):
     """
@@ -53,15 +55,18 @@ def main(args):
         print_error('Not a booyah root project folder')
         return None
     parser = argparse.ArgumentParser(description='Booyah Generator Command')
-    parser.add_argument('generate', help='Generate a resource (controller, model, etc.)')
-    parser.add_argument('resource', help='Resource name (controller name, model name, etc.)')
-    parser.add_argument('actions', nargs='*', help='List of actions')
+    parser.add_argument('generate', help='Generate a resource (controller, migration, model, etc.)')
+    parser.add_argument('resource_name', help='Resource name (controller name, migration name, model name, etc.)')
+    parser.add_argument('extra_arguments', nargs='*', help='List of extra arguments (controller actions, table name, fields, etc.)')
 
     args = parser.parse_args(args)
 
     if args.generate == 'controller':
         base_folder = os.path.abspath(os.path.join(os.path.abspath("."), "app/controllers"))
         project_module = os.path.basename(os.getcwd())
-        generate_controller(project_module, base_folder, args.resource, args.actions)
+        generate_controller(project_module, base_folder, args.resource_name, args.extra_arguments)
+    elif args.generate == 'migration':
+        base_folder = os.path.abspath(os.path.join(os.path.abspath("."), "db/migrate"))
+        generate_migration(base_folder, args.resource_name, args.extra_arguments)
     else:
         print(f"Unknown generator: {args.generate}")

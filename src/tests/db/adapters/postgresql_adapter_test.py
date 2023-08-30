@@ -1,4 +1,4 @@
-from booyah.db.adapters.postgresql_adapter import PostgresqlAdapter
+from booyah.db.adapters.postgresql.postgresql_adapter import PostgresqlAdapter
 import pytest
 import os
 
@@ -37,8 +37,8 @@ class TestPostgresqlAdapter:
     self.adapter.execute('INSERT INTO test_table (name) VALUES (\'test\')', False)
     assert self.adapter.fetch('SELECT id, name FROM test_table') == [(1, 'test')]
 
-  def test_table_columns(self):
-    assert self.adapter.table_columns('test_table') == ['created_at', 'id', 'name', 'updated_at']
+  def test_get_table_columns(self):
+    assert self.adapter.get_table_columns('test_table') == ['created_at', 'id', 'name', 'updated_at']
 
   def test_insert(self):
     self.adapter.insert('test_table', {'name': 'test'})
