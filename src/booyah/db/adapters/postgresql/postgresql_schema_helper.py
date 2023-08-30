@@ -44,7 +44,7 @@ class PostgresqlSchemaHelper:
         self.translate_table_columns(table_columns)
         columns = ', '.join([f"{key} {value}" for key, value in table_columns.items()])
         if force:
-            query = f"CREATE TABLE {table_name} ({columns})"
+            query = f"DROP TABLE IF EXISTS {table_name}; CREATE TABLE {table_name} ({columns})"
         else:
             query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})"
         logger.debug("DB:", query)
