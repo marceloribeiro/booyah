@@ -101,8 +101,13 @@ class TestApplicationController:
         self._query_string = 'foo=bar'
         self._wsgi_input = io.StringIO('{"one": "two"}')
         self.application_controller = ApplicationController(self.environment(), False)
-        self.application_controller._load_params()
+        self.application_controller.load_params()
         assert self.application_controller.params == {'id': '1', 'foo': 'bar', 'one': 'two'}
+
+    def test_parse_nested_attributes(self):
+        self.application_controller = ApplicationController(self.environment(), False)
+        params = self.application_controller.parse_nested_attributes("user%5Bname%5D=Klaus&user%5Bemail%5D=my%40email.com&token=123")
+        assert params == {'user': {'name': 'Klaus', 'email': 'my@email.com'}, 'token': '123'}
 
     def test_render(self):
         self.application_controller = ApplicationController(self.environment())

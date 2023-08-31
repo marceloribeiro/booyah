@@ -39,6 +39,10 @@ class ApplicationModel:
         return self._query_builder
 
     @classmethod
+    def count(self):
+        return self.query_builder().count()
+
+    @classmethod
     def all(self):
         return self.query_builder().all()
 
