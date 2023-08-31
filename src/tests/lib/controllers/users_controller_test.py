@@ -6,6 +6,14 @@ import os
 
 class TestUsersController:
     def setup_method(self):
+        User.drop_table()
+        User.create_table({
+            'id': 'primary_key',
+            'name': 'string',
+            'email': 'string',
+            'created_at': 'datetime',
+            'updated_at': 'datetime'
+        })
         self._http_method = 'GET'
         self._query_string = ''
         self._wsgi_input = None
@@ -15,6 +23,12 @@ class TestUsersController:
         self._response_format = 'html'
         self._action_name = 'index'
         self._http_accept = ContentType.HTML.value
+
+    def create_user(self, name='Test User', email='test@email.com'):
+        return User.create({
+            'name': name,
+            'email': email,
+        })
 
     def environment(self):
         return {
@@ -33,7 +47,7 @@ class TestUsersController:
 
     # INDEX *******************************************************
     def test_should_return_html_users(self):
-        User.create({"name": 'UserName', "email": "user@email.com"})
+        self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         returned = controller.index()
         decoded_body = returned.response_body().decode('utf-8')
@@ -44,7 +58,7 @@ class TestUsersController:
     def test_should_return_json_users(self):
         self._response_format = 'json'
 
-        User.create({"name": 'UserName', "email": "user@email.com"})
+        self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         returned = controller.index()
         decoded_body = returned.response_body().decode('utf-8')
@@ -56,7 +70,7 @@ class TestUsersController:
     def test_should_return_html_user(self):
         self._action_name = "show"
 
-        user = User.create({"name": 'UserName', "email": "user@email.com"})
+        user = self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         controller.params = { "id": user.id }
         returned = controller.show()
@@ -70,7 +84,7 @@ class TestUsersController:
         self._response_format = 'json'
         self._action_name = "show"
 
-        user = User.create({"name": 'UserName', "email": "user@email.com"})
+        user = self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         controller.params = { "id": user.id }
         returned = controller.show()
@@ -83,7 +97,7 @@ class TestUsersController:
     def test_should_return_html_edit_user(self):
         self._action_name = "edit"
 
-        user = User.create({"name": 'UserName', "email": "user@email.com"})
+        user = self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         controller.params = { "id": user.id }
         returned = controller.edit()
@@ -136,7 +150,7 @@ class TestUsersController:
     def test_should_return_redirect_to_updated_user(self):
         self._action_name = "update"
 
-        user = User.create({"name": 'UserName', "email": "user@email.com"})
+        user = self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         controller.params = {"id": user.id, "user": {"name": 'NameChanged', "email": "user@email.com"}}
         returned = controller.update()
@@ -151,7 +165,7 @@ class TestUsersController:
         self._action_name = "update"
         self._http_accept = ContentType.JSON.value
         
-        user = User.create({"name": 'UserName', "email": "user@email.com"})
+        user = self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         controller.params = {"id": user.id, "user": {"name": 'NameChanged', "email": "user@email.com"}}
         returned = controller.update()
@@ -164,7 +178,7 @@ class TestUsersController:
     def test_should_return_redirect_to_index(self):
         self._action_name = "destroy"
 
-        user = User.create({"name": 'UserName', "email": "user@email.com"})
+        user = self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         controller.params = { "id": user.id }
         returned = controller.destroy()
@@ -177,7 +191,7 @@ class TestUsersController:
         self._action_name = "destroy"
         self._http_accept = ContentType.JSON.value
 
-        user = User.create({"name": 'UserName', "email": "user@email.com"})
+        user = self.create_user(name='UserName', email='user@email.com')
         controller = UsersController(self.environment())
         controller.params = { "id": user.id }
         returned = controller.destroy()

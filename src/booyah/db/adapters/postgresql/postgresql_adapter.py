@@ -25,6 +25,7 @@ class PostgresqlAdapter:
     def connect(self):
         if self.connection:
             return self.connection
+        logger.debug(f"Connecting to host: {self.host} port: {self.port} dbname: {self.database}")
         self.connection = psycopg.connect(
             host=self.host,
             port=self.port,
