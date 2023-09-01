@@ -8,8 +8,7 @@ read_dotenv('.env')
 print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
 
 from booyah.router.application_router import ApplicationRouter
-from booyah.config.routes import ApplicationRoutes
-
+from booyah.router.application_routes import ApplicationRoutes
 
 def application(environment, start_response):
     ApplicationRoutes.load_routes()

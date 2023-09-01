@@ -5,12 +5,12 @@ from booyah.helpers.application_helper import import_current_project_folder
 from booyah.logger import logger
 import os
 import sys
+from booyah.router.routes_manager import FORMAT_INDEX, URL_PATH_INDEX, METHOD_INDEX, FULL_PATH_INDEX
 
 import_current_project_folder(sys)
 DEFAULT_CONTROLLER_NAME = 'application_controller'
 DEFAULT_ACTION_NAME = 'index'
 DEFAULT_RESPONSE_FORMAT = 'html'
-CONTROLLER_SUFFIX = '_controller'
 RESPONSE_FORMAT_HTML = 'html'
 RESPONSE_FORMAT_TEXT = 'text'
 RESPONSE_FORMAT_JSON = 'json'
@@ -18,17 +18,12 @@ RESPONSE_FORMAT_JSON = 'json'
 def get_controller_action(route_data, environment):
     set_response_format(route_data, environment)
 
-    if route_data.get('controller') != None:
-        return get_controller_action_from_string(route_data['controller'], environment)
-    if route_data['to'] != None:
-        return get_controller_action_from_string(route_data['to'], environment)
-
-    return None
+    return get_controller_action_from_string(route_data[FULL_PATH_INDEX], environment)
 
 def set_response_format(route_data, environment):
     format_from_header = get_format_from_content_type(environment.get('HTTP_ACCEPT'))
-    if route_data.get('format') != None:
-        environment['RESPONSE_FORMAT'] = route_data['format']
+    if route_data[FORMAT_INDEX] != '*':
+        environment['RESPONSE_FORMAT'] = route_data[FORMAT_INDEX]
     elif format_from_header != None:
         environment['RESPONSE_FORMAT'] = format_from_header
     else:
@@ -66,15 +61,15 @@ def get_controller_action_from_string(controller_string, environment):
 
     if re.search('#', controller_action):
         parts = controller_action.split('#')
-        controller_name = parts[0] + CONTROLLER_SUFFIX
+        controller_name = parts[0]
         action_name = parts[1]
     else:
-        controller_name = controller_action + CONTROLLER_SUFFIX
+        controller_name = controller_action
     print(f'importing module {module_name}.{controller_name}')
     module = importlib.import_module(module_name + '.' + controller_name)
     controller_class = getattr(module, String(controller_name).camelize())
 
-    environment['controller_name'] = controller_name.replace(CONTROLLER_SUFFIX, '')
+    environment['controller_name'] = controller_name.replace('_controller', '')
     environment['action_name'] = action_name
 
     logger.debug('Processing:', controller_class.__name__, '=>', action_name)

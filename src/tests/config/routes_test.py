@@ -1,12 +1,12 @@
-from booyah.config.routes import ApplicationRoutes
+from booyah.config.routes import routes
+from booyah.router.routes_manager import METHOD_INDEX, URL_PATH_INDEX, ROUTE_NAME_INDEX, FULL_PATH_INDEX, FORMAT_INDEX
 
 class TestApplicationRoutes:
-    def test_it_loads_routes_from_json_file(self):
-        routes = ApplicationRoutes('tests/assets/routes.json')
-        assert(routes.application_router.__class__.__name__ == 'ApplicationRouter')
-        assert(len(routes.application_router.routes) == 8)
-        assert(routes.application_router.routes[0].route_data['delete'] == '/users/{id}')
-        assert(routes.application_router.routes[0].route_data['to'] == 'users#destroy')
-        assert(routes.application_router.routes[0].route_data['format'] == 'json')
-        assert(routes.application_router.routes[7].route_data['get'] == '/')
-        assert(routes.application_router.routes[7].route_data['to'] == 'home#index')
+    def test_it_loads_routes(self):
+        assert(len(routes) == 12)
+        assert(routes[0][URL_PATH_INDEX] == '/users')
+        assert(routes[1][URL_PATH_INDEX] == '/users/<int:id>')
+        assert(routes[1][FULL_PATH_INDEX] == 'booyah.controllers.users_controller#show')
+        assert(routes[9][FORMAT_INDEX] == 'json')
+        assert(routes[9][FULL_PATH_INDEX] == 'booyah.controllers.home#status')
+        assert(routes[9][URL_PATH_INDEX] == '/status')

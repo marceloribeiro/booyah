@@ -25,17 +25,7 @@ class BooyahApplicationController:
         logger.debug("PARAMS:", self.params)
 
     def load_params_from_route(self):
-        matching_route = self.environment['MATCHING_ROUTE']
-        matching_route_params = self.environment['MATCHING_ROUTE_PARAMS']
-        params = {}
-        if matching_route != None:
-            parts = matching_route.split('/')
-            position = 0
-            for i, part in enumerate(parts):
-                if part.startswith('{') and part.endswith('}'):
-                    params[part[1:-1]] = matching_route_params[position]
-                    position += 1
-        self.params.update(params)
+        self.params.update(self.environment['MATCHING_ROUTE_PARAMS'])
 
     def load_params_from_query_string(self):
         query_string = self.environment['QUERY_STRING']
