@@ -73,6 +73,10 @@ class TestApplicationModel:
     def test_query_builder(self):
         assert User.query_builder().model_class == User
 
+    def test_count(self):
+        self.create_users_sample()
+        assert User.count() == 3
+
     def test_all(self):
         self.create_users_sample()
         assert len(User.all()) == 3

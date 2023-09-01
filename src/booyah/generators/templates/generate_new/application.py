@@ -3,6 +3,7 @@ import os
 import booyah
 
 os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
+os.environ["ROOT_PROJECT"] = os.path.basename(os.getcwd())
 read_dotenv('.env')
 print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
 

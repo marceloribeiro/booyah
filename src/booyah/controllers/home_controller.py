@@ -1,9 +1,9 @@
 import os
-from booyah.controllers.application_controller import ApplicationController
+from booyah.controllers.application_controller import BooyahApplicationController
 from booyah.db.adapters.base_adapter import BaseAdapter
 from booyah.models.user import User
 
-class HomeController(ApplicationController):
+class HomeController(BooyahApplicationController):
     def index(self):
         return self.render({'text': 'Home Controller, Index Action'})
 

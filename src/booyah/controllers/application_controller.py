@@ -1,11 +1,19 @@
 from booyah.response.application_response import ApplicationResponse
+from booyah.response.redirect_response import RedirectResponse
 import json
+from urllib.parse import parse_qs
 from booyah.logger import logger
+from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
 
-class ApplicationController:
-    def __init__(self, environment):
+class BooyahApplicationController:
+    def __init__(self, environment, should_load_params=True):
         self.environment = environment
         self.params = {}
+        if should_load_params:
+            self.load_params()
+    
+    def respond_to(self, html=None, json=None, text=None):
+        return RequestFormatHelper(self.environment).respond_to(html, json, text)
 
     def get_action(self, action):
         return getattr(self, action)
@@ -37,23 +45,43 @@ class ApplicationController:
                 key, value = param.split('=')
                 params[key] = value
         self.params.update(params)
+    
+    def parse_nested_attributes(self, body_data):
+        parsed_data = parse_qs(body_data)
+        nested_data = {}
+        for key, value in parsed_data.items():
+            keys = key.split("[")
+            current_dict = nested_data
+            for k in keys[:-1]:
+                current_dict = current_dict.setdefault(k, {})
+            
+            if len(keys) == 1:
+                current_dict[keys[-1]] = value[0]
+            else:
+                current_dict[keys[-1][:-1]] = value[0]
+            
+        return nested_data
 
     def load_params_from_gunicorn_body(self):
-        if self.environment.get('CONTENT_LENGTH') is None:
+        if self.environment.get('CONTENT_LENGTH') is None or 'CONTENT_TYPE' not in self.environment:
             return
 
-        content_length = int(self.environment['CONTENT_LENGTH'])
         content_type = self.environment['CONTENT_TYPE']
+        content_length = int(self.environment['CONTENT_LENGTH'])
 
         body_params = {}
         if content_length:
             body = self.environment['wsgi.input'].read(content_length)
-            if content_type == 'application/json':
+            if content_type == ContentType.JSON.value:
                 try:
                     body_json = body.decode('utf-8')
                 except:
                     body_json = body
                 body_params = json.loads(body_json)
+            elif content_type == ContentType.FORM_URLENCODED.value:
+                body_params = self.parse_nested_attributes(str(body.decode('utf-8')))
+            elif ContentType.MULTIPART.value in content_type:
+                raise ValueError(f"{ContentType.MULTIPART.value} not supported yet, see ApplicationController load_params_from_gunicorn_body")
             else:
                 for param in body.decode('utf-8').split('&'):
                     key, value = param.split('=')
@@ -62,6 +90,9 @@ class ApplicationController:
 
     def render(self, data = {}):
         return ApplicationResponse(self.environment, data)
+    
+    def redirect(self, redirect_to):
+        return RedirectResponse(self.environment, redirect_to)
 
     def is_get_request(self):
         return self.environment['REQUEST_METHOD'] == 'GET'

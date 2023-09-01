@@ -18,6 +18,10 @@ class ApplicationRouter:
 
     def action(self, environment):
         for route in self.routes:
+            if route.exact_match(environment):
+                return get_controller_action(route.route_data, environment)
+
+        for route in self.routes:
             if route.match(environment):
                 return get_controller_action(route.route_data, environment)
         return None
@@ -34,5 +38,5 @@ class ApplicationRouter:
         return response
 
     def not_found(self, environment):
-        response = ApplicationResponse(environment, 'Not Found')
+        response = ApplicationResponse(environment,f"No routes matches [{environment['REQUEST_METHOD']}] \"{environment['PATH_INFO']}\"", status='404 Not Found')
         return response

@@ -1,7 +1,7 @@
 from booyah.router.application_router import ApplicationRouter
-from booyah.controllers.application_controller import ApplicationController
+from booyah.controllers.application_controller import BooyahApplicationController
 
-class UsersController(ApplicationController):
+class UsersController(BooyahApplicationController):
     def index(self):
         return self.render({'text': 'Users Controller, Index Action'})
     def show(self):

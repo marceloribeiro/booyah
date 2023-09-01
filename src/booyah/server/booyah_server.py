@@ -15,4 +15,4 @@ class BooyahServer:
         else:
             pip_command = "pip3"
         subprocess.run([pip_command, "install", "-r", "requirements.txt"])
-        subprocess.run(["gunicorn", "application"])
+        subprocess.run(["gunicorn", "application", "--timeout", "120"])

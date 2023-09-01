@@ -1,0 +1,60 @@
+<a href="/users/new">New</a>
+<h1>Users</h1>
+{% if not users %}
+    <p>No users found</p>
+{% else %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>E-mail</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for user in users %}
+                <tr>
+                    <td><a href="/users/{{ user.id -}}">#{{ user.id -}}</a></td>
+                    <td>{{ user.name -}}</td>
+                    <td>{{ user.email -}}</td>
+                    <td>
+                        <form class="deleteForm" action="/users/{{ user.id -}}">
+                            <button type="submit">
+                            Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+<script>
+    var deleteForms = document.getElementsByClassName("deleteForm");
+
+    for (var i = 0; i < deleteForms.length; i++) {
+        deleteForms[i].addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var form = event.target;
+            var url = form.action;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("DELETE", url, true);
+
+            xhr.onload = function() {
+                if (xhr.status === 204 || xhr.status === 200) {
+                    console.log("Resource deleted successfully.");
+                    window.location.reload();
+                } else {
+                    console.log("Error deleting resource:", xhr.status);
+                }
+            };
+
+            xhr.send();
+
+            return false;
+        });
+    }
+</script>    

@@ -6,8 +6,9 @@ class ApplicationResponse:
     APP_NAME = 'booyah'
     DEFAULT_RESPONSE_ENCODING = 'utf-8'
     DEFAULT_HTTP_STATUS = '200 OK'
+    DEFAULT_CONTENT_TYPE = 'text/html; charset=utf-8'
 
-    def __init__(self, environment, data = {}, headers = {}, status = DEFAULT_HTTP_STATUS):
+    def __init__(self, environment, data = {}, headers = [], status = DEFAULT_HTTP_STATUS):
         self.environment = environment
         self.data = data
         self.body = ''
@@ -19,13 +20,13 @@ class ApplicationResponse:
         )
 
     def response_headers(self):
-        if (self.headers != {}):
+        if (self.headers != []):
             return self.headers
         else:
-          return [
-              ('Content-type', self.environment.get('CONTENT_TYPE', '')),
+            return [
+              ('Content-type', self.environment.get('CONTENT_TYPE', self.DEFAULT_CONTENT_TYPE)),
               ('Content-Length', str(len(self.body)))
-          ]
+            ]
 
     def format(self):
         return self.environment.get('RESPONSE_FORMAT')
@@ -35,6 +36,7 @@ class ApplicationResponse:
         if format:
             return getattr(self, format + '_body')()
         else:
+            self.body = self.data
             return bytes(self.data, self.DEFAULT_RESPONSE_ENCODING)
 
     def text_body(self):

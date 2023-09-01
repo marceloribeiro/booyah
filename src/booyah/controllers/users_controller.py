@@ -1,8 +1,8 @@
-from booyah.controllers.application_controller import ApplicationController
+from booyah.controllers.application_controller import BooyahApplicationController
 from booyah.models.user import User
 from booyah.serializers.user_serializer import UserSerializer
 
-class UsersController(ApplicationController):
+class UsersController(BooyahApplicationController):
     def index(self):
         users = User.all()
         if self.params.get('id'):
@@ -15,28 +15,44 @@ class UsersController(ApplicationController):
     def show(self):
         user = User.find(self.params['id'])
         return self.render({ "user": UserSerializer(user).to_dict() })
+        
+    def edit(self):
+        user = User.find(self.params['id'])
+        return self.render({ "user": UserSerializer(user).to_dict() })
+    
+    def new(self):
+        return self.render({})
 
     def create(self):
         user = User.create(self.user_params())
-        return self.render({ "user": UserSerializer(user).to_dict() })
+        return self.respond_to(
+            html=lambda: self.redirect(f'/users/{user.id}'),
+            json=lambda: self.render({ "user": UserSerializer(user).to_dict() })
+        )
 
     def update(self):
         user = User.find(self.params['id'])
-
         if self.is_put_request():
             user.update(self.user_params())
         else:
             user.patch_update(self.user_params())
 
-        return self.render({ "user": UserSerializer(user).to_dict() })
+        return self.respond_to(
+            html=lambda: self.redirect(f'/users/{user.id}'),
+            json=lambda: self.render({ "user": UserSerializer(user).to_dict() })
+        )
 
     def destroy(self):
         user = User.find(self.params['id'])
         deleted_id = user.destroy()
-        return self.render({ "deleted": True, "deleted_id": deleted_id })
+
+        return self.respond_to(
+            html=lambda: self.redirect('/users'),
+            json=lambda: self.render({ "deleted": True, "deleted_id": deleted_id })
+        )
 
     def user_params(self):
         return { key: value for key, value in self.params['user'].items() if key in self.permitted_params() }
 
     def permitted_params(self):
-        return ['first_name', 'last_name', 'email', 'password']
+        return ['first_name', 'last_name', 'email', 'password', 'name']

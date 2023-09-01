@@ -6,13 +6,16 @@ class TestControllerHelper():
         self.environment = { 'HTTP_ACCEPT': 'application/json' }
 
     def test_get_controller_action(self):
+        self.environment['MATCHING_ROUTE'] = '/home'
+        self.environment['QUERY_STRING'] = ''
+        self.environment['MATCHING_ROUTE_PARAMS'] = []
         assert get_controller_action({ 'controller': 'home', 'action': 'index' }, self.environment)().json_body() == b'{"text": "Home Controller, Index Action"}'
         assert get_controller_action({ 'to': 'home#index' }, self.environment)().json_body() == b'{"text": "Home Controller, Index Action"}'
 
     def test_set_response_format(self):
         assert(set_response_format({ 'format': 'json' }, self.environment) == 'json')
         assert(self.environment['RESPONSE_FORMAT'] == 'json')
-        assert(self.environment['CONTENT_TYPE'] == 'application/json')
+        assert('CONTENT_TYPE' not in self.environment)
 
     def test_content_type_from_response_format(self):
         assert(content_type_from_response_format('json') == 'application/json')

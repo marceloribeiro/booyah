@@ -85,8 +85,8 @@ def create_project(project_name):
     # Define project structure
     config = {
         'app': {
-            'models': ['application_model.py'],
-            'controllers': ['application_controller.py']
+            'models': ['application_model.py', '__init__.py'],
+            'controllers': ['application_controller.py', '__init__.py']
         },
         'config': ['routes.json', '__init__.py'],
         'public': ['index.html'],
@@ -104,5 +104,6 @@ def create_project(project_name):
     shutil.copy(os.path.join(source_folder, 'env'), os.path.join(destination_folder, '.env'))
     shutil.copy(os.path.join(source_folder, 'application.py'), os.path.join(destination_folder, 'application.py'))
     shutil.copy(os.path.join(source_folder, '__init__.py'), os.path.join(destination_folder, '__init__.py'))
+    shutil.copy(os.path.join(source_folder, 'requirements.txt'), os.path.join(destination_folder, 'requirements.txt'))
 
     print(f"Project '{project_name}' created successfully.")
