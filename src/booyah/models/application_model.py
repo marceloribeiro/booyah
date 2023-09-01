@@ -18,8 +18,7 @@ class ApplicationModel:
     def get_table_columns(self):
         if self.table_columns is None:
             self.table_columns = self.db_adapter().get_table_columns(self.table_name())
-            if self.table_columns:
-                self.table_columns.sort()
+            self.table_columns.sort()
 
         return self.table_columns
 

@@ -1,8 +1,8 @@
-from booyah.controllers.application_controller import ApplicationController
+from booyah.controllers.application_controller import BooyahApplicationController
 from booyah.models.user import User
 from booyah.serializers.user_serializer import UserSerializer
 
-class UsersController(ApplicationController):
+class UsersController(BooyahApplicationController):
     def index(self):
         users = User.all()
         if self.params.get('id'):

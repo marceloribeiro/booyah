@@ -5,7 +5,7 @@ from urllib.parse import parse_qs
 from booyah.logger import logger
 from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
 
-class ApplicationController:
+class BooyahApplicationController:
     def __init__(self, environment, should_load_params=True):
         self.environment = environment
         self.params = {}

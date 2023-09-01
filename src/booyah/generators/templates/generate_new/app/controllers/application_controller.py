@@ -1,4 +1,4 @@
-from booyah.controllers.application_controller import ApplicationController as BooyahApplicationController
+from booyah.controllers.application_controller import BooyahApplicationController
 
 class ApplicationController(BooyahApplicationController):
     pass

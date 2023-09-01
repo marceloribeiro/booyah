@@ -1,8 +1,8 @@
-from booyah.controllers.application_controller import ApplicationController
+from booyah.controllers.application_controller import BooyahApplicationController
 import io
 import os
 
-class HomeController(ApplicationController):
+class HomeController(BooyahApplicationController):
     def index(self):
         return self.render({'text': 'Home Controller, Index Action'})
 
@@ -47,41 +47,41 @@ class TestApplicationController:
 
     def test_is_get_request(self):
         self._http_method = 'GET'
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.is_get_request() == True
 
     def test_is_post_request(self):
         self._http_method = 'POST'
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.is_post_request() == True
 
     def test_is_put_request(self):
         self._http_method = 'PUT'
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.is_put_request() == True
 
     def test_is_delete_request(self):
         self._http_method = 'DELETE'
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.is_delete_request() == True
 
     def test_is_patch_request(self):
         self._http_method = 'PATCH'
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.is_patch_request() == True
 
     def test_load_params_from_route(self):
         self._http_method = 'GET'
         self._matching_route = '/users/{id}'
         self._matching_route_params = ['1']
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         self.application_controller.load_params_from_route()
         assert self.application_controller.params == {'id': '1'}
 
     def test_load_params_from_query_string(self):
         self._http_method = 'GET'
         self._query_string = 'foo=bar'
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         self.application_controller.load_params_from_query_string()
         assert self.application_controller.params == {'foo': 'bar'}
 
@@ -89,7 +89,7 @@ class TestApplicationController:
         self._http_method = 'POST'
         self._wsgi_input = io.StringIO('{"one": "two"}')
         self._content_length = 14
-        self.application_controller = ApplicationController(self.environment(), False)
+        self.application_controller = BooyahApplicationController(self.environment(), False)
         self.application_controller.load_params_from_gunicorn_body()
         assert self.application_controller.params == {'one': 'two'}
 
@@ -100,29 +100,29 @@ class TestApplicationController:
         self._matching_route_params = ['1']
         self._query_string = 'foo=bar'
         self._wsgi_input = io.StringIO('{"one": "two"}')
-        self.application_controller = ApplicationController(self.environment(), False)
+        self.application_controller = BooyahApplicationController(self.environment(), False)
         self.application_controller.load_params()
         assert self.application_controller.params == {'id': '1', 'foo': 'bar', 'one': 'two'}
 
     def test_parse_nested_attributes(self):
-        self.application_controller = ApplicationController(self.environment(), False)
+        self.application_controller = BooyahApplicationController(self.environment(), False)
         params = self.application_controller.parse_nested_attributes("user%5Bname%5D=Klaus&user%5Bemail%5D=my%40email.com&token=123")
         assert params == {'user': {'name': 'Klaus', 'email': 'my@email.com'}, 'token': '123'}
 
     def test_render(self):
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.render({'foo': 'bar'}).json_body() == b'{"foo": "bar"}'
 
     def test_render_text(self):
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.render({'text': 'foo'}).text_body() == b'foo'
 
     def test_render_html(self):
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.render({'text': 'foo'}).html_body() == b'<h1>Index for Home</h1>\n<p>foo</p>'
 
     def test_render_json(self):
-        self.application_controller = ApplicationController(self.environment())
+        self.application_controller = BooyahApplicationController(self.environment())
         assert self.application_controller.render({'foo': 'bar'}).json_body() == b'{"foo": "bar"}'
 
     def test_get_action(self):
