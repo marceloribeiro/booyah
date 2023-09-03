@@ -30,12 +30,22 @@ class ApplicationMigration:
             if not os.getenv('VERSION') or version == os.getenv('VERSION'):
                 self.migrate(migration, version)
 
+    def get_migration_class(self, migration, migration_class_name):
+        migration_module = __import__(f'db.migrate.{migration.split(".")[0]}', fromlist=[migration_class_name])
+        migration_class = getattr(migration_module, migration_class_name)
+        return migration_class
+
     def migrate(self, migration, version):
         migration_name = String(migration.split('.')[0].replace(f"{version}_", ''))
-        migration_class = migration_name.camelize()
-        migration_module = __import__(f'db.migrate.{migration.split(".")[0]}', fromlist=[migration_class])
-        migration_class = getattr(migration_module, migration_class)
+        migration_class_name = migration_name.camelize()
+        migration_class = self.get_migration_class(migration, migration_class_name)
         migration_class(version).up()
+
+    def create_schema_migrations(self):
+        self.adapter.create_schema_migrations()
+
+    def migration_has_been_run(self):
+        return self.adapter.migration_has_been_run(self.version)
 
     def before_up(self):
         self.create_schema_migrations()
@@ -71,20 +81,14 @@ class ApplicationMigration:
             self.success_down = True
         self.after_down()
 
-    def create_schema_migrations(self):
-        self.adapter.create_schema_migrations()
-
-    def migration_has_been_run(self):
-        return self.adapter.migration_has_been_run(self.version)
-
     def save_version(self):
         self.adapter.save_version(self.version)
 
     def delete_version(self):
         self.adapter.delete_version(self.version)
 
-    def create_table(self, table_name):
-        self.adapter.create_table(table_name)
+    def create_table(self, table_name, table_columns):
+        self.adapter.create_table(table_name, table_columns)
 
     def drop_table(self, table_name):
         self.adapter.drop_table(table_name)

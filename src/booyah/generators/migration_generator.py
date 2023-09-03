@@ -6,13 +6,13 @@ from datetime import datetime
 #  booyah g migration create_table_comments comments user_id:integer title content:text
 class MigrationGenerator:
     def __init__(self, target_folder, migration_name, fields):
-        current_datetime = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+        self.current_datetime = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
         self.target_folder = target_folder
         self.migration_name = migration_name
         self.fields = fields
-        self.class_name = String(self.migration_name).classify().pluralize()
+        self.class_name = String(self.migration_name).classify()
         self.template_path = os.path.join(os.path.dirname(__file__), "templates", "migration")
-        self.target_file = os.path.join(self.target_folder, current_datetime + '_' + self.class_name.underscore() + '.py')
+        self.target_file = os.path.join(self.target_folder, self.current_datetime + '_' + self.class_name.underscore() + '.py')
         self.table_name = ''
         self.content = ''
         self._formatted_fields = ''
@@ -31,8 +31,11 @@ class MigrationGenerator:
     def load_table_name(self):
       if self.is_create_table_migration():
         self.table_name = self.migration_name.replace('create_table_', '')
+      elif self.is_add_column_to_table_migration():
+        parts = self.migration_name.split('_to_')
+        self.table_name = parts[1].replace('_table', '')
       else:
-        self.table_name = self.migration_name.replace('add_', '').replace('_to_', '_').replace('_table', '')
+        self.table_name = ''
 
     def load_content(self):
       self.load_table_name()
@@ -46,6 +49,8 @@ class MigrationGenerator:
       self.content = self.content.replace('%{down_content}%', self.down_content())
 
     def up_content(self):
+        self.load_table_name()
+
         if self.is_create_table_migration():
             return self.create_table_content()
         elif self.is_add_column_to_table_migration():
@@ -54,6 +59,8 @@ class MigrationGenerator:
             return ""
 
     def down_content(self):
+        self.load_table_name()
+
         if self.is_create_table_migration():
             return self.drop_table_content()
         elif self.is_add_column_to_table_migration():
@@ -65,19 +72,19 @@ class MigrationGenerator:
         return self.migration_name.startswith('create_table_')
 
     def is_add_column_to_table_migration(self):
-        return self.migration_name.startswith('add_') and self.migration_name.endswith('_to_')
-
-    def drop_table_content(self):
-        return f"super().down(lambda: self.adapter.drop_table('{self.table_name}'))"
+        return self.migration_name.startswith('add_') and ('_to_' in self.migration_name)
 
     def create_table_content(self):
-        return f"super().up(lambda: self.adapter.create_table('{self.table_name}', {self.formatted_fields()}))"
+        return f"super().up(lambda: self.create_table('{self.table_name}', {self.formatted_fields()}))"
+
+    def drop_table_content(self):
+        return f"super().down(lambda: self.drop_table('{self.table_name}'))"
 
     def add_column_content(self):
-        return f"super().up(lambda: self.adapter.add_column('{self.table_name}', '{self.formatted_fields()}'))"
+        return f"super().up(lambda: self.add_column('{self.table_name}', {self.formatted_fields()}))"
 
     def remove_column_content(self):
-        return f"super().down(lambda: self.adapter.remove_column('{self.table_name}', '{self.formatted_fields()}'))"
+        return f"super().down(lambda: self.remove_column('{self.table_name}', {self.formatted_fields()}))"
 
     def is_existing_migration(self):
         existing_migrations = []
