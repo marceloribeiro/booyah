@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-import os
-import sys
 from booyah.server.booyah_runner import BooyahRunner
 import argparse
 

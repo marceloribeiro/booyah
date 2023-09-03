@@ -30,7 +30,7 @@ def main(args):
 
     folder_name = String(args.project_name.strip()).underscore()
     folder_path = os.path.join(os.getcwd(), folder_name)
-    
+
     if os.path.exists(folder_path):
         response = input(f"The folder '{folder_path}' already exists. Are you sure you want to use this folder to create the project? (yes/no): ")
         if response.lower() != "yes":
@@ -83,24 +83,27 @@ def create_project(project_name):
     Copy folders required to run a new booyah project
     """
     # Define project structure
-    config = {
+    folder_structure = {
         'app': {
             'models': ['application_model.py', '__init__.py'],
             'controllers': ['application_controller.py', '__init__.py']
         },
         'config': ['routes.json', '__init__.py'],
         'public': ['index.html'],
-        'db': ['__init__.py'],
+        'db': {
+            'migrate': ['__init__.py'],
+        },
     }
 
-    config2 = {
+    init_files = {
         'app': ['__init__.py'],
+        'db': ['__init__.py'],
     }
 
     source_folder = os.path.realpath(os.path.join(booyah_root, 'generators', 'templates', 'generate_new'))
     destination_folder = project_name
-    copy_folders_and_files(source_folder, destination_folder, config)
-    copy_folders_and_files(source_folder, destination_folder, config2)
+    copy_folders_and_files(source_folder, destination_folder, folder_structure)
+    copy_folders_and_files(source_folder, destination_folder, init_files)
     shutil.copy(os.path.join(source_folder, 'env'), os.path.join(destination_folder, '.env'))
     shutil.copy(os.path.join(source_folder, 'application.py'), os.path.join(destination_folder, 'application.py'))
     shutil.copy(os.path.join(source_folder, '__init__.py'), os.path.join(destination_folder, '__init__.py'))

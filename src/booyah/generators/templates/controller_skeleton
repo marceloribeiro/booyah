@@ -1,0 +1,10 @@
+from {{project_module}}.app.controllers.application_controller import ApplicationController
+
+class {{controller_name}}(ApplicationController):
+    {% for action in actions %}
+    def {{action}}(self):
+        return self.respond_to(
+            html=lambda: self.render(),
+            json=lambda: self.render({'{{ controller_name }}': '{{ action }}'})
+        )
+    {% endfor %}

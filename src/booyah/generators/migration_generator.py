@@ -1,7 +1,8 @@
 import os
+from datetime import datetime
 from booyah.extensions.string import String
 from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
-from datetime import datetime
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 #  booyah g migration create_table_comments comments user_id:integer title content:text
 class MigrationGenerator:
@@ -16,6 +17,10 @@ class MigrationGenerator:
         self.table_name = ''
         self.content = ''
         self._formatted_fields = ''
+        self.template_environment = Environment(
+            loader=PackageLoader('booyah', 'generators/templates'),
+            autoescape=select_autoescape()
+        )
 
     def formatted_fields(self):
       if self._formatted_fields:
@@ -38,15 +43,14 @@ class MigrationGenerator:
         self.table_name = ''
 
     def load_content(self):
-      self.load_table_name()
-
-      template_content = ''
-      with open(self.template_path, "r") as template_file:
-          template_content = template_file.read()
-      self.content = template_content.replace('%{migration_name}%', self.class_name)
-
-      self.content = self.content.replace('%{up_content}%', self.up_content())
-      self.content = self.content.replace('%{down_content}%', self.down_content())
+        self.load_table_name()
+        template = self.template_environment.get_template('migration_skeleton')
+        self.data = {
+            "migration_name": self.class_name,
+            "up_content": self.up_content(),
+            "down_content": self.down_content()
+        }
+        self.content = template.render(**self.data)
 
     def up_content(self):
         self.load_table_name()
@@ -97,10 +101,13 @@ class MigrationGenerator:
         return self.migration_name in existing_migrations
 
     def perform(self):
-      if self.is_existing_migration():
-          print_error(f"There is already a migration with the name {self.migration_name}")
-          return False
-      else:
+        if self.is_existing_migration():
+            print_error(f"There is already a migration with the name {self.migration_name}")
+            return False
+        else:
+            self.create_file_from_template()
+
+    def create_file_from_template(self):
         self.load_content()
         os.makedirs(os.path.dirname(self.target_file), exist_ok=True)
         with open(self.target_file, "w") as output_file:
