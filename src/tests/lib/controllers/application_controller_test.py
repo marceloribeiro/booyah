@@ -1,6 +1,5 @@
 from booyah.controllers.application_controller import BooyahApplicationController
 import io
-import os
 
 class HomeController(BooyahApplicationController):
     def index(self):

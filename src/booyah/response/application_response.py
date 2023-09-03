@@ -1,4 +1,5 @@
 import json
+import os
 from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.logger import logger
 
@@ -15,7 +16,7 @@ class ApplicationResponse:
         self.headers = headers
         self.status = status
         self.template_environment = Environment(
-            loader=PackageLoader('app', 'views'),
+            loader=PackageLoader('booyah', 'templates') if os.getenv('BOOYAH_ENV') == 'test' else PackageLoader('app', 'views'),
             autoescape=select_autoescape()
         )
 
