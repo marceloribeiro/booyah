@@ -4,6 +4,7 @@ from booyah.generators.helpers.io import print_error, print_success, prompt_over
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root
 from booyah.generators.migration_generator import MigrationGenerator
 from booyah.generators.controller_generator import ControllerGenerator
+from booyah.generators.model_generator import ModelGenerator
 from booyah.extensions.string import String
 
 def main(args):
@@ -22,7 +23,8 @@ def main(args):
 
     known_generators = [
         'controller',
-        'migration'
+        'migration',
+        'model'
     ]
 
     if args.generate not in known_generators:
@@ -37,6 +39,7 @@ def main(args):
 def get_target_folder(generate):
     folders = {
         "controller": "app/controllers",
-        "migration": "db/migrate"
+        "migration": "db/migrate",
+        "model": "app/models"
     }
     return folders[generate]

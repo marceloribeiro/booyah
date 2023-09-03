@@ -11,7 +11,6 @@ class ControllerGenerator(BaseGenerator):
         self.controller_name = f"{controller_name}_controller"
         self.actions = list(set(actions))
         self.class_name = String(self.controller_name).classify()
-        self.template_path = os.path.join(os.path.dirname(__file__), "templates", "controller")
         self.target_file = os.path.join(self.target_folder, self.class_name.underscore() + '.py')
         self.content = ''
         self.project_module = os.path.basename(os.getcwd())

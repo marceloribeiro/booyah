@@ -12,7 +12,6 @@ class MigrationGenerator:
         self.migration_name = migration_name
         self.fields = fields
         self.class_name = String(self.migration_name).classify()
-        self.template_path = os.path.join(os.path.dirname(__file__), "templates", "migration")
         self.target_file = os.path.join(self.target_folder, self.current_datetime + '_' + self.class_name.underscore() + '.py')
         self.table_name = ''
         self.content = ''
