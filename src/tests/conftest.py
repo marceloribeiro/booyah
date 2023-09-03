@@ -9,7 +9,7 @@ print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
 
 def pytest_configure(config):
     print("****** Running conftest.py ******")
-    booyah_path = os.path.join(os.path.dirname(__file__), 'booyah')
+    booyah_path = os.path.join(os.path.dirname(__file__))
     os.environ["ROOT_PROJECT_PATH"] = booyah_path
     os.environ["ROOT_PROJECT"] = ''
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))

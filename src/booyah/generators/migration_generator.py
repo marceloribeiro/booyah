@@ -67,17 +67,17 @@ class MigrationGenerator:
     def is_add_column_to_table_migration(self):
         return self.migration_name.startswith('add_') and self.migration_name.endswith('_to_')
 
-    def drop_table_content(self):
-        return f"super().down(lambda: self.adapter.drop_table('{self.table_name}'))"
-
     def create_table_content(self):
-        return f"super().up(lambda: self.adapter.create_table('{self.table_name}', {self.formatted_fields()}))"
+        return f"super().up(lambda: self.create_table('{self.table_name}', {self.formatted_fields()}))"
+
+    def drop_table_content(self):
+        return f"super().down(lambda: self.drop_table('{self.table_name}'))"
 
     def add_column_content(self):
-        return f"super().up(lambda: self.adapter.add_column('{self.table_name}', '{self.formatted_fields()}'))"
+        return f"super().up(lambda: self.add_column('{self.table_name}', '{self.formatted_fields()}'))"
 
     def remove_column_content(self):
-        return f"super().down(lambda: self.adapter.remove_column('{self.table_name}', '{self.formatted_fields()}'))"
+        return f"super().down(lambda: self.remove_column('{self.table_name}', '{self.formatted_fields()}'))"
 
     def is_existing_migration(self):
         existing_migrations = []
