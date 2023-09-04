@@ -11,7 +11,7 @@ class TestApplicationController:
         self._query_string = ''
         self._wsgi_input = None
         self._matching_route = '/'
-        self._matching_route_params = []
+        self._matching_route_params = {}
         self._content_length = 0
 
 
@@ -71,11 +71,11 @@ class TestApplicationController:
 
     def test_load_params_from_route(self):
         self._http_method = 'GET'
-        self._matching_route = '/users/{id}'
-        self._matching_route_params = ['1']
+        self._matching_route = '/users/<int:id>'
+        self._matching_route_params = {'id': 1}
         self.application_controller = BooyahApplicationController(self.environment())
         self.application_controller.load_params_from_route()
-        assert self.application_controller.params == {'id': '1'}
+        assert self.application_controller.params == {'id': 1}
 
     def test_load_params_from_query_string(self):
         self._http_method = 'GET'
@@ -96,12 +96,12 @@ class TestApplicationController:
         self._http_method = 'POST'
         self._content_length = 14
         self._matching_route = '/users/{id}'
-        self._matching_route_params = ['1']
+        self._matching_route_params = {'id': 1}
         self._query_string = 'foo=bar'
         self._wsgi_input = io.StringIO('{"one": "two"}')
         self.application_controller = BooyahApplicationController(self.environment(), False)
         self.application_controller.load_params()
-        assert self.application_controller.params == {'id': '1', 'foo': 'bar', 'one': 'two'}
+        assert self.application_controller.params == {'id': 1, 'foo': 'bar', 'one': 'two'}
 
     def test_parse_nested_attributes(self):
         self.application_controller = BooyahApplicationController(self.environment(), False)

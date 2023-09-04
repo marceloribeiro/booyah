@@ -8,5 +8,5 @@ class TestApplicationRoutes:
         assert(routes[1][URL_PATH_INDEX] == '/users/<int:id>')
         assert(routes[1][FULL_PATH_INDEX] == 'booyah.controllers.users_controller#show')
         assert(routes[9][FORMAT_INDEX] == 'json')
-        assert(routes[9][FULL_PATH_INDEX] == 'booyah.controllers.home#status')
+        assert(routes[9][FULL_PATH_INDEX] == 'booyah.controllers.home_controller#status')
         assert(routes[9][URL_PATH_INDEX] == '/status')

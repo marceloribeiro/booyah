@@ -9,30 +9,38 @@ FORMAT_INDEX = 4
 class RoutesManager:
     def __init__(self):
         self.routes = []
+    
+    def put_controller_suffix(self, full_path):
+        parts = full_path.split('#')
+        if len(parts) == 2:
+            controller_name, action_name = parts
+            return f"{controller_name}_controller#{action_name}"
+        else:
+            raise ValueError("Invalid input string format")
 
     def get(self, path, name, full_path, formats='*'):
-        self.routes.append(('GET', path, name, full_path, formats))
+        self.routes.append(('GET', path, name, self.put_controller_suffix(full_path), formats))
         return self
 
     def post(self, path, name, full_path, formats='*'):
-        self.routes.append(('POST', path, name, full_path, formats))
+        self.routes.append(('POST', path, name, self.put_controller_suffix(full_path), formats))
         return self
 
     def put(self, path, name, full_path, formats='*'):
-        self.routes.append(('PUT', path, name, full_path, formats))
+        self.routes.append(('PUT', path, name, self.put_controller_suffix(full_path), formats))
         return self
 
     def patch(self, path, name, full_path, formats='*'):
-        self.routes.append(('PATCH', path, name, full_path, formats))
+        self.routes.append(('PATCH', path, name, self.put_controller_suffix(full_path), formats))
         return self
 
     def delete(self, path, name, full_path, formats='*'):
-        self.routes.append(('DELETE', path, name, full_path, formats))
+        self.routes.append(('DELETE', path, name, self.put_controller_suffix(full_path), formats))
         return self
 
     def resources(self, resource_name, controller_module=None, parent=None, only=None, except_=None, formats='*'):
         name_prefix = String(resource_name).singularize()
-        base_path = f'/{parent}/{resource_name}' if parent else f'/{resource_name}'
+        base_path = f'{parent}/{resource_name}' if parent else f'/{resource_name}'
         controller_path = f'{controller_module}.{resource_name}_controller' if controller_module else f'{resource_name}_controller'
         
         standard_routes = [

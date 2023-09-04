@@ -30,6 +30,8 @@ class ApplicationRoute:
         return False
 
     def match(self, environment):
+        if len(self.route_data) < 5:
+            return False
         http_method = environment['REQUEST_METHOD'].upper()
         path_info = environment['PATH_INFO']
 

@@ -18,12 +18,12 @@ class TestApplicationRouter:
             'MATCHING_ROUTE': '/users',
             'MATCHING_ROUTE_PARAMS': [],
         }
-        self.first_route = {
-            'get': '/users', 'to': 'users#index', 'format': 'html'
-        }
-        self.second_route = {
-            'get': '/users/1', 'to': 'users#show', 'format': 'html'
-        }
+        self.first_route = (
+            'GET', '/users', '', 'users_controller#index', 'html'
+        )
+        self.second_route = (
+            'GET', '/users/1', '', 'users_controller#show', 'html'
+        )
 
     def test_init(self):
         assert self.router.routes == []

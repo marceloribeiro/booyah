@@ -2,9 +2,9 @@ from booyah.router.application_route import ApplicationRoute
 
 class TestApplicationRoute:
     def setup_method(self):
-        self.route_data = {
-            'get': '/test', 'to': 'home#index', 'format': 'html'
-        }
+        self.route_data = (
+            'GET', '/test', '', 'home_controller#index', 'html'
+        )
         self.environment = {
             'REQUEST_METHOD': 'GET',
             'PATH_INFO': '/test',
@@ -19,12 +19,10 @@ class TestApplicationRoute:
 
     def test_true_match(self):
         assert self.route.match(self.environment) == True
-        assert self.environment['MATCHING_ROUTE'] == '/test'
-        assert self.environment['MATCHING_ROUTE_PARAMS'] == ()
+        assert self.environment['MATCHING_ROUTE_PARAMS'] == {}
         self.environment['PATH_INFO'] = '/test/'
         assert self.route.match(self.environment) == True
-        assert self.environment['MATCHING_ROUTE'] == '/test'
-        assert self.environment['MATCHING_ROUTE_PARAMS'] == ()
+        assert self.environment['MATCHING_ROUTE_PARAMS'] == {}
         self.environment['PATH_INFO'] = '/test/1'
         assert self.route.match(self.environment) == False
 
@@ -33,7 +31,7 @@ class TestApplicationRoute:
         assert self.route.match(self.environment) == False
 
     def test_false_match_with_no_route_data(self):
-        self.route.route_data = {}
+        self.route.route_data = []
         assert self.route.match(self.environment) == False
 
     def test_false_match_with_no_route_data_for_http_method(self):

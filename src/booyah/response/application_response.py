@@ -15,6 +15,7 @@ class ApplicationResponse:
         self.body = ''
         self.headers = headers
         self.status = status
+
         self.template_environment = Environment(
             loader=PackageLoader('booyah', 'templates') if os.getenv('BOOYAH_ENV') == 'test' else PackageLoader('app', 'views'),
             autoescape=select_autoescape()

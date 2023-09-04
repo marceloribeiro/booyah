@@ -8,12 +8,11 @@ class TestControllerHelper():
     def test_get_controller_action(self):
         self.environment['MATCHING_ROUTE'] = '/home'
         self.environment['QUERY_STRING'] = ''
-        self.environment['MATCHING_ROUTE_PARAMS'] = []
-        assert get_controller_action({ 'controller': 'home', 'action': 'index' }, self.environment)().json_body() == b'{"text": "Home Controller, Index Action"}'
-        assert get_controller_action({ 'to': 'home#index' }, self.environment)().json_body() == b'{"text": "Home Controller, Index Action"}'
+        self.environment['MATCHING_ROUTE_PARAMS'] = {}
+        assert get_controller_action(('GET', '/home', '', 'home_controller#index', '*'), self.environment)().json_body() == b'{"text": "Home Controller, Index Action"}'
 
     def test_set_response_format(self):
-        assert(set_response_format({ 'format': 'json' }, self.environment) == 'json')
+        assert(set_response_format(('GET', '/home', '', 'home_controller#index', 'json'), self.environment) == 'json')
         assert(self.environment['RESPONSE_FORMAT'] == 'json')
         assert('CONTENT_TYPE' not in self.environment)
 
