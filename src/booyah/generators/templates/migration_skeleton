@@ -1,8 +1,8 @@
 from booyah.db.migrate.application_migration import ApplicationMigration
 
-class %{migration_name}%(ApplicationMigration):
+class {{migration_name}}(ApplicationMigration):
     def up(self):
-        %{up_content}%
+        {{up_content}}
 
     def down(self):
-        %{down_content}%
+        {{down_content}}

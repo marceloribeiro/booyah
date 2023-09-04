@@ -72,7 +72,7 @@ String.transliterate = transliterate
 String.underscore = underscore
 
 def classify(self):
-    return String(String(self.titleize()).singularize().transliterate().replace(' ', ''))
+    return String(String(self.titleize()).transliterate().replace(' ', ''))
 
 
 String.classify = classify

@@ -82,8 +82,8 @@ class TestStringExtension():
         assert String(' my  Name ').underscore() == 'my_name'
 
     def test_classify(self):
-        assert String('MyClasses').classify() == 'MyClass'
-        assert String('my classes').classify() == 'MyClass'
-        assert String('my_classes').classify() == 'MyClass'
+        assert String('MyClasses').classify() == 'MyClasses'
+        assert String('my classes').classify() == 'MyClasses'
+        assert String('my_classes').classify() == 'MyClasses'
         assert String('my_class').classify() == 'MyClass'
         assert String('älämölö').classify() == 'Alamolo'

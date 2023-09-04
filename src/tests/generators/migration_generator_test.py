@@ -5,12 +5,10 @@ from booyah.generators.migration_generator import MigrationGenerator
 class TestMigrationGenerator:
     def test_intance_inits_with_default_values(self):
         migration_generator = MigrationGenerator('target_folder', 'migration_name', 'fields')
-
         assert migration_generator.target_folder == 'target_folder'
         assert migration_generator.migration_name == 'migration_name'
         assert migration_generator.fields == 'fields'
         assert migration_generator.class_name == 'MigrationName'
-        assert migration_generator.template_path == os.path.join(os.path.dirname(__file__)).replace('/tests/generators', '') + '/booyah/generators/templates/migration'
         assert migration_generator.target_file == f"target_folder/{migration_generator.current_datetime}_migration_name.py"
         assert migration_generator.table_name == ''
         assert migration_generator.content == ''
@@ -70,7 +68,7 @@ class TestMigrationGenerator:
     def create_sample_content(self):
         return """from booyah.db.migrate.application_migration import ApplicationMigration
 
-class CreateTableUser(ApplicationMigration):
+class CreateTableUsers(ApplicationMigration):
     def up(self):
         super().up(lambda: self.create_table('users', {
             'name': 'string',

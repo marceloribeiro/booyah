@@ -1,8 +1,8 @@
-<a href="/users/new">New</a>
-<h1>Users</h1>
-{% if not users %}
-    <p>No users found</p>
-{% else %}
+<a href="/{{model_name.underscore().pluralize()}}/new">New</a>
+<h1>{{model_name.pluralize()}}</h1>
+{{'{% if not'}} {{model_name.underscore().pluralize()}} {{'%}'}}
+    <p>No {{model_name.underscore().pluralize()}} found</p>
+{{'{% else %}'}}
     <table>
         <thead>
             <tr>
@@ -12,24 +12,21 @@
             </tr>
         </thead>
         <tbody>
-            {%- for user in users %}
+            {{'{%- for'}} {{model_name.underscore()}} in {{model_name.underscore().pluralize()}} {{'%}'}}
                 <tr>
-                    <td><a href="/users/{{ user.id -}}">#{{ user.id -}}</a></td>
-                    <td>{{ user.name -}}</td>
-                    <td>{{ user.email -}}</td>
+                    <td><a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">#{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}</a></td>
                     <td>
-                        <form class="deleteForm" action="/users/{{ user.id -}}">
+                        <form class="deleteForm" action="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">
                             <button type="submit">
                             Delete
                             </button>
                         </form>
                     </td>
                 </tr>
-            {% endfor %}
+            {{'{% endfor %}'}}
         </tbody>
     </table>
-{% endif %}
-
+{{'{% endif %}'}}
 <script>
     var deleteForms = document.getElementsByClassName("deleteForm");
 

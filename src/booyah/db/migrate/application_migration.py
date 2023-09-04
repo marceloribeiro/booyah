@@ -19,7 +19,7 @@ class ApplicationMigration:
         files = os.listdir(self.migrations_folder())
         files.sort()
         for file in files:
-            if file.endswith('.py') and not file.startswith('application_migration'):
+            if file.endswith('.py') and not file.startswith('application_migration') and not file.startswith('__init__'):
                 migrations.append(file)
         return migrations
 

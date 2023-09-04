@@ -1,0 +1,4 @@
+return self.respond_to(
+    html=lambda: self.render(),
+    json=lambda: self.render({'{{ controller_name }}': '{{ action }}'})
+)

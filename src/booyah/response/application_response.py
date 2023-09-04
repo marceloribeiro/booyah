@@ -1,4 +1,5 @@
 import json
+import os
 from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.logger import logger
 
@@ -15,7 +16,7 @@ class ApplicationResponse:
         self.headers = headers
         self.status = status
         self.template_environment = Environment(
-            loader=PackageLoader(self.APP_NAME),
+            loader=PackageLoader('booyah', 'templates') if os.getenv('BOOYAH_ENV') == 'test' else PackageLoader('app', 'views'),
             autoescape=select_autoescape()
         )
 
@@ -53,7 +54,7 @@ class ApplicationResponse:
         return bytes(self.body, self.DEFAULT_RESPONSE_ENCODING)
 
     def get_template_path(self):
-        template_path = self.environment['controller_name'] + '/' + self.environment['action_name'] + '.html'
+        template_path = f"{self.environment['controller_name']}/{self.environment['action_name']}.html"
         logger.debug("http accept:", self.environment['HTTP_ACCEPT'])
         logger.debug("rendering:", template_path, ', format:', self.format())
         return template_path

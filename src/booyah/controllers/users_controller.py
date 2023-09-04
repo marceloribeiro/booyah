@@ -15,11 +15,11 @@ class UsersController(BooyahApplicationController):
     def show(self):
         user = User.find(self.params['id'])
         return self.render({ "user": UserSerializer(user).to_dict() })
-        
+
     def edit(self):
         user = User.find(self.params['id'])
         return self.render({ "user": UserSerializer(user).to_dict() })
-    
+
     def new(self):
         return self.render({})
 

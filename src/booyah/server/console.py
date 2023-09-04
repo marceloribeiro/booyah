@@ -14,6 +14,7 @@ import os
 import importlib
 
 read_dotenv('.env')
+os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
 
 def configure():
     """
