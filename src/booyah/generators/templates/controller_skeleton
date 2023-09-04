@@ -9,3 +9,10 @@ class {{controller_name}}(ApplicationController):
     def {{action}}(self):
         {{action_content[action]}}
     {% endfor %}
+    {% if scaffold %}
+    def {{model_name}}_params(self):
+        return { key: value for key, value in self.params['{{model_name}}'].items() if key in self.permitted_params() }
+
+    def permitted_params(self):
+        return [{{model_attributes_names}}]
+    {%- endif %}

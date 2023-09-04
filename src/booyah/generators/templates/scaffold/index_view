@@ -27,3 +27,31 @@
         </tbody>
     </table>
 {{'{% endif %}'}}
+<script>
+    var deleteForms = document.getElementsByClassName("deleteForm");
+
+    for (var i = 0; i < deleteForms.length; i++) {
+        deleteForms[i].addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var form = event.target;
+            var url = form.action;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("DELETE", url, true);
+
+            xhr.onload = function() {
+                if (xhr.status === 204 || xhr.status === 200) {
+                    console.log("Resource deleted successfully.");
+                    window.location.reload();
+                } else {
+                    console.log("Error deleting resource:", xhr.status);
+                }
+            };
+
+            xhr.send();
+
+            return false;
+        });
+    }
+</script>

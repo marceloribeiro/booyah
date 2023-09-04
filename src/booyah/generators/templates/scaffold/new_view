@@ -1,0 +1,12 @@
+<a href="/{{model_name.pluralize()}}">back</a>
+<h1>New User</h1>
+<form action="/{{model_name.pluralize()}}" method="post">
+    <div style="padding: 10px;">
+        <label>Name</label>
+        <br />
+        <input name="{{model_name}}[name]" />
+    </div>
+    <div style="padding: 10px;">
+        <input type="submit" value="Submit" />
+    </div>
+</form>

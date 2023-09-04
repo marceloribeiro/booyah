@@ -27,5 +27,12 @@ class ScaffoldGenerator(BaseGenerator):
         model_generator.perform()
 
     def generate_controller(self):
-        controller_generator = ControllerGenerator('app/controllers', self.model_name.pluralize(), [], scaffold=True, model_name=self.model_name)
+        controller_generator = ControllerGenerator(
+            'app/controllers',
+            self.model_name.pluralize(),
+            [],
+            scaffold=True,
+            model_name=self.model_name,
+            model_attributes=self.attributes
+        )
         controller_generator.perform()

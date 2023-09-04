@@ -1,0 +1,42 @@
+<a href="/{{model_name.pluralize()}}/{{'{{'}}{{model_name}}.id{{'}}'}}">back</a>
+<h1>Edit User</h1>
+<form id="putForm" action="/{{model_name.pluralize()}}/{{'{{'}}{{model_name}}.id{{'}}'}}" method="post">
+    <input type="hidden" name="_method" value="PUT">
+    <div style="padding: 10px;">
+        <label>Name</label>
+        <br />
+        <input name="{{model_name}}[name]" value="{{'{{'}}{{model_name}}.name{{'}}'}}" />
+    </div>
+    <div style="padding: 10px;">
+        <input type="submit" value="Submit" />
+    </div>
+</form>
+
+<script>
+    document.getElementById("putForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        var form = event.target;
+        var url = form.action;
+
+        var methodOverride = form.querySelector('input[name="_method"]').value;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open(methodOverride, url, true);
+        xhr.setRequestHeader("X-HTTP-Method-Override", methodOverride);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                window.location.href = url;
+            } else {
+                console.log("Error updating resource:", xhr.status);
+            }
+        };
+        var formData = new FormData(form);
+        var params = new URLSearchParams(formData).toString();
+        xhr.send(params);
+
+        return false;
+    });
+    </script>
