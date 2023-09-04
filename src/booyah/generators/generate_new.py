@@ -86,7 +86,8 @@ def create_project(project_name):
     folder_structure = {
         'app': {
             'models': ['application_model.py', '__init__.py'],
-            'controllers': ['application_controller.py', '__init__.py']
+            'controllers': ['application_controller.py', '__init__.py'],
+            'serializers': ['__init__.py'],
         },
         'config': ['routes.json', '__init__.py'],
         'public': ['index.html'],

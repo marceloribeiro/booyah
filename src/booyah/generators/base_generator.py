@@ -1,5 +1,6 @@
 import os
 from booyah.generators.helpers.io import print_error, prompt_override_file
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 class BaseGenerator:
     def should_create_file(self):
@@ -11,3 +12,11 @@ class BaseGenerator:
                 os.remove(self.target_file)
                 return True
         return True
+
+    def get_template_content(self, template_path, template_name, data):
+        template_environment = Environment(
+            loader=PackageLoader('booyah', template_path),
+            autoescape=select_autoescape()
+        )
+        template = template_environment.get_template(template_name)
+        return template.render(**data)

@@ -1,0 +1,4 @@
+from booyah.serializers.application_serializer import ApplicationSerializer
+
+class {{model_name.camelize()}}Serializer(ApplicationSerializer):
+    pass

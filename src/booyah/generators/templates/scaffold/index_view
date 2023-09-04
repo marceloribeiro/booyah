@@ -1,0 +1,29 @@
+<a href="/{{model_name.underscore().pluralize()}}/new">New</a>
+<h1>{{model_name.pluralize()}}</h1>
+{{'{% if not'}} {{model_name.underscore().pluralize()}} {{'%}'}}
+    <p>No {{model_name.underscore().pluralize()}} found</p>
+{{'{% else %}'}}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>E-mail</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{'{%- for'}} {{model_name.underscore()}} in {{model_name.underscore().pluralize()}} {{'%}'}}
+                <tr>
+                    <td><a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">#{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}</a></td>
+                    <td>
+                        <form class="deleteForm" action="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">
+                            <button type="submit">
+                            Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {{'{% endfor %}'}}
+        </tbody>
+    </table>
+{{'{% endif %}'}}

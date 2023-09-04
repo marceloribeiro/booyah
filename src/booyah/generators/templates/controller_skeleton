@@ -1,10 +1,11 @@
 from {{project_module}}.app.controllers.application_controller import ApplicationController
+{% if scaffold -%}
+from {{project_module}}.app.models.{{model_name}} import {{model_name.camelize()}}
+from {{project_module}}.app.serializers.{{model_name}}_serializer import {{model_name.camelize()}}Serializer
+{%- endif %}
 
 class {{controller_name}}(ApplicationController):
     {% for action in actions %}
     def {{action}}(self):
-        return self.respond_to(
-            html=lambda: self.render(),
-            json=lambda: self.render({'{{ controller_name }}': '{{ action }}'})
-        )
+        {{action_content[action]}}
     {% endfor %}
