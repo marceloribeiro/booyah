@@ -5,6 +5,7 @@ from booyah.generators.base_generator import BaseGenerator
 from booyah.generators.model_generator import ModelGenerator
 from booyah.generators.serializer_generator import SerializerGenerator
 from booyah.generators.controller_generator import ControllerGenerator
+from booyah.generators.route_generator import RouteGenerator
 
 #  booyah g scaffold users name age:integer bio:text
 class ScaffoldGenerator(BaseGenerator):
@@ -17,6 +18,7 @@ class ScaffoldGenerator(BaseGenerator):
         self.generate_model()
         self.generate_serializer()
         self.generate_controller()
+        self.generate_route()
 
     def generate_model(self):
         model_generator = ModelGenerator('app/models', self.model_name, self.attributes)
@@ -36,3 +38,7 @@ class ScaffoldGenerator(BaseGenerator):
             model_attributes=self.attributes
         )
         controller_generator.perform()
+    
+    def generate_route(self):
+        route_generator = RouteGenerator('')
+        route_generator.add_resource(self.model_name.pluralize())

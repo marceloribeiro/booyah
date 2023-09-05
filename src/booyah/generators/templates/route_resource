@@ -1,0 +1,1 @@
+routes_manager.resources('{{resource_name}}')
