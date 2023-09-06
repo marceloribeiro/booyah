@@ -1,11 +1,5 @@
 from booyah.extensions.string import String
 
-METHOD_INDEX = 0
-URL_PATH_INDEX = 1
-ROUTE_NAME_INDEX = 2
-FULL_PATH_INDEX = 3
-FORMAT_INDEX = 4
-
 class RoutesManager:
     def __init__(self):
         self.routes = []
@@ -17,41 +11,51 @@ class RoutesManager:
             return f"{controller_name}_controller#{action_name}"
         else:
             raise ValueError("Invalid input string format")
+    
+    def append_route(self, method, url, name, to, controller, action, format):
+        action_path = to
+        if controller and action:
+            action_path = f"{controller}#{action}"
 
-    def get(self, path, name, full_path, formats='*'):
-        self.routes.append(('GET', path, name, self.put_controller_suffix(full_path), formats))
+        if action_path and url and method and format:
+            self.routes.append({
+                "method": method,
+                "url": url,
+                "name": name,
+                "action": self.put_controller_suffix(action_path),
+                "format": format
+            })
         return self
 
-    def post(self, path, name, full_path, formats='*'):
-        self.routes.append(('POST', path, name, self.put_controller_suffix(full_path), formats))
-        return self
+    def get(self, url, name=None, to=None, controller=None, action=None, format='*'):
+        return self.append_route('GET', url, name, to, controller, action, format)
 
-    def put(self, path, name, full_path, formats='*'):
-        self.routes.append(('PUT', path, name, self.put_controller_suffix(full_path), formats))
-        return self
+    def post(self, url, name=None, to=None, controller=None, action=None, format='*'):
+        return self.append_route('POST', url, name, to, controller, action, format)
 
-    def patch(self, path, name, full_path, formats='*'):
-        self.routes.append(('PATCH', path, name, self.put_controller_suffix(full_path), formats))
-        return self
+    def put(self, url, name=None, to=None, controller=None, action=None, format='*'):
+        return self.append_route('PUT', url, name, to, controller, action, format)
 
-    def delete(self, path, name, full_path, formats='*'):
-        self.routes.append(('DELETE', path, name, self.put_controller_suffix(full_path), formats))
-        return self
+    def patch(self, url, name=None, to=None, controller=None, action=None, format='*'):
+        return self.append_route('PATCH', url, name, to, controller, action, format)
 
-    def resources(self, resource_name, controller_module=None, parent=None, only=None, except_=None, formats='*'):
+    def delete(self, url, name=None, to=None, controller=None, action=None, format='*'):
+        return self.append_route('DELETE', url, name, to, controller, action, format)
+
+    def resources(self, resource_name, parent_module=None, parent=None, only=None, except_=None, format='*'):
         name_prefix = String(resource_name).singularize()
         base_path = f'{parent}/{resource_name}' if parent else f'/{resource_name}'
-        controller_path = f'{controller_module}.{resource_name}_controller' if controller_module else f'{resource_name}_controller'
+        controller_path = f'{parent_module}.{resource_name}_controller' if parent_module else f'{resource_name}_controller'
         
         standard_routes = [
-            ('GET', base_path, f'{name_prefix}_index', f'{controller_path}#index', formats),
-            ('GET', f'{base_path}/<int:id>', f'{name_prefix}_show', f'{controller_path}#show', formats),
-            ('GET', f'{base_path}/new', f'{name_prefix}_new', f'{controller_path}#new', formats),
-            ('POST', base_path, f'{name_prefix}_create', f'{controller_path}#create', formats),
-            ('GET', f'{base_path}/<int:id>/edit', f'{name_prefix}_edit', f'{controller_path}#edit', formats),
-            ('PUT', f'{base_path}/<int:id>', f'{name_prefix}_update', f'{controller_path}#update', formats),
-            ('PATCH', f'{base_path}/<int:id>', f'{name_prefix}_update', f'{controller_path}#update', formats),
-            ('DELETE', f'{base_path}/<int:id>', f'{name_prefix}_destroy', f'{controller_path}#destroy', formats)
+            {"method": 'GET',       "url": base_path,                   "name": f'{name_prefix}_index',     "action": f'{controller_path}#index',   "format": format},
+            {"method": 'GET',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_show',      "action": f'{controller_path}#show',    "format": format},
+            {"method": 'GET',       "url": f'{base_path}/new',          "name": f'{name_prefix}_new',       "action": f'{controller_path}#new',     "format": format},
+            {"method": 'POST',      "url": base_path,                   "name": f'{name_prefix}_create',    "action": f'{controller_path}#create',  "format": format},
+            {"method": 'GET',       "url": f'{base_path}/<int:id>/edit',"name": f'{name_prefix}_edit',      "action": f'{controller_path}#edit',    "format": format},
+            {"method": 'PUT',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
+            {"method": 'PATCH',     "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
+            {"method": 'DELETE',    "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_destroy',   "action": f'{controller_path}#destroy', "format": format}
         ]
         
         if only is not None:

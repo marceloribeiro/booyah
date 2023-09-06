@@ -2,9 +2,9 @@ from booyah.router.application_route import ApplicationRoute
 
 class TestApplicationRoute:
     def setup_method(self):
-        self.route_data = (
-            'GET', '/test', '', 'home_controller#index', 'html'
-        )
+        self.route_data = {
+            "method": 'GET', "url": '/test', "name": '', "action": 'home_controller#index', "format": 'html'
+        }
         self.environment = {
             'REQUEST_METHOD': 'GET',
             'PATH_INFO': '/test',

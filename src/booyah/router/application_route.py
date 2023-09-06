@@ -1,5 +1,4 @@
 import re
-from booyah.router.routes_manager import FORMAT_INDEX, URL_PATH_INDEX, METHOD_INDEX, FULL_PATH_INDEX
 from booyah.router.route_matcher import RouteMatcher
 
 class ApplicationRoute:
@@ -7,10 +6,10 @@ class ApplicationRoute:
         self.route_data = route_data
         self.regex_pattern = None
         
-        if self.route_data[FORMAT_INDEX] == '*':
+        if self.route_data["format"] == '*':
             self.format = 'html'
         else:
-            self.format = self.route_data[FORMAT_INDEX]
+            self.format = self.route_data["format"]
 
     def _compile_regex(self, pattern):
         pattern = re.sub(r'{\w+}', r'(.*)', pattern)
@@ -20,10 +19,10 @@ class ApplicationRoute:
         http_method = environment['REQUEST_METHOD'].upper()
         path_info = environment['PATH_INFO']
 
-        if http_method != self.route_data[METHOD_INDEX]:
+        if http_method != self.route_data["method"]:
             return False
         
-        if path_info == self.route_data[URL_PATH_INDEX]:
+        if path_info == self.route_data["url"]:
             environment['MATCHING_ROUTE_PARAMS'] = {}
             return True
 
@@ -35,10 +34,10 @@ class ApplicationRoute:
         http_method = environment['REQUEST_METHOD'].upper()
         path_info = environment['PATH_INFO']
 
-        if http_method != self.route_data[METHOD_INDEX]:
+        if http_method != self.route_data["method"]:
             return False
 
-        route_pattern = self.route_data[URL_PATH_INDEX]
+        route_pattern = self.route_data["url"]
         matcher = RouteMatcher(route_pattern)
 
         if matcher.is_valid_url(path_info):

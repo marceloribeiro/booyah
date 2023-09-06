@@ -5,7 +5,6 @@ from booyah.helpers.application_helper import import_current_project_folder
 from booyah.logger import logger
 import os
 import sys
-from booyah.router.routes_manager import FORMAT_INDEX, URL_PATH_INDEX, METHOD_INDEX, FULL_PATH_INDEX
 
 import_current_project_folder(sys)
 DEFAULT_CONTROLLER_NAME = 'application_controller'
@@ -18,12 +17,12 @@ RESPONSE_FORMAT_JSON = 'json'
 def get_controller_action(route_data, environment):
     set_response_format(route_data, environment)
 
-    return get_controller_action_from_string(route_data[FULL_PATH_INDEX], environment)
+    return get_controller_action_from_string(route_data["action"], environment)
 
 def set_response_format(route_data, environment):
     format_from_header = get_format_from_content_type(environment.get('HTTP_ACCEPT'))
-    if route_data[FORMAT_INDEX] != '*':
-        environment['RESPONSE_FORMAT'] = route_data[FORMAT_INDEX]
+    if route_data["format"] != '*':
+        environment['RESPONSE_FORMAT'] = route_data["format"]
     elif format_from_header != None:
         environment['RESPONSE_FORMAT'] = format_from_header
     else:
