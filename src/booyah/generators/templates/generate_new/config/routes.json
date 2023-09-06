@@ -1,6 +1,0 @@
-[
-  { "get": "/plain", "to": "booyah.controllers.home#plain", "format": "text" },
-  { "get": "/status", "to": "booyah.controllers.home#status", "format": "json" },
-  { "get": "/about", "to": "booyah.controllers.home#about" },
-  { "get": "/", "to": "booyah.controllers.home#index" }
-]

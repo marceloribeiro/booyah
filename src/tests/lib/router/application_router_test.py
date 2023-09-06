@@ -19,10 +19,10 @@ class TestApplicationRouter:
             'MATCHING_ROUTE_PARAMS': [],
         }
         self.first_route = {
-            'get': '/users', 'to': 'users#index', 'format': 'html'
+            "method": 'GET', "url": '/users', "action": 'users_controller#index', "format": 'html'
         }
         self.second_route = {
-            'get': '/users/1', 'to': 'users#show', 'format': 'html'
+            "method": 'GET', "url": '/users/1', "action": 'users_controller#show', "format": 'html'
         }
 
     def test_init(self):

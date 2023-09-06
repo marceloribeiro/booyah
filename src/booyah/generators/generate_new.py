@@ -88,8 +88,9 @@ def create_project(project_name):
             'models': ['application_model.py', '__init__.py'],
             'controllers': ['application_controller.py', '__init__.py'],
             'serializers': ['__init__.py'],
+            'views': ['__init__.py'],
         },
-        'config': ['routes.json', '__init__.py'],
+        'config': ['routes.py', '__init__.py'],
         'public': ['index.html'],
         'db': {
             'migrate': ['__init__.py'],
