@@ -1,0 +1,1 @@
+<textarea name="{{model_name}}[{{attribute['name']}}]" id="{{model_name}}_{{attribute['name']}}" rols="3" cols="60">{{'{{'}}{{model_name}}.{{attribute['name']}} or ''{{'}}'}}</textarea>

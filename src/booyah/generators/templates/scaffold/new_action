@@ -1,1 +1,2 @@
-return self.render({})
+{{model_name}} = {{model_name.capitalize()}}({})
+        return self.render({"{{model_name.underscore()}}": {{model_name.underscore()}}})

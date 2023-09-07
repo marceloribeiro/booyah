@@ -12,7 +12,7 @@ class ScaffoldGenerator(BaseGenerator):
     def __init__(self, target_folder, model_name, attributes):
         self.target_folder = target_folder
         self.model_name = String(model_name).singularize()
-        self.attributes = list(set(attributes))
+        self.attributes = attributes
 
     def perform(self):
         self.generate_model()
@@ -38,7 +38,7 @@ class ScaffoldGenerator(BaseGenerator):
             model_attributes=self.attributes
         )
         controller_generator.perform()
-    
+
     def generate_route(self):
         route_generator = RouteGenerator('')
         route_generator.add_resource(self.model_name.pluralize())

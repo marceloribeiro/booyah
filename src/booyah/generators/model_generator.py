@@ -27,10 +27,15 @@ class ModelGenerator(BaseGenerator):
 
     def generate_migration(self):
         table_name = String(self.model_name).pluralize()
+        table_attributes = ['id:primary_key']
+        table_attributes += self.attributes
+        table_attributes.append('created_at:datetime')
+        table_attributes.append('updated_at:datetime')
+
         MigrationGenerator(
             'db/migrate',
             f"create_table_{table_name}",
-            self.attributes
+            table_attributes
         ).perform()
 
     def load_content(self):

@@ -1,4 +1,9 @@
 <a href="/{{model_name.pluralize()}}">back</a>
 <h1>Show {{model_name.camelize()}}</h1>
-<p>{{'{{'}} {{model_name}}.name {{'}}'}}</p>
+{%- for attribute in model_attributes %}
+<p>
+  <strong>{{attribute['name'].camelize()}}:</strong>
+  {{'{{'}} {{model_name.underscore()}}.{{attribute['name']}} {{'-}}'}}
+</p>
+{%- endfor %}
 <a href="/{{model_name.pluralize()}}/{{'{{'}} {{model_name}}.id {{'-}}'}}/edit">Edit</a>

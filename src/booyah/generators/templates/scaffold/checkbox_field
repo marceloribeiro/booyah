@@ -1,0 +1,2 @@
+<input type="checkbox" name="{{model_name}}[{{attribute['name']}}]" id="{{model_name}}_{{attribute['name']}}" value="1" {{'{%'}} if {{model_name}}.{{attribute['name']}} %}checked{{'{% endif %}'}} />
+<input type="hidden" name="{{model_name}}[{{attribute['name']}}]" value="0" />

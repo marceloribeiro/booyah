@@ -1,0 +1,13 @@
+<form action=/{{model_name.pluralize()}}/{{'{{'}}{{model_name}}.id or ''{{'}}'}}  method="POST" id="{{model_name}}_form">
+  <input type="hidden" name="_method" value="PUT" />
+  {%- for attribute in model_attributes %}
+    {%- if attribute['name'] != 'id' %}
+    <div style="padding: 10px;">
+      <label>{{attribute['name']}}</label>
+      <br />
+      {% include attribute['field_type'] %}
+    </div>
+    {%- endif %}
+  {%- endfor %}
+  <input type="submit"/>
+</form>
