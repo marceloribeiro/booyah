@@ -1,25 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{project_name}}</title>
-    <meta name="description" content="A booyah application" />
-    {% if meta_information %}
-      <meta property="og:title" content="{{ meta_information["og_title"] }}" />
-      <meta property="og:url" content="{{ meta_information["og_url"] }}" />
-      <meta property="og:description" content="{{ meta_information["og_description"] }}" />
-      <meta property="og:image" content="{{ meta_information["og_image"] }}" />
-      <meta property="og:type" content="{{ meta_information["og_type"] }}" />
-    {% endif %}
-    <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="#000000" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
-    <link rel="manifest" href="/manifest.json" />
-    <script type="text/javascript" src="/javascript/jquery-3.7.1.min.js" ></script>
+    {% block head %}
+      <title>{% block title %}{% endblock %} - {{project_name}}</title>
+      <meta name="description" content="A booyah application" />
+      {% if meta_information %}
+        <meta property="og:title" content="{{ meta_information["og_title"] }}" />
+        <meta property="og:url" content="{{ meta_information["og_url"] }}" />
+        <meta property="og:description" content="{{ meta_information["og_description"] }}" />
+        <meta property="og:image" content="{{ meta_information["og_image"] }}" />
+        <meta property="og:type" content="{{ meta_information["og_type"] }}" />
+      {% endif %}
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta name="theme-color" content="#000000" />
+      <script type="text/javascript" src="/assets/javascript/jquery-3.7.1.min.js" ></script>
+    {% endblock %}
   </head>
 
   <body>
-    {{ controller_action_content }}
+    <h1>The Booyah Project</h1>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+        {% block footer %}
+        &copy; Copyright 2008 by <a href="http://domain.invalid/">you</a>.
+        {% endblock %}
+    </div>
   </body>
 </html>

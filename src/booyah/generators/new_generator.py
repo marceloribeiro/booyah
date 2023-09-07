@@ -7,6 +7,7 @@ import re
 from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root, prompt_replace
 from booyah.generators.base_generator import BaseGenerator
+import shutil
 
 import booyah.extensions.string
 globals()['String'] = booyah.extensions.string.String
