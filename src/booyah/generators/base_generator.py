@@ -37,16 +37,13 @@ class BaseGenerator:
                     if os.path.exists(destination_file):
                         user_input = input(f"File '{destination_file}' already exists. Replace (R) or Ignore (I)? ").strip().lower()
                         if user_input == 'r':
-                            # Replace the existing file
                             shutil.copy2(source_file, destination_file)
                             print(f"File replaced '{destination_file}'.")
                         elif user_input == 'i':
-                            # Ignore and do not copy
                             print(f"Ignoring file '{destination_file}' (user choice: Ignore).")
                         else:
                             print(f"Invalid input: '{user_input}'. File '{source_file}' was not copied.")
                     else:
-                        # Copy the file if it doesn't exist in the destination
                         shutil.copy2(source_file, destination_file)
 
         except FileNotFoundError:

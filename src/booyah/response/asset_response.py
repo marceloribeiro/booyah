@@ -1,26 +1,19 @@
 import os
-from booyah.logger import logger
 
 class AssetResponse:
-    APP_NAME = 'booyah'
-    DEFAULT_RESPONSE_ENCODING = 'utf-8'
     DEFAULT_HTTP_STATUS = '200 OK'
 
-    def __init__(self, environment, headers = [], status = DEFAULT_HTTP_STATUS):
+    def __init__(self, environment, status = DEFAULT_HTTP_STATUS):
         self.environment = environment
         self.file_name = os.path.join(os.environ["ROOT_PROJECT_PATH"], 'app', environment['PATH_INFO'][1:])
         self.load_file_content()
-        self.headers = headers
         self.status = status
 
     def response_headers(self):
-        if (self.headers != []):
-            return self.headers
-        else:
-            return [
-              ('Content-type', self.environment.get('CONTENT_TYPE', self.get_content_type())),
-              ('Content-Length', str(len(self.file_bytes)))
-            ]
+        return [
+            ('Content-type', self.environment.get('CONTENT_TYPE', self.get_content_type())),
+            ('Content-Length', str(len(self.file_bytes)))
+        ]
     
     def get_content_type(self):
         file_extension = self.file_name.lower()
@@ -56,9 +49,6 @@ class AssetResponse:
         else:
             return 'application/octet-stream' 
 
-    def format(self):
-        return self.environment.get('RESPONSE_FORMAT')
-
     def response_body(self):
         return self.file_bytes
     
@@ -67,6 +57,8 @@ class AssetResponse:
             with open(self.file_name, 'rb') as file:
                 self.file_bytes = file.read()
         except FileNotFoundError:
+            self.status = "404 Not Found"
             print(f"File '{file_path}' not found.")
         except Exception as e:
+            self.status = "500 Internal Server Error"
             print(f"An error occurred: {str(e)}")
