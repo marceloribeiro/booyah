@@ -12,7 +12,7 @@ class ControllerGenerator(BaseGenerator):
         self.actions = list(set(actions))
         self.scaffold = scaffold
         self.model_name = model_name
-        self.model_attributes = model_attributes
+        self.model_attributes = self.format_attributes(model_attributes)
         self.class_name = String(self.controller_name).classify()
         self.target_file = os.path.join(self.target_folder, self.class_name.underscore() + '.py')
         self.content = ''
@@ -31,6 +31,22 @@ class ControllerGenerator(BaseGenerator):
         self.create_controller_from_template()
         self.create_views_from_template()
 
+    def format_attributes(self, attributes):
+        formatted = []
+        for attribute in attributes:
+            if ':' not in attribute:
+                name = attribute
+                format = 'string'
+            else:
+                name = attribute.split(':')[0]
+                format = attribute.split(':')[1]
+            formatted.append({
+                "name": String(name),
+                "format": String(format),
+                "field_type": String(self.get_field_type(format))
+            })
+        return formatted
+
     def get_template_data(self):
         data = {
             "controller_name": self.class_name,
@@ -39,7 +55,8 @@ class ControllerGenerator(BaseGenerator):
             "actions": self.actions,
             "action_content": self.get_scaffold_content('action') if self.scaffold else {},
             "view_content": self.get_scaffold_content('view') if self.scaffold else {},
-            'model_attributes_names': self.get_model_attributes_names(),
+            'model_attributes': self.model_attributes if self.scaffold else [],
+            "model_attributes_names": self.get_model_attributes_names(),
             "scaffold": self.scaffold
         }
         return data
@@ -52,7 +69,7 @@ class ControllerGenerator(BaseGenerator):
     def get_scaffold_content(self, mode):
         content = {}
 
-        for action in self.actions:
+        for action in (self.actions + ['form']):
             if mode == 'view' and action in ['create', 'update', 'destroy']:
                 continue
 
@@ -64,7 +81,8 @@ class ControllerGenerator(BaseGenerator):
                     "controller_name": self.class_name,
                     "action_name": action,
                     'model_name': self.model_name,
-                    'model_attributes_names': self.get_model_attributes_names()
+                    'model_attributes': self.model_attributes if self.scaffold else [],
+                    "model_attributes_names": self.get_model_attributes_names()
                 }
             )
             if mode == 'action':
@@ -92,9 +110,13 @@ class ControllerGenerator(BaseGenerator):
             print_error(f'view already exists ({view_file})')
             return
 
-        template_name = f"scaffold/{action}_view" if self.scaffold else 'view_skeleton'
-        template = self.template_environment.get_template(template_name)
-        content = template.render(**self.data)
+        if self.scaffold:
+            content = self.get_scaffold_content('view')[action]
+        else:
+            template_name = f"scaffold/{action}_view" if self.scaffold else 'view_skeleton'
+            template = self.template_environment.get_template(template_name)
+            content = template.render(**self.data)
+
         os.makedirs(os.path.dirname(view_file), exist_ok=True)
         with open(view_file, "w") as output_file:
             output_file.write(content)
@@ -103,8 +125,22 @@ class ControllerGenerator(BaseGenerator):
     def create_views_from_template(self):
         for action in self.actions:
             self.create_view_for_action(action)
+        self.create_view_for_action('form')
 
     def get_model_attributes_names(self):
         if not self.model_name:
             return ''
-        return ', '.join([f"'{attribute.split(':')[0]}'" for attribute in self.model_attributes])
+        return ', '.join([f"'{attribute['name']}'" for attribute in self.model_attributes])
+
+    def get_field_type(self, type):
+        options = {
+            'string': 'text_field',
+            'text': 'textarea_field',
+            'integer': 'number_field',
+            'float': 'number_field',
+            'boolean': 'checkbox_field',
+            'date': 'date_field',
+            'time': 'time_field',
+            'datetime': 'datetime_field',
+        }
+        return options[type] if type in options else 'text_field'

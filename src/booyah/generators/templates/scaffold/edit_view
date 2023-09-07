@@ -1,19 +1,9 @@
-<a href="/{{model_name.pluralize()}}/{{'{{'}}{{model_name}}.id{{'}}'}}">back</a>
-<h1>Edit User</h1>
-<form id="putForm" action="/{{model_name.pluralize()}}/{{'{{'}}{{model_name}}.id{{'}}'}}" method="post">
-    <input type="hidden" name="_method" value="PUT">
-    <div style="padding: 10px;">
-        <label>Name</label>
-        <br />
-        <input name="{{model_name}}[name]" value="{{'{{'}}{{model_name}}.name{{'}}'}}" />
-    </div>
-    <div style="padding: 10px;">
-        <input type="submit" value="Submit" />
-    </div>
-</form>
+<a href="/{{model_name.pluralize()}}">back</a>
+<h1>Edit {{model_name.camelize()}}</h1>
+{{'{%'}} include '{{model_name.pluralize()}}/form.html' {{'%}'}}
 
 <script>
-    document.getElementById("putForm").addEventListener("submit", function(event) {
+    document.getElementById("{{model_name}}_form").addEventListener("submit", function(event) {
         event.preventDefault();
 
         var form = event.target;
