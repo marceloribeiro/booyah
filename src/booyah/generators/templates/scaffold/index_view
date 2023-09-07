@@ -1,70 +1,47 @@
-<a href="/{{model_name.underscore().pluralize()}}/new">New</a>
-<h1>{{model_name.pluralize()}}</h1>
-{{'{% if not'}} {{model_name.underscore().pluralize()}} {{'%}'}}
-    <p>No {{model_name.underscore().pluralize()}} found</p>
-{{'{% else %}'}}
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                {%- for attribute in model_attributes %}
-                    {%- if attribute['name'] != 'id' %}
-                    <th>{{attribute['name'].camelize()}}</th>
-                    {%- endif %}
-                {%- endfor %}
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{'{%- for'}} {{model_name.underscore()}} in {{model_name.underscore().pluralize()}} {{'%}'}}
+{{'{% extends "layouts/application.html" %}
+{% block title %}'}}{{model_name.pluralize().titleize()}}{{' List{% endblock %}
+{% block content %}'}}
+    <a href="/{{model_name.underscore().pluralize()}}/new">New</a>
+    <h1>{{model_name.pluralize()}}</h1>
+    {{'{% if not'}} {{model_name.underscore().pluralize()}} {{'%}'}}
+        <p>No {{model_name.underscore().pluralize()}} found</p>
+    {{'{% else %}'}}
+        <table>
+            <thead>
                 <tr>
-                    <td><a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}</a></td>
+                    <th>Id</th>
                     {%- for attribute in model_attributes %}
                         {%- if attribute['name'] != 'id' %}
-                            <td>{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}} {{'-}}'}}</td>
+                        <th>{{attribute['name'].camelize()}}</th>
                         {%- endif %}
                     {%- endfor %}
-                    <td>
-                        <a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}/edit">Edit</a>
-                    </td>
-                    <td>
-                        <form class="deleteForm" action="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">
-                            <button type="submit">
-                            Delete
-                            </button>
-                        </form>
-                    </td>
+                    <th>Edit</th>
+                    <th>Delete</th>
                 </tr>
-            {{'{% endfor %}'}}
-        </tbody>
-    </table>
-{{'{% endif %}'}}
-<script>
-    var deleteForms = document.getElementsByClassName("deleteForm");
-
-    for (var i = 0; i < deleteForms.length; i++) {
-        deleteForms[i].addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            var form = event.target;
-            var url = form.action;
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("DELETE", url, true);
-
-            xhr.onload = function() {
-                if (xhr.status === 204 || xhr.status === 200) {
-                    console.log("Resource deleted successfully.");
-                    window.location.reload();
-                } else {
-                    console.log("Error deleting resource:", xhr.status);
-                }
-            };
-
-            xhr.send();
-
-            return false;
-        });
-    }
-</script>
+            </thead>
+            <tbody>
+                {{'{%- for'}} {{model_name.underscore()}} in {{model_name.underscore().pluralize()}} {{'%}'}}
+                    <tr>
+                        <td><a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}</a></td>
+                        {%- for attribute in model_attributes %}
+                            {%- if attribute['name'] != 'id' %}
+                                <td>{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}} {{'-}}'}}</td>
+                            {%- endif %}
+                        {%- endfor %}
+                        <td>
+                            <a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}/edit">Edit</a>
+                        </td>
+                        <td>
+                            <form action="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}">
+                                <input type="hidden" name="_method" value="DELETE" />
+                                <button type="submit">
+                                Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {{'{% endfor %}'}}
+            </tbody>
+        </table>
+    {{'{% endif %}'}}
+{{'{% endblock %}'}}

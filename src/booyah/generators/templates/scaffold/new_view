@@ -1,3 +1,7 @@
-<a href="/{{model_name.pluralize()}}">back</a>
-<h1>New {{model_name.camelize()}}</h1>
-{{'{%'}} include '{{model_name.pluralize()}}/form.html' {{'%}'}}
+{{'{% extends "layouts/application.html" %}
+{% block title %}'}}New {{model_name.camelize()}}{{'{% endblock %}
+{% block content %}'}}
+    <a href="/{{model_name.pluralize()}}">back</a>
+    <h1>New {{model_name.camelize()}}</h1>
+    {{'{%'}} include '{{model_name.pluralize()}}/form.html' {{'%}'}}
+{{'{% endblock %}'}}
