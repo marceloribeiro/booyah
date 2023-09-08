@@ -58,9 +58,19 @@ class ModelQueryBuilder:
                     condition = condition.replace(' ?', f" {self.quote_if_needed(args[1])}")
                     self.where_conditions.append(condition)
                     return self
+                elif args[1] == None:
+                    condition = f"{condition} is NULL"
+                    self.where_conditions.append(condition)
+                    return self
             condition = f"{condition} = {self.quote_if_needed(args[1])}"
         self.where_conditions.append(condition)
         return self
+
+    def exists(self, conditions):
+        scope = self.select('1')
+        for key, value in conditions.items():
+            scope.where(key, value)
+        return scope.count() > 0
 
     def quote_if_needed(self, value):
         if isinstance(value, str):
