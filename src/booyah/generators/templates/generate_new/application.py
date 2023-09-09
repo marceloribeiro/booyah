@@ -1,9 +1,10 @@
 from py_dotenv import read_dotenv
 import os
-import booyah
+from booyah.extensions.string import String
 
 os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
 os.environ["ROOT_PROJECT"] = os.path.basename(os.getcwd())
+os.environ["PROJECT_NAME"] = String(os.environ["ROOT_PROJECT"]).titleize()
 read_dotenv('.env')
 print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
 

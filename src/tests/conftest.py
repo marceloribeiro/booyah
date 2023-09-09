@@ -12,6 +12,7 @@ def pytest_configure(config):
     booyah_path = os.path.join(os.path.dirname(__file__))
     os.environ["ROOT_PROJECT_PATH"] = booyah_path
     os.environ["ROOT_PROJECT"] = ''
+    os.environ["PROJECT_NAME"] = 'booyah_test'
     os.environ['BOOYAH_ENV'] = 'test'
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
     src_path =  os.path.join(parent_dir, 'src')

@@ -1,32 +1,8 @@
-<a href="/{{model_name.pluralize()}}">back</a>
-<h1>Edit {{model_name.camelize()}}</h1>
-{{'{%'}} include '{{model_name.pluralize()}}/form.html' {{'%}'}}
+{{'{% extends "layouts/application.html" %}
+{% block title %}'}}Edit {{model_name.camelize()}}{{'{% endblock %}
+{% block content %}'}}
+    <a href="/{{model_name.pluralize()}}">back</a>
+    <h1>Edit {{model_name.camelize()}}</h1>
 
-<script>
-    document.getElementById("{{model_name}}_form").addEventListener("submit", function(event) {
-        event.preventDefault();
-
-        var form = event.target;
-        var url = form.action;
-
-        var methodOverride = form.querySelector('input[name="_method"]').value;
-
-        var xhr = new XMLHttpRequest();
-        xhr.open(methodOverride, url, true);
-        xhr.setRequestHeader("X-HTTP-Method-Override", methodOverride);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                window.location.href = url;
-            } else {
-                console.log("Error updating resource:", xhr.status);
-            }
-        };
-        var formData = new FormData(form);
-        var params = new URLSearchParams(formData).toString();
-        xhr.send(params);
-
-        return false;
-    });
-    </script>
+    {{'{%'}} include '{{model_name.pluralize()}}/form.html' {{'%}'}}
+{{'{% endblock %}'}}

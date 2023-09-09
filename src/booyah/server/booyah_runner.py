@@ -9,8 +9,8 @@ class BooyahRunner:
 
     def run_new(self):
         print("Creating a new project...")
-        from booyah.generators import generate_new
-        generate_new.main(sys.argv[2:])
+        from booyah.generators.new_generator import NewGenerator
+        NewGenerator(sys.argv[2:]).perform()
 
     def run_s(self):
         print("Starting server...")

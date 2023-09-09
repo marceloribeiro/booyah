@@ -1,5 +1,6 @@
 from booyah.router.application_route import ApplicationRoute
 from booyah.response.application_response import ApplicationResponse
+from booyah.response.asset_response import AssetResponse
 from booyah.helpers.controller_helper import get_controller_action
 from booyah.logger import logger
 
@@ -28,6 +29,10 @@ class ApplicationRouter:
 
     def respond(self, environment):
         logger.debug(environment['REQUEST_METHOD'] + ':', environment['PATH_INFO'])
+        
+        if environment['PATH_INFO'].startswith("/assets"):
+            return AssetResponse(environment)
+
         controller_action = self.action(environment)
 
         if controller_action:

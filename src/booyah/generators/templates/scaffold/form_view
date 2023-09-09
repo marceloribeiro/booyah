@@ -1,5 +1,5 @@
 <form action=/{{model_name.pluralize()}}/{{'{{'}}{{model_name}}.id or ''{{'}}'}}  method="POST" id="{{model_name}}_form">
-  <input type="hidden" name="_method" value="PUT" />
+  <input type="hidden" name="_method" value="{{'{{'}} "PUT" if {{model_name}}.id else "POST" {{'}}'}}" />
   {%- for attribute in model_attributes %}
     {%- if attribute['name'] != 'id' %}
     <div style="padding: 10px;">
