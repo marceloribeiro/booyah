@@ -186,7 +186,9 @@ class ApplicationModel:
             return True
         for v in self.__class__.validates:
             self.perform_attribute_validations(v)
-        return len(self.errors) == 0
+        if self.errors:
+            return False
+        return True
 
     def perform_attribute_validations(self, attribute_validations):
         attribute = list(attribute_validations.keys())[0]
