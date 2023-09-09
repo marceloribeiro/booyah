@@ -8,6 +8,7 @@ from booyah.generators.helpers.io import print_error, print_success, prompt_over
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root, prompt_replace
 from booyah.generators.base_generator import BaseGenerator
 import shutil
+from datetime import datetime
 
 import booyah.extensions.string
 globals()['String'] = booyah.extensions.string.String
@@ -31,6 +32,7 @@ class NewGenerator(BaseGenerator):
 
         self.copy_booyah_version()
         self.create_project()
+        self.fill_file_vars()
 
     def validate(self):
         if current_dir_is_booyah_root():
@@ -81,4 +83,25 @@ class NewGenerator(BaseGenerator):
         shutil.copy(os.path.join(source_folder, '__init__.py'), os.path.join(destination_folder, '__init__.py'))
         shutil.copy(os.path.join(source_folder, 'requirements.txt'), os.path.join(destination_folder, 'requirements.txt'))
 
-        print(f"Project '{self.project_name}' created successfully.")
+        print_success(f"Project '{self.project_name}' created successfully.")
+    
+    def fill_file_vars(self):
+        replace_settings = {
+            os.path.join(self.folder_name, 'app', 'views', 'layouts', 'application.html'): [
+                ["{{ PROJECT_YEAR_HERE }}", f"{datetime.now().year}"]
+            ]
+        }
+
+        for file_path, search_replace_list in replace_settings.items():
+            try:
+                with open(file_path, 'r') as file:
+                    file_content = file.read()
+
+                for search_str, replace_str in search_replace_list:
+                    file_content = file_content.replace(search_str, replace_str)
+
+                with open(file_path, 'w') as file:
+                    file.write(file_content)
+
+            except Exception as e:
+                print(f"Error updating {file_path}: {str(e)}")

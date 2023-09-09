@@ -4,7 +4,5 @@
     <a href="/{{model_name.pluralize()}}">back</a>
     <h1>Edit {{model_name.camelize()}}</h1>
 
-    {{'{% with form_method="PUT" %}'}}
-        {{'{%'}} include '{{model_name.pluralize()}}/form.html' {{'%}'}}
-    {{'{% endwith %}'}}
+    {{'{%'}} include '{{model_name.pluralize()}}/form.html' {{'%}'}}
 {{'{% endblock %}'}}

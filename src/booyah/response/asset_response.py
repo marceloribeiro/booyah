@@ -1,4 +1,5 @@
 import os
+from booyah.response.mime_types import MIME_TYPE_BY_EXTENSION, DEFAULT_MIME_TYPE
 
 class AssetResponse:
     DEFAULT_HTTP_STATUS = '200 OK'
@@ -16,38 +17,10 @@ class AssetResponse:
         ]
     
     def get_content_type(self):
-        file_extension = self.file_name.lower()
-
-        if file_extension.endswith('.html'):
-            return 'text/html'
-        elif file_extension.endswith('.htm'):
-            return 'text/html'
-        elif file_extension.endswith('.css'):
-            return 'text/css'
-        elif file_extension.endswith('.js'):
-            return 'text/javascript'
-        elif file_extension.endswith('.json'):
-            return 'application/json'
-        elif file_extension.endswith('.ico'):
-            return 'image/x-icon'
-        elif file_extension.endswith('.pdf'):
-            return 'application/pdf'
-        elif file_extension.endswith('.png'):
-            return 'image/png'
-        elif file_extension.endswith('.jpg') or file_extension.endswith('.jpeg'):
-            return 'image/jpeg'
-        elif file_extension.endswith('.gif'):
-            return 'image/gif'
-        elif file_extension.endswith('.svg'):
-            return 'image/svg+xml'
-        elif file_extension.endswith('.xml'):
-            return 'application/xml'
-        elif file_extension.endswith('.txt'):
-            return 'text/plain'
-        elif file_extension.endswith('.zip'):
-            return 'application/zip'
-        else:
-            return 'application/octet-stream' 
+        _, file_extension = os.path.splitext(self.file_name.lower())
+        if file_extension and file_extension[0] == '.':
+            file_extension = file_extension[1:]
+        return MIME_TYPE_BY_EXTENSION.get(file_extension, DEFAULT_MIME_TYPE)
 
     def response_body(self):
         return self.file_bytes
