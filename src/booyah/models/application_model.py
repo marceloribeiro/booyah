@@ -1,8 +1,10 @@
 from booyah.db.adapters.base_adapter import BaseAdapter
 from booyah.models.model_query_builder import ModelQueryBuilder
+from booyah.extensions.string import String
 import json
 
 class ApplicationModel:
+    validates = []
     table_columns = None
     _query_builder = None
 
@@ -58,6 +60,10 @@ class ApplicationModel:
         return self.query_builder().where(column, value)
 
     @classmethod
+    def exists(self, conditions):
+        return self.query_builder().exists(conditions)
+
+    @classmethod
     def join(self, table, condition):
         return self.query_builder().join(table, condition)
 
@@ -107,10 +113,16 @@ class ApplicationModel:
         self.model.save()
         return self.model
 
-    def __init__(self, attributes):
+    def __init__(self, attributes={}):
+        self.load_from_table_columns()
+        self.errors = []
         for key in attributes:
             if key in self.get_table_columns():
                 setattr(self, key, attributes[key])
+
+    def load_from_table_columns(self):
+        for column in self.get_table_columns():
+            setattr(self, column, None)
 
     def serialized_attribute(self, attribute):
         if hasattr(self, attribute):
@@ -118,6 +130,8 @@ class ApplicationModel:
         return None
 
     def save(self):
+        if not self.valid():
+            return False
         if self.is_new_record():
             self.insert()
         else:
@@ -130,7 +144,7 @@ class ApplicationModel:
             self.__init__(self.__class__.find(self.id).to_dict())
 
     def is_new_record(self):
-        return not hasattr(self, 'id')
+        return not hasattr(self, 'id') or self.id == None
 
     def insert(self):
         data = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
@@ -165,6 +179,28 @@ class ApplicationModel:
         data = self.db_adapter().delete(self.table_name(), self.id)
         deleted_id = data[0]
         return deleted_id
+
+    def valid(self):
+        self.errors = []
+        if not self.__class__.validates:
+            return True
+        for v in self.__class__.validates:
+            self.perform_attribute_validations(v)
+        if self.errors:
+            return False
+        return True
+
+    def perform_attribute_validations(self, attribute_validations):
+        attribute = list(attribute_validations.keys())[0]
+        validations = attribute_validations[attribute]
+        for validation in validations:
+            self.perform_validation(attribute, validation, validations[validation])
+
+    def perform_validation(self, attribute, validation, validation_value):
+        validator_class = String(f"{validation}_validator").camelize()
+        validator_class = getattr(__import__(f"booyah.validators.{validator_class.underscore()}", fromlist=[validator_class]), validator_class)
+        validator = validator_class(self, attribute, validation_value)
+        validator.validate()
 
     def get_table_values(self):
         return [ self.serialized_attribute(column) for column in self.get_table_columns() ]
