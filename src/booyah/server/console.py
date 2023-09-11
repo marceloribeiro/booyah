@@ -1,5 +1,3 @@
-import os
-import sys
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root
 from booyah.generators.helpers.io import print_error
 
@@ -8,35 +6,65 @@ if not current_dir_is_booyah_root():
     print_error('Not a booyah root project folder')
     quit()
 
-# Console code starts here -----------------------------------------------------
+# Ready to start console (valid folder) -----------------------------------------------------
+import sys
 from py_dotenv import read_dotenv
 import os
 import importlib
 
-read_dotenv('.env')
-os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
+class BooyahConsole:
+    def load_env(self):
+        read_dotenv('.env')
+        os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
+        os.environ["ROOT_PROJECT"] = os.path.basename(os.getcwd())
 
-def configure():
-    """
-    Load extensions to console
-    """
-    from booyah.extensions.string import String
-    globals()['String'] = String
+    def import_current_project(self):
+        """
+        Add current folder as a module
+        """
+        folder_path = os.environ["ROOT_PROJECT_PATH"]
+        sys.path.append(os.path.dirname(folder_path))
 
-def load_models():
-    """
-    Load all models from lib/models, except some system files
-    """
-    models_folder = os.path.join('app', 'models')
-    ignore_list = ['application_model.py', 'model_query_builder.py']
-    file_names = [f for f in os.listdir(models_folder) if f.endswith(".py") and f not in ignore_list and not f.startswith('_')]
-    for file_name in file_names:
-        module_name = file_name[:-3]
-        module = importlib.import_module(f"booyah.models.{module_name}")
+    def configure(self):
+        """
+        Load extensions to console
+        """
+        from booyah.extensions.string import String
+        globals()['String'] = String
+        os.environ["PROJECT_NAME"] = String(os.environ["ROOT_PROJECT"]).titleize()
 
-        for class_name in dir(module):
-            cls = getattr(module, class_name)
-            globals()[class_name] = cls
+    def load_models(self):
+        """
+        Load all models from lib/models, except some system files
+        """
+        models_folder = os.path.join('app', 'models')
+        ignore_list = ['application_model.py', 'model_query_builder.py']
+        file_names = [f for f in os.listdir(models_folder) if f.endswith(".py") and f not in ignore_list and not f.startswith('_')]
+        for file_name in file_names:
+            module_name = file_name[:-3]
+            module = importlib.reload(importlib.import_module(f"{os.getenv('ROOT_PROJECT')}.app.models.{module_name}"))
+
+            for class_name in dir(module):
+                cls = getattr(module, class_name)
+                globals()[class_name] = cls
+
+    def welcome_message(self):
+        side_spaces = 20
+        initial_message = 'Welcome to Booyah Console'
+
+        message_length = len(initial_message)
+        formatted_line = '*' * (side_spaces * 2 + 2) + '*' * message_length
+
+        print(formatted_line)
+        print('*' + ' ' * side_spaces + initial_message + ' ' * side_spaces + '*')
+        print(formatted_line)
+
+    def start(self):
+        self.import_current_project()
+        self.configure()
+        self.load_models()
+
+# Public commands below
 
 def help():
     content = '''
@@ -44,21 +72,29 @@ def help():
     -------------------
     Commands list
 
-    No new commands registered
+    reload() - Will reload the env and booyah modules
     '''
     print(content)
 
-def welcome_message():
-    side_spaces = 20
-    initial_message = 'Welcome to Booyah Console'
+def reload():
+    # env should be reloaded first, cause the libs may need to use it
+    __console.load_env()
+    global _initial_global_keys
 
-    message_length = len(initial_message)
-    formatted_line = '*' * (side_spaces * 2 + 2) + '*' * message_length
+    current_global_keys = set(globals().keys())
+    keys_to_remove = current_global_keys - _initial_global_keys
 
-    print(formatted_line)
-    print('*' + ' ' * side_spaces + initial_message + ' ' * side_spaces + '*')
-    print(formatted_line)
+    for key in keys_to_remove:
+        if key != '_initial_global_keys':
+            del globals()[key]
 
-configure()
-load_models()
-welcome_message()
+    __console.start()
+
+# Start console class, public methods should be declared before setting _initial_global_keys 
+__console = BooyahConsole()
+__console.welcome_message()
+
+# Everything loaded to global until here will be kept as default/not realoading
+_initial_global_keys = set(globals().keys())
+__console.load_env()
+__console.start()

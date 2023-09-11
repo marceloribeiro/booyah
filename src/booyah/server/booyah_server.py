@@ -1,5 +1,7 @@
 import subprocess
 import os
+from py_dotenv import read_dotenv
+read_dotenv('.env')
 
 class BooyahServer:
 
@@ -15,4 +17,8 @@ class BooyahServer:
         else:
             pip_command = "pip3"
         subprocess.run([pip_command, "install", "-r", "requirements.txt"])
-        subprocess.run(["gunicorn", "application", "--timeout", "120"])
+        booyah_env = os.getenv('BOOYAH_ENV')
+        if booyah_env and booyah_env.lower() == 'production':
+            subprocess.run(["gunicorn", "application", "--timeout", "120"])
+        else:
+            subprocess.run(["gunicorn", "application", "--timeout", "120", "--reload"])
