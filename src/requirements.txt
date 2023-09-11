@@ -6,4 +6,3 @@ pytest==7.4.0
 pytest-dotenv==0.5.2
 inflection==0.5.1
 pytest-mock==3.11.1
-dotenv==0.0.5
