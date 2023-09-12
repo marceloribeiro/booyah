@@ -1,3 +1,12 @@
+
+**Create a new Booyah project**
+
+To start a new booyah project run the 'new' command followed by the project name, it will create a project folder in the current directory.
+
+```sh
+$ booyah new ProjectName
+```
+
 **Generators**
 
 You can easily generate a controller file with given actions using command line:
@@ -12,12 +21,15 @@ or just
 $ booyah g controller HelloWorld action1 action2
 ```
 
-**Create a new Booyah project**
+**Database Operations**
 
-To start a new booyah project run the 'new' command followed by the project name, it will create a project folder in the current directory.
+You can easily execute some database operations as following:
 
 ```sh
-$ booyah new ProjectName
+$ booyah db create
+$ booyah db migrate
+$ booyah db seed
+$ booyah db drop
 ```
 
 **Console**

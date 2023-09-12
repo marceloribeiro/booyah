@@ -13,7 +13,7 @@ class BooyahDatabase:
     
     def create_db(self):
         database_to_create = self.adapter.database
-        self.adapter.unselect_database()
+        self.adapter.use_system_database()
         try:
             self.adapter.create_database(database_to_create)
             print_success(f'Database {make_blue(make_bold(database_to_create))} created')
@@ -25,7 +25,7 @@ class BooyahDatabase:
     
     def drop_db(self):
         database_to_drop = self.adapter.database
-        self.adapter.unselect_database()
+        self.adapter.use_system_database()
         self.adapter.drop_database(database_to_drop)
         print_success(f'Database {make_blue(make_bold(database_to_drop))} dropped')
     

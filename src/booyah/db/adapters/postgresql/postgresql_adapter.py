@@ -29,7 +29,7 @@ class PostgresqlAdapter:
     def drop_database(self, database_name):
         self.execute_without_transaction(f'DROP DATABASE IF EXISTS {database_name}')
     
-    def unselect_database(self):
+    def use_system_database(self):
         self.database = 'postgres'
 
     def connect(self):

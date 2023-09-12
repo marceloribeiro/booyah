@@ -57,3 +57,11 @@ class TestPostgresqlAdapter:
   def create_test_table(self):
     self.adapter.execute('DROP TABLE IF EXISTS test_table', False)
     self.adapter.execute('CREATE TABLE test_table (id SERIAL PRIMARY KEY, name VARCHAR(255), created_at TIMESTAMP, updated_at TIMESTAMP)', False)
+
+  def test_create_and_drop_database(self):
+    self.adapter.create_database('db_test_create')
+    self.adapter.drop_database('db_test_create')
+  
+  def test_use_system_database(self):
+    self.adapter.use_system_database()
+    assert self.adapter.database == 'postgres'
