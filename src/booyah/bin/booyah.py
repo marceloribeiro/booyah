@@ -19,6 +19,14 @@ def run():
     s_parser = subparsers.add_parser("s", help="Starts the booyah server")
     c_parser = subparsers.add_parser("c", help="Starts the booyah console")
 
+    db_parser = subparsers.add_parser("db", help="Run db operations")
+    db_subparsers = db_parser.add_subparsers(title="DB Operations", dest="db_command")
+
+    db_subparsers.add_parser("create", help="Create database")
+    db_subparsers.add_parser("migrate", help="Migrate database")
+    db_subparsers.add_parser("drop", help="Drop database")
+    db_subparsers.add_parser("seed", help="Seed database")
+
     args = parser.parse_args()
     if args.version:
         print(f"Booyah command-line version {BOOYAH_COMMAND_VERSION}")  # Replace with your actual version number
