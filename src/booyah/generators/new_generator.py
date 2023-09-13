@@ -78,7 +78,7 @@ class NewGenerator(BaseGenerator):
 
         self.copy_folder_tree_with_prompt(source_folder, destination_folder)
         
-        shutil.copy(os.path.join(source_folder, 'env'), os.path.join(destination_folder, '.env'))
+        os.rename(os.path.join(destination_folder, 'env'), os.path.join(destination_folder, '.env'))
         shutil.copy(os.path.join(source_folder, 'application.py'), os.path.join(destination_folder, 'application.py'))
         shutil.copy(os.path.join(source_folder, '__init__.py'), os.path.join(destination_folder, '__init__.py'))
         shutil.copy(os.path.join(source_folder, 'requirements.txt'), os.path.join(destination_folder, 'requirements.txt'))
