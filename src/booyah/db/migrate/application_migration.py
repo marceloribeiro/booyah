@@ -31,7 +31,7 @@ class ApplicationMigration:
                 self.migrate(migration, version)
 
     def get_migration_class(self, migration, migration_class_name):
-        migration_module = __import__(f'db.migrate.{migration.split(".")[0]}', fromlist=[migration_class_name])
+        migration_module = __import__(f'{os.environ["ROOT_PROJECT"]}.db.migrate.{migration.split(".")[0]}', fromlist=[migration_class_name])
         migration_class = getattr(migration_module, migration_class_name)
         return migration_class
 

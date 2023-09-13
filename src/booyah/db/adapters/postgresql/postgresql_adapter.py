@@ -1,4 +1,5 @@
-import psycopg
+import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
 from datetime import datetime
 from booyah.logger import logger
@@ -21,12 +22,21 @@ class PostgresqlAdapter:
         self.password = os.getenv('DB_PASSWORD')
         self.database = os.getenv('DB_DATABASE')
         self.connection = None
+    
+    def create_database(self, database_name):
+        self.execute_without_transaction(f'CREATE DATABASE {database_name}')
+    
+    def drop_database(self, database_name):
+        self.execute_without_transaction(f'DROP DATABASE IF EXISTS {database_name}')
+    
+    def use_system_database(self):
+        self.database = 'postgres'
 
     def connect(self):
         if self.connection:
             return self.connection
         logger.debug(f"Connecting to host: {self.host} port: {self.port} dbname: {self.database}")
-        self.connection = psycopg.connect(
+        self.connection = psycopg2.connect(
             host=self.host,
             port=self.port,
             user=self.user,
@@ -39,6 +49,15 @@ class PostgresqlAdapter:
         if self.connection:
             self.connection.close()
             self.connection = None
+
+    def execute_without_transaction(self, query, expect_result=True):
+        self.connect()
+        self.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = self.connection.cursor()
+        logger.debug("DB (no transaction):", query, color='blue')
+        cursor.execute(query)
+        cursor.close()
+        self.close_connection()
 
     def execute(self, query, expect_result=True):
         self.connect()
