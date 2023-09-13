@@ -4,8 +4,9 @@ import os
 from datetime import datetime
 from booyah.logger import logger
 from booyah.db.adapters.postgresql.postgresql_schema_helper import PostgresqlSchemaHelper
+from booyah.db.adapters.base_adapter import BaseAdapter
 
-class PostgresqlAdapter:
+class PostgresqlAdapter(BaseAdapter):
     @staticmethod
     def get_instance(force_new=False):
         if not hasattr(PostgresqlAdapter, 'instance') or force_new:
@@ -59,10 +60,11 @@ class PostgresqlAdapter:
         cursor.close()
         self.close_connection()
 
-    def execute(self, query, expect_result=True):
+    def execute(self, query, expect_result=True, log_query=True):
         self.connect()
         cursor = self.connection.cursor()
-        logger.debug("DB:", query, color='blue')
+        if log_query:
+            logger.debug("DB:", query, color='blue')
         cursor.execute(query)
         result = None
         if expect_result:
@@ -94,7 +96,7 @@ class PostgresqlAdapter:
         values = ', '.join([f"{value}" for value in attributes.values()])
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({values}) RETURNING id, created_at, updated_at"
         logger.debug("DB:", query, color='green', bold=True)
-        return self.execute(query)
+        return self.execute(query, log_query=False)
 
     def update(self, table_name, id, attributes):
         if attributes.get('updated_at') is None:
@@ -107,12 +109,12 @@ class PostgresqlAdapter:
         values = ', '.join([f"{key} = {value}" for key, value in attributes.items()])
         query = f"UPDATE {table_name} SET {values} WHERE id = {id} returning updated_at"
         logger.debug("DB:", query, color='yellow', bold=True)
-        return self.execute(query)
+        return self.execute(query, log_query=False)
 
     def delete(self, table_name, id):
         query = f"DELETE FROM {table_name} WHERE id = {id} returning id"
         logger.debug("DB:", query, color='red', bold=True)
-        return self.execute(query)
+        return self.execute(query, log_query=False)
 
     def format_attributes(self, attributes):
         for key, value in attributes.items():
@@ -131,24 +133,6 @@ class PostgresqlAdapter:
 
     def schema_helper(self):
         return PostgresqlSchemaHelper.get_instance()
-
-    def create_schema_migrations(self):
-        self.schema_helper().create_schema_migrations()
-
-    def migration_has_been_run(self, version):
-        query = f"SELECT version from schema_migrations where version = '{version}'"
-        result = self.fetch(query)
-        if result:
-            return True
-        return False
-
-    def save_version(self, version):
-        query = f"INSERT INTO schema_migrations (version) VALUES ('{version}')"
-        self.execute(query, False)
-
-    def delete_version(self, version):
-        query = f"DELETE FROM schema_migrations WHERE version = '{version}'"
-        self.execute(query, False)
 
     def get_table_columns(self, table_name):
         items = self.fetch(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")

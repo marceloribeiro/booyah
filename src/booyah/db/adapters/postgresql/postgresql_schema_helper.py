@@ -1,5 +1,4 @@
 from booyah.db.adapters.base_adapter import BaseAdapter
-from booyah.logger import logger
 
 class PostgresqlSchemaHelper:
     @staticmethod
@@ -37,9 +36,6 @@ class PostgresqlSchemaHelper:
     def translate_column_type(self, type):
         return self.column_types().get(type, 'VARCHAR(255)')
 
-    def create_schema_migrations(self):
-        self.create_table('schema_migrations', { 'version': 'varchar(255)' })
-
     def create_table(self, table_name, table_columns, force=False):
         self.translate_table_columns(table_columns)
         columns = ', '.join([f"{key} {value}" for key, value in table_columns.items()])
@@ -47,7 +43,6 @@ class PostgresqlSchemaHelper:
             query = f"DROP TABLE IF EXISTS {table_name}; CREATE TABLE {table_name} ({columns})"
         else:
             query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})"
-        logger.debug("DB:", query)
         self.adapter.execute(query, False)
 
     def drop_table(self, table_name):
