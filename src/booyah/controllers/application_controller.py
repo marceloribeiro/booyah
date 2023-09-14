@@ -8,6 +8,7 @@ from booyah.application_support.action_support import ActionSupport
 import cgi
 import tempfile
 from booyah.models.file import File
+import os
 
 class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
@@ -114,8 +115,9 @@ class BooyahApplicationController(ActionSupport):
 
             if field_name:
                 if 'filename' in field_data[1]:
-                    file_data = field_data[1]['filename']
-                    temp_file = tempfile.NamedTemporaryFile(delete=False, dir=temp_dir)
+                    filename = field_data[1]['filename'].split('\r\n')[0].replace("\"", "")
+                    file_extension = os.path.splitext(filename)[-1]
+                    temp_file = tempfile.NamedTemporaryFile(delete=False, dir=temp_dir, suffix=file_extension)
                     temp_file.write(content)
                     temp_file.close()
                     form_data[field_name] = File(temp_file.name)

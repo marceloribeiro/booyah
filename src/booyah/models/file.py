@@ -9,3 +9,6 @@ class File:
 
     def __str__(self):
         return self.file_path
+    
+    def open(self, method='rb'):
+        return open(self.file_path, method)
