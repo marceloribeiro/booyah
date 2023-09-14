@@ -5,6 +5,9 @@ from urllib.parse import parse_qs
 from booyah.logger import logger
 from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
 from booyah.application_support.action_support import ActionSupport
+import cgi
+import tempfile
+from booyah.models.file import File
 
 class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
@@ -61,7 +64,6 @@ class BooyahApplicationController(ActionSupport):
 
         content_type = self.environment['CONTENT_TYPE']
         content_length = int(self.environment['CONTENT_LENGTH'])
-
         body_params = {}
         if content_length:
             body = self.environment['wsgi.input'].read(content_length)
@@ -74,12 +76,54 @@ class BooyahApplicationController(ActionSupport):
             elif content_type == ContentType.FORM_URLENCODED.value:
                 body_params = self.parse_nested_attributes(str(body.decode('utf-8')))
             elif ContentType.MULTIPART.value in content_type:
-                raise ValueError(f"{ContentType.MULTIPART.value} not supported yet, see ApplicationController load_params_from_gunicorn_body")
+                body_params = self.parse_multipart(body)
             else:
                 for param in body.decode('utf-8').split('&'):
                     key, value = param.split('=')
                     body_params[key] = value
         self.params.update(body_params)
+    
+    def flatten_dict(self, d):
+        result = {}
+        for key, value in d.items():
+            parts = key.split('[')
+            current = result
+            for part in parts[:-1]:
+                part = part.strip(']')
+                current = current.setdefault(part, {})
+            current[parts[-1].strip(']')] = value
+        return result
+    
+    def parse_multipart(self, body_bytes, temp_dir=None):
+        content_type = self.environment['CONTENT_TYPE']
+        _, params = cgi.parse_header(content_type)
+        boundary = params.get('boundary')
+
+        parts = []
+        if not boundary:
+            boundary = body_bytes.split(b"\r\n")[0][2:]
+        else:
+            boundary = boundary.encode()
+        parts = body_bytes.split(b'--' + boundary)
+        form_data = {}
+
+        for part in parts[1:-1]:
+            headers, content = part.split(b'\r\n\r\n', 1)
+            field_data = cgi.parse_header(headers.decode())
+            field_name = field_data[1].get('name')
+
+            if field_name:
+                if 'filename' in field_data[1]:
+                    file_data = field_data[1]['filename']
+                    temp_file = tempfile.NamedTemporaryFile(delete=False, dir=temp_dir)
+                    temp_file.write(content)
+                    temp_file.close()
+                    form_data[field_name] = File(temp_file.name)
+                else:
+                    form_data[field_name] = content.rstrip(b'\r\n').decode()
+
+        form_data = self.flatten_dict(form_data)
+        return form_data
 
     def render(self, data = {}):
         self.application_response = ApplicationResponse(self.environment, data)
