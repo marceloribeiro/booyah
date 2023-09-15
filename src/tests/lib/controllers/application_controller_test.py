@@ -167,3 +167,39 @@ class TestApplicationController:
         assert list(parsed_params['user'].keys()) == ['name', 'email', 'photo']
         assert parsed_params['user']['name'] == 'John'
         assert parsed_params['user']['photo'].__class__ is File
+    
+    def test_parse_multipart_with_empty_file(self):
+        boundary = "boundaryidentifier"
+        self._content_type = f"multipart/form-data; boundary={boundary}"
+        form_data = [
+            ('user[name]', 'John'),
+            ('user[email]', 'john@doe.com'),
+            ('user[photo]', ''),
+        ]
+
+        multipart_body = []
+
+        for field_name, field_value in form_data:
+            multipart_body.append(f'--{boundary}')
+            if field_name.endswith('[]'):
+                field_name = field_name[:-2]
+            if not field_value:
+                multipart_body.append(f'Content-Disposition: form-data; name="{field_name}"; filename=""')
+                multipart_body.append('Content-Type: application/octet-stream')
+                multipart_body.append('')
+            else:
+                multipart_body.append(f'Content-Disposition: form-data; name="{field_name}"')
+                multipart_body.append('')
+            multipart_body.append(field_value)
+
+        multipart_body.append(f'--{boundary}--')
+        multipart_body.append('')
+
+        multipart_data = '\r\n'.join(multipart_body).encode('utf-8')
+
+        application_controller = BooyahApplicationController(self.environment(), False)
+        parsed_params = application_controller.parse_multipart(multipart_data)
+
+        assert 'user' in parsed_params.keys()
+        assert list(parsed_params['user'].keys()) == ['name', 'email']
+        assert parsed_params['user']['name'] == 'John'
