@@ -3,9 +3,8 @@ from booyah.response.application_response import ApplicationResponse
 from booyah.response.redirect_response import RedirectResponse
 from urllib.parse import parse_qs
 from booyah.logger import logger
-from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
 from booyah.application_support.action_support import ActionSupport
-import cgi
+from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType, parse_header
 import tempfile
 from booyah.models.file import File
 import os
@@ -97,7 +96,7 @@ class BooyahApplicationController(ActionSupport):
     
     def parse_multipart(self, body_bytes, temp_dir=None):
         content_type = self.environment['CONTENT_TYPE']
-        _, params = cgi.parse_header(content_type)
+        _, params = parse_header(content_type)
         boundary = params.get('boundary')
 
         parts = []
@@ -110,7 +109,7 @@ class BooyahApplicationController(ActionSupport):
 
         for part in parts[1:-1]:
             headers, content = part.split(b'\r\n\r\n', 1)
-            field_data = cgi.parse_header(headers.decode())
+            field_data = parse_header(headers.decode())
             field_name = field_data[1].get('name')
 
             if field_name:
@@ -122,8 +121,6 @@ class BooyahApplicationController(ActionSupport):
                         temp_file.write(content)
                         temp_file.close()
                         form_data[field_name] = File(temp_file.name)
-                    else:
-                        form_data[field_name] = None
                 else:
                     form_data[field_name] = content.rstrip(b'\r\n').decode()
 

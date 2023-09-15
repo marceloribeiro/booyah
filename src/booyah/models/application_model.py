@@ -3,6 +3,7 @@ from booyah.models.model_query_builder import ModelQueryBuilder
 from booyah.extensions.string import String
 from booyah.observers.application_model_observer import ApplicationModelObserver
 import json
+from datetime import datetime
 
 class ApplicationModel:
     validates = []
@@ -14,7 +15,7 @@ class ApplicationModel:
         self.errors = []
         self.fill_attributes(attributes, from_init=True)
     
-    def fill_attributes(self, attributes, from_init=False):
+    def fill_attributes(self, attributes, from_init=False, ignore_none=False):
         if from_init:
             for column in self.get_table_columns():
                 setattr(self, column, None)
@@ -23,7 +24,7 @@ class ApplicationModel:
             return
 
         for key in attributes:
-            if key in self.get_table_columns():
+            if key in self.get_table_columns() and (ignore_none == False or attributes[key] != None):
                 setattr(self, key, attributes[key])
                 if from_init:
                     setattr(self, f"{key}_was", attributes[key])
@@ -228,7 +229,7 @@ class ApplicationModel:
 
     def patch_update(self, attributes = None):
         self.before_update()
-        self.fill_attributes(attributes)
+        self.fill_attributes(attributes, ignore_none=True)
         self_attributes = self.to_dict()
         if attributes != None:
             to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}

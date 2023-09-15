@@ -1,4 +1,5 @@
 from enum import Enum
+import re
 
 class ContentType(Enum):
     JSON = "application/json"
@@ -37,3 +38,12 @@ class RequestFormatHelper:
         if text_block is not None:
             self.environment['CONTENT_TYPE'] = ContentType.TEXT.value
             return text_block()
+
+def parse_header(header):
+    params = {}
+    parts = header.split(";")
+    main_value = parts[0].strip()
+    for part in parts[1:]:
+        key, value = part.split("=", 1)
+        params[key.strip()] = value.strip(' "')
+    return main_value, params

@@ -1,5 +1,6 @@
 from booyah.controllers.application_controller import BooyahApplicationController
 import io
+from booyah.models.file import File
 
 class HomeController(BooyahApplicationController):
     def index(self):
@@ -13,7 +14,7 @@ class TestApplicationController:
         self._matching_route = '/'
         self._matching_route_params = {}
         self._content_length = 0
-
+        self._content_type = 'application/json'
 
     def http_method(self):
         return self._http_method
@@ -35,7 +36,7 @@ class TestApplicationController:
           'REQUEST_METHOD': self.http_method(),
           'QUERY_STRING': self.query_string(),
           'CONTENT_LENGTH': self._content_length,
-          'CONTENT_TYPE': 'application/json',
+          'CONTENT_TYPE': self._content_type,
           'wsgi.input': self.wsgi_input(),
           'MATCHING_ROUTE': self.matching_route(),
           'MATCHING_ROUTE_PARAMS': self.matching_route_params(),
@@ -128,3 +129,41 @@ class TestApplicationController:
         self.home_controller = HomeController(self.environment())
         controller_action = self.home_controller.get_action('index')
         assert controller_action == self.home_controller.index
+    
+    def test_parse_multipart(self):
+        boundary = "boundaryidentifier"
+        self._content_type = f"multipart/form-data; boundary={boundary}"
+        form_data = [
+            ('user[name]', 'John'),
+            ('user[email]', 'john@doe.com'),
+        ]
+
+        multipart_body = []
+
+        for field_name, field_value in form_data:
+            multipart_body.append(f'--{boundary}')
+            multipart_body.append(f'Content-Disposition: form-data; name="{field_name}"')
+            multipart_body.append('')
+            multipart_body.append(field_value)
+
+        file_field_name = "user[photo]"
+        file_content = "This is the content of the file."
+
+        multipart_body.append(f'--{boundary}')
+        multipart_body.append(f'Content-Disposition: form-data; name="{file_field_name}"; filename="user_photo.png"')
+        multipart_body.append('Content-Type: image/png')
+        multipart_body.append('')
+        multipart_body.append(file_content)
+
+        multipart_body.append(f'--{boundary}--')
+        multipart_body.append('')
+
+        multipart_data = '\r\n'.join(multipart_body).encode('utf-8')
+
+        application_controller = BooyahApplicationController(self.environment(), False)
+        parsed_params = application_controller.parse_multipart(multipart_data)
+
+        assert 'user' in parsed_params.keys()
+        assert list(parsed_params['user'].keys()) == ['name', 'email', 'photo']
+        assert parsed_params['user']['name'] == 'John'
+        assert parsed_params['user']['photo'].__class__ is File
