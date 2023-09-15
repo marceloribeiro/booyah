@@ -116,11 +116,14 @@ class BooyahApplicationController(ActionSupport):
             if field_name:
                 if 'filename' in field_data[1]:
                     filename = field_data[1]['filename'].split('\r\n')[0].replace("\"", "")
-                    file_extension = os.path.splitext(filename)[-1]
-                    temp_file = tempfile.NamedTemporaryFile(delete=False, dir=temp_dir, suffix=file_extension)
-                    temp_file.write(content)
-                    temp_file.close()
-                    form_data[field_name] = File(temp_file.name)
+                    if filename:
+                        file_extension = os.path.splitext(filename)[-1]
+                        temp_file = tempfile.NamedTemporaryFile(delete=False, dir=temp_dir, suffix=file_extension)
+                        temp_file.write(content)
+                        temp_file.close()
+                        form_data[field_name] = File(temp_file.name)
+                    else:
+                        form_data[field_name] = None
                 else:
                     form_data[field_name] = content.rstrip(b'\r\n').decode()
 

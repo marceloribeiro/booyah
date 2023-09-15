@@ -6,8 +6,27 @@ import json
 
 class ApplicationModel:
     validates = []
+    custom_validates = []
     table_columns = None
     _query_builder = None
+
+    def __init__(self, attributes={}):
+        self.errors = []
+        self.fill_attributes(attributes, from_init=True)
+    
+    def fill_attributes(self, attributes, from_init=False):
+        if from_init:
+            for column in self.get_table_columns():
+                setattr(self, column, None)
+                setattr(self, f"{column}_was", None)
+        if not attributes:
+            return
+
+        for key in attributes:
+            if key in self.get_table_columns():
+                setattr(self, key, attributes[key])
+                if from_init:
+                    setattr(self, f"{key}_was", attributes[key])
 
     @classmethod
     def db_adapter(self):
@@ -114,17 +133,6 @@ class ApplicationModel:
         self.model.save()
         return self.model
 
-    def __init__(self, attributes={}):
-        self.load_from_table_columns()
-        self.errors = []
-        for key in attributes:
-            if key in self.get_table_columns():
-                setattr(self, key, attributes[key])
-
-    def load_from_table_columns(self):
-        for column in self.get_table_columns():
-            setattr(self, column, None)
-
     def serialized_attribute(self, attribute):
         if hasattr(self, attribute):
             return getattr(self, attribute)
@@ -137,7 +145,7 @@ class ApplicationModel:
         if self.is_new_record():
             self.insert()
         else:
-            self.update()
+            self.update(validate=False)
         self.reload()
         self.after_save()
         return self
@@ -207,20 +215,20 @@ class ApplicationModel:
         self.after_create()
         return self
 
-    def update(self, attributes = None):
+    def update(self, attributes = None, validate=True):
+        self.fill_attributes(attributes)
+        if validate and not self.valid():
+            return False
         self.before_update()
         self_attributes = self.to_dict()
-        if attributes != None:
-            to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
-            self_attributes.update(to_update)
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
         self.updated_at = data[0]
         self.after_update()
-        self.reload()
         return self
 
     def patch_update(self, attributes = None):
         self.before_update()
+        self.fill_attributes(attributes)
         self_attributes = self.to_dict()
         if attributes != None:
             to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
@@ -230,7 +238,6 @@ class ApplicationModel:
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
         self.updated_at = data[0]
         self.after_update()
-        self.reload()
         return self
 
     def destroy(self):
@@ -244,16 +251,16 @@ class ApplicationModel:
         self.before_validation()
         self.errors = []
 
-        if not self.__class__.validates:
+        if not self.__class__.validates and not self.__class__.custom_validates:
             self.after_validation()            
             return True
         for v in self.__class__.validates:
             self.perform_attribute_validations(v)
-        self.after_validation()            
 
-        if self.errors:
-            return False
-        return True
+        for v in self.__class__.custom_validates:
+            v(self)
+        self.after_validation()            
+        return False if self.errors else True
 
     def perform_attribute_validations(self, attribute_validations):
         attribute = list(attribute_validations.keys())[0]
