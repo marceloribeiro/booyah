@@ -10,7 +10,8 @@ class TestControllerHelper():
         self.environment['QUERY_STRING'] = ''
         self.environment['MATCHING_ROUTE_PARAMS'] = {}
         route = {"method": 'GET', "url": '/home', "action": 'home_controller#index', "format": '*'}
-        assert get_controller_action(route, self.environment)().json_body() == b'{"text": "Home Controller, Index Action"}'
+        data = get_controller_action(route, self.environment)
+        assert data['action']().json_body() == b'{"text": "Home Controller, Index Action"}'
 
     def test_set_response_format(self):
         route = {"method": 'GET', "url": '/home', "action": 'home_controller#index', "format": 'json'}

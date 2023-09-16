@@ -29,14 +29,15 @@ class ApplicationRouter:
 
     def respond(self, environment):
         logger.debug(environment['REQUEST_METHOD'] + ':', environment['PATH_INFO'])
-        
+
         if environment['PATH_INFO'].startswith("/assets"):
             return AssetResponse(environment)
 
-        controller_action = self.action(environment)
-
-        if controller_action:
-            response = controller_action()
+        controller_action_dict = self.action(environment)
+        controller = controller_action_dict['controller']
+        action = controller_action_dict['action']
+        if controller and action:
+            response = controller.run_action(action)
         else:
             response = self.not_found(environment)
 

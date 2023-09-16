@@ -6,14 +6,58 @@ from booyah.logger import logger
 from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
 
 class BooyahApplicationController:
+    before_action_blocks = []
+    after_action_blocks  = []
+    around_action_blocks = []
+
+    @classmethod
+    def add_before_action(self, block):
+        self.before_action_blocks.append(block)
+
+    @classmethod
+    def add_after_action(self, block):
+        self.after_action_blocks.append(block)
+
+    @classmethod
+    def add_around_action(self, block):
+        self.around_action_blocks.append(block)
+
+    def before_action(self):
+        for block in self.__class__.before_action_blocks:
+            if type(block) == str:
+                block = getattr(self, block)
+            block()
+
+    def after_action(self):
+        for block in self.__class__.after_action_blocks:
+            if type(block) == str:
+                block = getattr(self, block)
+            block()
+
+    def around_action(self, action):
+        for block in self.__class__.around_action_blocks:
+            if type(block) == str:
+                block = getattr(self, block)
+            block(action)
+
     def __init__(self, environment, should_load_params=True):
         self.environment = environment
         self.params = {}
+        self.application_response = None
         if should_load_params:
             self.load_params()
-    
+
     def respond_to(self, html=None, json=None, text=None):
         return RequestFormatHelper(self.environment).respond_to(html, json, text)
+
+    def run_action(self, action):
+        self.before_action()
+        if self.around_action_blocks:
+            self.around_action(action)
+        else:
+            action()
+        self.after_action()
+        return self.application_response
 
     def get_action(self, action):
         return getattr(self, action)
@@ -35,7 +79,7 @@ class BooyahApplicationController:
                 key, value = param.split('=')
                 params[key] = value
         self.params.update(params)
-    
+
     def parse_nested_attributes(self, body_data):
         parsed_data = parse_qs(body_data)
         nested_data = {}
@@ -44,12 +88,12 @@ class BooyahApplicationController:
             current_dict = nested_data
             for k in keys[:-1]:
                 current_dict = current_dict.setdefault(k, {})
-            
+
             if len(keys) == 1:
                 current_dict[keys[-1]] = value[0]
             else:
                 current_dict[keys[-1][:-1]] = value[0]
-            
+
         return nested_data
 
     def load_params_from_gunicorn_body(self):
@@ -79,8 +123,9 @@ class BooyahApplicationController:
         self.params.update(body_params)
 
     def render(self, data = {}):
-        return ApplicationResponse(self.environment, data)
-    
+        self.application_response = ApplicationResponse(self.environment, data)
+        return self.application_response
+
     def redirect(self, redirect_to):
         return RedirectResponse(self.environment, redirect_to)
 
