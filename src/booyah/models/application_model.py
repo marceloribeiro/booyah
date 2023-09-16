@@ -7,13 +7,17 @@ from datetime import datetime
 
 class ApplicationModel:
     validates = []
-    custom_validates = []
     table_columns = None
     _query_builder = None
 
     def __init__(self, attributes={}):
         self.errors = []
         self.fill_attributes(attributes, from_init=True)
+        self.configure_static_var()
+
+    @classmethod
+    def configure_static_var(cls):
+        cls.custom_validates = []
     
     def fill_attributes(self, attributes, from_init=False, ignore_none=False):
         if from_init:

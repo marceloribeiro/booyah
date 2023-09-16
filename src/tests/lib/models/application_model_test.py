@@ -6,6 +6,12 @@ class User(ApplicationModel):
 class Post(ApplicationModel):
     pass
 
+class CustomValidationTest(ApplicationModel):
+    pass
+
+def custom_validation(self):
+    self.errors.append('Fixed error')
+
 class TestApplicationModel:
     def create_users_table(self):
         User.drop_table()
@@ -28,6 +34,15 @@ class TestApplicationModel:
             'updated_at': 'datetime'
         })
 
+    def create_custom_validations_table(self):
+        CustomValidationTest.drop_table()
+        CustomValidationTest.create_table({
+            'id': 'primary_key',
+            'name': 'string',
+            'email': 'string',
+            'created_at': 'datetime',
+            'updated_at': 'datetime'
+        })
 
     def create_user(self, name='Test User', email='test@email.com'):
         User.create({
@@ -41,6 +56,18 @@ class TestApplicationModel:
             'content': content,
             'user_id': user_id,
         })
+
+    def create_custom_validation_test(self, name='Test User', email='test@email.com'):
+        CustomValidationTest.create({
+            'name': name,
+            'email': email,
+        })
+
+    def create_custom_validation_tests_sample(self):
+        self.create_custom_validations_table()
+        self.create_custom_validation_test()
+        self.create_custom_validation_test(name='Another', email='another@email.com')
+        self.create_custom_validation_test(name='Third', email='third@email.com')
 
     def create_users_sample(self):
         self.create_users_table()
@@ -199,3 +226,33 @@ class TestApplicationModel:
         user.destroy()
         assert User.find(1) == None
         assert User.all().count() == 2
+    
+    def test_fill_attributes(self):
+        self.create_users_sample()
+        user = User.find(1)
+        previous_name = user.name
+        user.fill_attributes({"name": "New name here"})
+        assert user.name == "New name here"
+        assert user.name_was == previous_name
+
+    def test_fill_attributes_from_init(self):
+        self.create_users_sample()
+        user = User.find(1)
+        previous_name = user.name
+        user.fill_attributes({"name": "New name here"}, from_init=True)
+        assert user.name == "New name here"
+        assert user.name_was == "New name here"
+
+    def test_fill_attributes_ignore_none(self):
+        self.create_users_sample()
+        user = User.find(1)
+        user.fill_attributes({"name": "New name here", "email": None}, ignore_none=True)
+        assert user.email == "test@email.com"
+        assert user.email_was == "test@email.com"
+
+    def test_custom_validates(self):
+        self.create_custom_validation_tests_sample()
+        record = CustomValidationTest.find(1)
+        CustomValidationTest.custom_validates.append(custom_validation)
+        record.valid()
+        assert record.errors == ['Fixed error']
