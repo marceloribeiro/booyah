@@ -17,7 +17,9 @@ class ApplicationModel:
 
     @classmethod
     def configure_static_var(cls):
-        cls.custom_validates = []
+        # this code is to avoid to set static var shared for all models
+        if not hasattr(cls, 'custom_validates') and not cls is ApplicationModel:
+            cls.custom_validates = []
     
     def fill_attributes(self, attributes, from_init=False, ignore_none=False):
         if from_init:

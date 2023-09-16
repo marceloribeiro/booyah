@@ -11,12 +11,13 @@ class Attachment:
             cls._attachments = [name]
         else:
             cls._attachments.append(name)
-        setattr(cls, name, None)
         setattr(cls, f"_{name}_options", {
             'required': required,
             'bucket': bucket
         })
         Attachment.copy_required_methods_to_class(cls)
+        if not hasattr(cls, 'custom_validates'):
+            cls.custom_validates = []
         cls.custom_validates.append(cls.validate_attachments)
 
     @staticmethod
