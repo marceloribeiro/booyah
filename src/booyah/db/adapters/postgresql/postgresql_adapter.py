@@ -134,6 +134,31 @@ class PostgresqlAdapter(BaseAdapter):
     def schema_helper(self):
         return PostgresqlSchemaHelper.get_instance()
 
+    def create_schema_migrations(self):
+        self.schema_helper().create_schema_migrations()
+
+    def migration_has_been_run(self, version):
+        query = f"SELECT version from schema_migrations where version = '{version}'"
+        result = self.fetch(query)
+        if result:
+            return True
+        return False
+
+    def save_version(self, version):
+        query = f"INSERT INTO schema_migrations (version) VALUES ('{version}')"
+        self.execute(query, False)
+
+    def delete_version(self, version):
+        query = f"DELETE FROM schema_migrations WHERE version = '{version}'"
+        self.execute(query, False)
+    
+    def current_version(self):
+        query = f"SELECT version from schema_migrations ORDER BY version DESC LIMIT 1"
+        result = self.fetch(query)
+        if result:
+            return int(result[0][0])
+        return 0
+
     def get_table_columns(self, table_name):
         items = self.fetch(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
         columns = [item for row in items for item in row]
