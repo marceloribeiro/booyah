@@ -6,7 +6,7 @@ from booyah.logger import logger
 from booyah.db.adapters.postgresql.postgresql_schema_helper import PostgresqlSchemaHelper
 from booyah.db.adapters.base_adapter import BaseAdapter
 
-class PostgresqlAdapter(BaseAdapter):
+class PostgresqlAdapter:
     @staticmethod
     def get_instance(force_new=False):
         if not hasattr(PostgresqlAdapter, 'instance') or force_new:
@@ -60,11 +60,22 @@ class PostgresqlAdapter(BaseAdapter):
         cursor.close()
         self.close_connection()
 
-    def execute(self, query, expect_result=True, log_query=True):
+    def execute(self, query, expect_result=True):
         self.connect()
         cursor = self.connection.cursor()
-        if log_query:
-            logger.debug("DB:", query, color='blue')
+        color = 'blue'
+        bold = False
+        upper_query = query.upper()
+        if upper_query.startswith("INSERT INTO"):
+            color = 'green'
+            bold = True
+        elif upper_query.startswith("UPDATE"):
+            color = 'yellow'
+            bold = True
+        elif upper_query.startswith("DELETE"):
+            color = 'red'
+            bold = True
+        logger.debug("DB:", query, color=color, bold=bold)
         cursor.execute(query)
         result = None
         if expect_result:
@@ -95,8 +106,7 @@ class PostgresqlAdapter(BaseAdapter):
         columns = ', '.join(attributes.keys())
         values = ', '.join([f"{value}" for value in attributes.values()])
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({values}) RETURNING id, created_at, updated_at"
-        logger.debug("DB:", query, color='green', bold=True)
-        return self.execute(query, log_query=False)
+        return self.execute(query)
 
     def update(self, table_name, id, attributes):
         if attributes.get('updated_at') is None:
@@ -108,13 +118,11 @@ class PostgresqlAdapter(BaseAdapter):
 
         values = ', '.join([f"{key} = {value}" for key, value in attributes.items()])
         query = f"UPDATE {table_name} SET {values} WHERE id = {id} returning updated_at"
-        logger.debug("DB:", query, color='yellow', bold=True)
-        return self.execute(query, log_query=False)
+        return self.execute(query)
 
     def delete(self, table_name, id):
         query = f"DELETE FROM {table_name} WHERE id = {id} returning id"
-        logger.debug("DB:", query, color='red', bold=True)
-        return self.execute(query, log_query=False)
+        return self.execute(query)
 
     def format_attributes(self, attributes):
         for key, value in attributes.items():
