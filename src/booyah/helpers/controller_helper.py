@@ -16,7 +16,6 @@ RESPONSE_FORMAT_JSON = 'json'
 
 def get_controller_action(route_data, environment):
     set_response_format(route_data, environment)
-
     return get_controller_action_from_string(route_data["action"], environment)
 
 def set_response_format(route_data, environment):
@@ -72,4 +71,7 @@ def get_controller_action_from_string(controller_string, environment):
     environment['action_name'] = action_name
 
     logger.debug('Processing:', controller_class.__name__, '=>', action_name)
-    return controller_class(environment).get_action(action_name)
+
+    controller  = controller_class(environment)
+    action      = controller.get_action(action_name)
+    return { "controller": controller, "action": action }

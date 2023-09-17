@@ -1,22 +1,21 @@
+import json
 from booyah.response.application_response import ApplicationResponse
 from booyah.response.redirect_response import RedirectResponse
-import json
 from urllib.parse import parse_qs
 from booyah.logger import logger
 from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
+from booyah.application_support.action_support import ActionSupport
 
-class BooyahApplicationController:
+class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
         self.environment = environment
         self.params = {}
+        self.application_response = None
         if should_load_params:
             self.load_params()
-    
+
     def respond_to(self, html=None, json=None, text=None):
         return RequestFormatHelper(self.environment).respond_to(html, json, text)
-
-    def get_action(self, action):
-        return getattr(self, action)
 
     def load_params(self):
         self.load_params_from_route()
@@ -25,17 +24,21 @@ class BooyahApplicationController:
         logger.debug("PARAMS:", self.params)
 
     def load_params_from_route(self):
-        self.params.update(self.environment['MATCHING_ROUTE_PARAMS'])
+        if 'MATCHING_ROUTE_PARAMS' in self.environment:
+            self.params.update(self.environment['MATCHING_ROUTE_PARAMS'])
 
     def load_params_from_query_string(self):
-        query_string = self.environment['QUERY_STRING']
+        query_string = None
+        if 'QUERY_STRING' in self.environment:
+            query_string = self.environment['QUERY_STRING']
+
         params = {}
         if query_string:
             for param in query_string.split('&'):
                 key, value = param.split('=')
                 params[key] = value
         self.params.update(params)
-    
+
     def parse_nested_attributes(self, body_data):
         parsed_data = parse_qs(body_data)
         nested_data = {}
@@ -44,12 +47,12 @@ class BooyahApplicationController:
             current_dict = nested_data
             for k in keys[:-1]:
                 current_dict = current_dict.setdefault(k, {})
-            
+
             if len(keys) == 1:
                 current_dict[keys[-1]] = value[0]
             else:
                 current_dict[keys[-1][:-1]] = value[0]
-            
+
         return nested_data
 
     def load_params_from_gunicorn_body(self):
@@ -79,8 +82,9 @@ class BooyahApplicationController:
         self.params.update(body_params)
 
     def render(self, data = {}):
-        return ApplicationResponse(self.environment, data)
-    
+        self.application_response = ApplicationResponse(self.environment, data)
+        return self.application_response
+
     def redirect(self, redirect_to):
         return RedirectResponse(self.environment, redirect_to)
 
