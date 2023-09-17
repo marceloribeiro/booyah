@@ -31,8 +31,8 @@ class TestApplicationMigration:
         self.migration.migrate_all()
         assert mocked_migrate.call_count == 2
         assert mocked_migrate.call_args_list == [
-            (('1_create_users.py', '1'),),
-            (('2_create_posts.py', '2'),)
+            (('1_create_users.py', 1),),
+            (('2_create_posts.py', 2),)
         ]
 
     def test_migrate(self, mocker):

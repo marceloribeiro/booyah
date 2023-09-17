@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from booyah.logger import logger
 from booyah.db.adapters.postgresql.postgresql_schema_helper import PostgresqlSchemaHelper
+from booyah.db.adapters.base_adapter import BaseAdapter
 
 class PostgresqlAdapter:
     @staticmethod
@@ -62,7 +63,19 @@ class PostgresqlAdapter:
     def execute(self, query, expect_result=True):
         self.connect()
         cursor = self.connection.cursor()
-        logger.debug("DB:", query, color='blue')
+        color = 'blue'
+        bold = False
+        upper_query = query.upper()
+        if upper_query.startswith("INSERT INTO"):
+            color = 'green'
+            bold = True
+        elif upper_query.startswith("UPDATE"):
+            color = 'yellow'
+            bold = True
+        elif upper_query.startswith("DELETE"):
+            color = 'red'
+            bold = True
+        logger.debug("DB:", query, color=color, bold=bold)
         cursor.execute(query)
         result = None
         if expect_result:
@@ -93,7 +106,6 @@ class PostgresqlAdapter:
         columns = ', '.join(attributes.keys())
         values = ', '.join([f"{value}" for value in attributes.values()])
         query = f"INSERT INTO {table_name} ({columns}) VALUES ({values}) RETURNING id, created_at, updated_at"
-        logger.debug("DB:", query, color='green', bold=True)
         return self.execute(query)
 
     def update(self, table_name, id, attributes):
@@ -106,12 +118,10 @@ class PostgresqlAdapter:
 
         values = ', '.join([f"{key} = {value}" for key, value in attributes.items()])
         query = f"UPDATE {table_name} SET {values} WHERE id = {id} returning updated_at"
-        logger.debug("DB:", query, color='yellow', bold=True)
         return self.execute(query)
 
     def delete(self, table_name, id):
         query = f"DELETE FROM {table_name} WHERE id = {id} returning id"
-        logger.debug("DB:", query, color='red', bold=True)
         return self.execute(query)
 
     def format_attributes(self, attributes):
@@ -149,6 +159,13 @@ class PostgresqlAdapter:
     def delete_version(self, version):
         query = f"DELETE FROM schema_migrations WHERE version = '{version}'"
         self.execute(query, False)
+    
+    def current_version(self):
+        query = f"SELECT version from schema_migrations ORDER BY version DESC LIMIT 1"
+        result = self.fetch(query)
+        if result:
+            return int(result[0][0])
+        return 0
 
     def get_table_columns(self, table_name):
         items = self.fetch(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")

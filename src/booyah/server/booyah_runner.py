@@ -6,6 +6,7 @@ from booyah.helpers.io import make_bold, make_blue
 from booyah.server.booyah_database import BooyahDatabase
 from py_dotenv import read_dotenv
 from booyah.extensions.string import String
+from booyah.db.adapters.base_adapter import BaseAdapter
 
 class BooyahRunner:
     def run_g(self):
@@ -54,8 +55,10 @@ class BooyahRunner:
     
     def run_db(self):
         params = sys.argv[2:]
-        db_operation = params[0]
         environment = os.environ.get('BOOYAH_ENV', 'development')
-        print(f'Running db {db_operation} in {make_blue(make_bold(environment))} environment')
         self.load_env()
-        getattr(BooyahDatabase(environment), f"{db_operation}_db")()
+        if not params:
+            return BaseAdapter.open_client()
+        db_operation = params[0]
+        print(f'Running db {db_operation} in {make_blue(make_bold(environment))} environment')
+        getattr(BooyahDatabase(environment, params), f"{db_operation}_db")()

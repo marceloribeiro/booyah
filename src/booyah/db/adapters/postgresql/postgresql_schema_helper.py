@@ -1,5 +1,4 @@
 from booyah.db.adapters.base_adapter import BaseAdapter
-from booyah.logger import logger
 
 class PostgresqlSchemaHelper:
     @staticmethod
@@ -47,7 +46,6 @@ class PostgresqlSchemaHelper:
             query = f"DROP TABLE IF EXISTS {table_name}; CREATE TABLE {table_name} ({columns})"
         else:
             query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns})"
-        logger.debug("DB:", query)
         self.adapter.execute(query, False)
 
     def drop_table(self, table_name):

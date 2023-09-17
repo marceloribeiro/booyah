@@ -10,6 +10,7 @@ class ApplicationMigration:
         self.success_down = False
         self.adapter = BaseAdapter.get_instance()
         self.version = version
+        self.already_created_schema = False
 
     def migrations_folder(self):
         return f"{os.getenv('ROOT_PROJECT_PATH')}/db/migrate"
@@ -23,17 +24,81 @@ class ApplicationMigration:
                 migrations.append(file)
         return migrations
 
+    def migrate_to_version(self, to_version):
+        if not to_version:
+            self.migrate_all()
+            return
+        
+        all_migrations = self.get_migrations()
+        current_version = self.adapter.current_version()
+        
+        if current_version < to_version:
+            for migration in all_migrations:
+                version = int(migration.split('_')[0])
+                if version > current_version and version <= to_version:
+                    self.migrate(migration, version)
+        else:
+            all_migrations.reverse()
+            should_set_version_zero = True
+            for migration in all_migrations:
+                version = int(migration.split('_')[0])
+
+                already_migrated = current_version >= version
+                should_undo = version > to_version
+
+                if already_migrated and should_undo:
+                    self.migrate_down(migration, version)
+                    self.version = version
+                    self.delete_version()
+                elif already_migrated:
+                    should_set_version_zero = False
+                    current_version = version
+                    break
+            self.version = current_version if not should_set_version_zero else 0
+
     def migrate_all(self):
+        current_version = self.adapter.current_version()
         migrations = self.get_migrations()
         for migration in migrations:
-            version = migration.split('_')[0]
-            if not os.getenv('VERSION') or version == os.getenv('VERSION'):
+            version = int(migration.split('_')[0])
+            if current_version < version:
                 self.migrate(migration, version)
+    
+    def rollback(self):
+        current_version = self.adapter.current_version()
+        if not current_version:
+            return
+        all_migrations = self.get_migrations()
+        all_migrations.reverse()
+        for migration in all_migrations:
+            version = int(migration.split('_')[0])
+            if version == current_version:
+                self.migrate_down(migration, version)
+                self.version = version
+                self.delete_version()
 
     def get_migration_class(self, migration, migration_class_name):
         migration_module = __import__(f'{os.environ["ROOT_PROJECT"]}.db.migrate.{migration.split(".")[0]}', fromlist=[migration_class_name])
         migration_class = getattr(migration_module, migration_class_name)
         return migration_class
+    
+    def get_migration_by_version(self, version):
+        all_migrations = self.get_migrations()
+
+        for migration in all_migrations:
+            if int(migration.split('_')[0]) == version:
+                return migration
+        print(f'Could not find migration with the version {version}')
+
+    def execute_up(self, version):
+        migration = self.get_migration_by_version(version)
+        if migration:
+            self.migrate(migration, version)
+
+    def execute_down(self, version):
+        migration = self.get_migration_by_version(version)
+        if migration:
+            self.migrate_down(migration, version)
 
     def migrate(self, migration, version):
         migration_name = String(migration.split('.')[0].replace(f"{version}_", ''))
@@ -41,8 +106,16 @@ class ApplicationMigration:
         migration_class = self.get_migration_class(migration, migration_class_name)
         migration_class(version).up()
 
+    def migrate_down(self, migration, version):
+        migration_name = String(migration.split('.')[0].replace(f"{version}_", ''))
+        migration_class_name = migration_name.camelize()
+        migration_class = self.get_migration_class(migration, migration_class_name)
+        migration_class(version).down()
+
     def create_schema_migrations(self):
-        self.adapter.create_schema_migrations()
+        if not self.already_created_schema:
+            self.already_created_schema = True
+            self.adapter.create_schema_migrations()
 
     def migration_has_been_run(self):
         return self.adapter.migration_has_been_run(self.version)

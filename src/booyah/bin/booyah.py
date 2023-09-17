@@ -23,9 +23,16 @@ def run():
     db_subparsers = db_parser.add_subparsers(title="DB Operations", dest="db_command")
 
     db_subparsers.add_parser("create", help="Create database")
-    db_subparsers.add_parser("migrate", help="Migrate database")
+    migrate_parser = db_subparsers.add_parser("migrate", help="Migrate database")
+    migrate_up_parser = db_subparsers.add_parser("migrate_up", help="Migrate a single version file up")
+    migrate_down_parser = db_subparsers.add_parser("migrate_down", help="Migrate a single version file down")
     db_subparsers.add_parser("drop", help="Drop database")
     db_subparsers.add_parser("seed", help="Seed database")
+    db_subparsers.add_parser("rollback", help="Rollback the last migration")
+
+    migrate_up_parser.add_argument("args", nargs="*", help="Generator args")
+    migrate_down_parser.add_argument("args", nargs="*", help="Generator args")
+    migrate_parser.add_argument("args", nargs="*", help="Generator args")
 
     args = parser.parse_args()
     if args.version:

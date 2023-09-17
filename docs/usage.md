@@ -7,7 +7,19 @@ To start a new booyah project run the 'new' command followed by the project name
 $ booyah new ProjectName
 ```
 
+**Configure**
+
+You can use you custom settings for the project by changing the .env file in the root project folder
+
 **Generators**
+
+You can start by using a scaffold generator that will create table migration, model, controller and views:
+
+```sh
+$ booyah generate scaffold user name:string
+```
+
+Note: Don't forget to run the migration command
 
 You can easily generate a controller file with given actions using command line:
 
@@ -28,8 +40,26 @@ You can easily execute some database operations as following:
 ```sh
 $ booyah db create
 $ booyah db migrate
+$ booyah db rollback
 $ booyah db seed
 $ booyah db drop
+
+$ VERSION=20230911982982 booyah db migrate
+$ VERSION=20230911982982 booyah db migrate_up
+$ VERSION=20230911982982 booyah db migrate_down
+
+or
+
+$ booyah db migrate 20230911982982
+$ booyah db migrate_up 20230911982982
+$ booyah db migrate_down 20230911982982
+
+```
+
+You can also connect to project database with the following command:
+
+```sh
+$ booyah db
 ```
 
 **Console**
