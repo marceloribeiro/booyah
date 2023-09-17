@@ -4,75 +4,9 @@ from booyah.response.redirect_response import RedirectResponse
 from urllib.parse import parse_qs
 from booyah.logger import logger
 from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
+from booyah.application_support.action_support import ActionSupport
 
-class BooyahApplicationController:
-    before_action_blocks = []
-    after_action_blocks  = []
-    around_action_blocks = []
-
-    @classmethod
-    def add_before_action(self, block, only_for=None, except_for=None):
-        self.before_action_blocks.append({ "block": block, "only_for": only_for, "except_for": except_for })
-
-    @classmethod
-    def remove_before_action(self, block, only_for=None, except_for=None):
-        self.before_action_blocks.remove({ "block": block, "only_for": only_for, "except_for": except_for })
-
-    @classmethod
-    def add_after_action(self, block, only_for=None, except_for=None):
-        self.after_action_blocks.append({ "block": block, "only_for": only_for, "except_for": except_for })
-
-    @classmethod
-    def remove_after_action(self, block, only_for=None, except_for=None):
-        self.after_action_blocks.remove({ "block": block, "only_for": only_for, "except_for": except_for })
-
-    @classmethod
-    def add_around_action(self, block, only_for=None, except_for=None):
-        self.around_action_blocks.append({ "block": block, "only_for": only_for, "except_for": except_for })
-
-    @classmethod
-    def remove_around_action(self, block, only_for=None, except_for=None):
-        self.around_action_blocks.remove({ "block": block, "only_for": only_for, "except_for": except_for })
-
-    def before_action(self, action_name):
-        for block in self.__class__.before_action_blocks:
-            if block['only_for'] and action_name not in block['only_for']:
-                continue
-            if block['except_for'] and action_name in block['except_for']:
-                continue
-
-            if type(block['block']) == str:
-                before_block = getattr(self, block['block'])
-            else:
-                before_block = block['block']
-            before_block()
-
-    def after_action(self, action_name):
-        for block in self.__class__.after_action_blocks:
-            if block['only_for'] and action_name not in block['only_for']:
-                continue
-            if block['except_for'] and action_name in block['except_for']:
-                continue
-
-            if type(block['block']) == str:
-                after_block = getattr(self, block['block'])
-            else:
-                after_block = block['block']
-            after_block()
-
-    def around_action(self, action, action_name):
-        for block in self.__class__.around_action_blocks:
-            if block['only_for'] and action_name not in block['only_for']:
-                continue
-            if block['except_for'] and action_name in block['except_for']:
-                continue
-
-            if type(block['block']) == str:
-                around_block = getattr(self, block['block'])
-            else:
-                around_block = block['block']
-            around_block(action)
-
+class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
         self.environment = environment
         self.params = {}
@@ -82,19 +16,6 @@ class BooyahApplicationController:
 
     def respond_to(self, html=None, json=None, text=None):
         return RequestFormatHelper(self.environment).respond_to(html, json, text)
-
-    def run_action(self, action):
-        action_name = str(action).split(' ')[2].split('.')[1]
-        self.before_action(action_name)
-        if self.around_action_blocks:
-            self.around_action(action, action_name)
-        else:
-            action()
-        self.after_action(action_name)
-        return self.application_response
-
-    def get_action(self, action):
-        return getattr(self, action)
 
     def load_params(self):
         self.load_params_from_route()
