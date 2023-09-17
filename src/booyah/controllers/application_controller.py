@@ -24,10 +24,14 @@ class BooyahApplicationController(ActionSupport):
         logger.debug("PARAMS:", self.params)
 
     def load_params_from_route(self):
-        self.params.update(self.environment['MATCHING_ROUTE_PARAMS'])
+        if 'MATCHING_ROUTE_PARAMS' in self.environment:
+            self.params.update(self.environment['MATCHING_ROUTE_PARAMS'])
 
     def load_params_from_query_string(self):
-        query_string = self.environment['QUERY_STRING']
+        query_string = None
+        if 'QUERY_STRING' in self.environment:
+            query_string = self.environment['QUERY_STRING']
+
         params = {}
         if query_string:
             for param in query_string.split('&'):

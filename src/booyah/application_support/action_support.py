@@ -6,7 +6,7 @@ class ActionSupport:
     @classmethod
     def initialize_action_configs(self, block_collection, block):
         if block not in block_collection:
-            block_collection[block] = {"only_for": [], "except_for": []}
+            block_collection[block] = {"only_for": [], "except_for": [], "sorting_index": len(block_collection)}
 
     @classmethod
     def add_action_configs(self, block_collection, block, only_for=None, except_for=None):
@@ -82,24 +82,33 @@ class ActionSupport:
         return True
 
     def before_action(self, action_name):
-        for block in self.__class__.before_action_blocks:
-            config = self.__class__.before_action_blocks[block]
+        sorted_before_blocks = sorted(self.__class__.before_action_blocks.items(), key=lambda x:x[1]['sorting_index'])
+        for block_tupple in sorted_before_blocks:
+            block  = block_tupple[0]
+            config = block_tupple[1]
+
             if self.should_run_block(config, action_name):
                 if type(block) == str:
                     block = getattr(self, block)
                 block()
 
     def after_action(self, action_name):
-        for block in self.__class__.after_action_blocks:
-            config = self.__class__.after_action_blocks[block]
+        sorted_after_blocks = sorted(self.__class__.after_action_blocks.items(), key=lambda x:x[1]['sorting_index'])
+        for block_tupple in sorted_after_blocks:
+            block  = block_tupple[0]
+            config = block_tupple[1]
+
             if self.should_run_block(config, action_name):
                 if type(block) == str:
                     block = getattr(self, block)
                 block()
 
     def around_action(self, action, action_name):
-        for block in self.__class__.around_action_blocks:
-            config = self.__class__.around_action_blocks[block]
+        sorted_around_blocks = sorted(self.__class__.around_action_blocks.items(), key=lambda x:x[1]['sorting_index'])
+        for block_tupple in sorted_around_blocks:
+            block  = block_tupple[0]
+            config = block_tupple[1]
+
             if self.should_run_block(config, action_name):
                 if type(block) == str:
                     block = getattr(self, block)
