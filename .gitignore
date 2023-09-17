@@ -10,6 +10,7 @@ logs/
 
 # local config
 /src/tests/.env
+/src/tests/public
 
 # OS generated files
 .DS_Store

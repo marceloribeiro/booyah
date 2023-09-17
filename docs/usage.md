@@ -86,6 +86,14 @@ If you want to run booyah from source folder, you should enter the src folder an
 $ python -m booyah --version
 ```
 
+**Attachments**
+
+You can configure an attachment file to a model by adding folowing code:
+
+> Attachment.configure(User, 'photo')
+
+This will configure photo string field to work as an attachment, you can create an html input field user[photo] and it will be uploaded as a booyah File.
+
 **Logging**
 
 Check for configurations in .env file, you can change LOG_LEVEL and LOG_FILE_PATH.

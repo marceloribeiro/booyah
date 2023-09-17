@@ -23,6 +23,7 @@ def save_attachments(self, attributes = None):
                 target_path = os.path.join(self.attachment_folder(options), full_file_name)
                 self.save_local_attachment(str(current_value), target_path)
                 attributes[attachment] = full_file_name
+                setattr(self, attachment, full_file_name)
         elif current_value == None and previous_value:
             self.delete_file(previous_value, options)
     return attributes
