@@ -34,17 +34,17 @@ class TestRequestFormatHelper():
     def test_respond_html(self):
         self._environment['HTTP_ACCEPT'] = 'text/html'
         request = RequestFormatHelper(self._environment)
-        assert request.respond_to(html=html_response, json=json_response, text=text_response) == HTML_RESPONSE
+        assert request.respond_to(html_block=html_response, json_block=json_response, text_block=text_response) == HTML_RESPONSE
         assert self._environment['CONTENT_TYPE'] == 'text/html'
 
     def test_respond_json(self):
         self._environment['HTTP_ACCEPT'] = 'application/json'
         request = RequestFormatHelper(self._environment)
-        assert request.respond_to(html=html_response, json=json_response, text=text_response) == JSON_RESPONSE
+        assert request.respond_to(html_block=html_response, json_block=json_response, text_block=text_response) == JSON_RESPONSE
         assert self._environment['CONTENT_TYPE'] == 'application/json'
 
     def test_respond_text(self):
         self._environment['HTTP_ACCEPT'] = 'text/plain'
         request = RequestFormatHelper(self._environment)
-        assert request.respond_to(html=html_response, json=json_response, text=text_response) == TEXT_RESPONSE
+        assert request.respond_to(html_block=html_response, json_block=json_response, text_block=text_response) == TEXT_RESPONSE
         assert self._environment['CONTENT_TYPE'] == 'text/plain'
