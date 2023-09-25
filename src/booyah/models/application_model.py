@@ -1,6 +1,7 @@
 from booyah.db.adapters.base_adapter import BaseAdapter
 from booyah.models.model_query_builder import ModelQueryBuilder
 from booyah.extensions.string import String
+from booyah.observers.application_model_observer import ApplicationModelObserver
 import json
 
 class ApplicationModel:
@@ -132,12 +133,63 @@ class ApplicationModel:
     def save(self):
         if not self.valid():
             return False
+        self.before_save()
         if self.is_new_record():
             self.insert()
         else:
             self.update()
         self.reload()
+        self.after_save()
         return self
+
+    def before_validation(self):
+        self.run_callbacks('before_validation')
+    
+    def after_validation(self):
+        self.run_callbacks('after_validation')
+
+    def before_save(self):
+        self.run_callbacks('before_save')
+    
+    def after_save(self):
+        self.run_callbacks('after_save')
+
+    def before_create(self):
+        self.run_callbacks('before_create')
+    
+    def after_create(self):
+        self.run_callbacks('after_create')
+    
+    def before_update(self):
+        self.run_callbacks('before_update')
+    
+    def after_update(self):
+        self.run_callbacks('after_update')
+    
+    def before_destroy(self):
+        self.run_callbacks('before_destroy')
+    
+    def after_destroy(self):
+        self.run_callbacks('after_destroy')
+
+    def run_callbacks(self, callback_type):
+        callbacks = ApplicationModelObserver.callbacks.get(callback_type)
+        class_name = self.__class__.__name__
+
+        if not callbacks:
+            return
+        
+        if ApplicationModelObserver.callbacks[callback_type].get(class_name):
+            callback_configs = sorted(
+                ApplicationModelObserver.callbacks[callback_type][class_name],
+                key=lambda x:x['sorting_index']
+            )
+            for callback_config in callback_configs:
+                callback = callback_config.get('block')
+                if type(callback) == str:
+                    callback = getattr(self, callback)
+                    callback()        
+
 
     def reload(self):
         if self.id:
@@ -147,23 +199,28 @@ class ApplicationModel:
         return not hasattr(self, 'id') or self.id == None
 
     def insert(self):
+        self.before_create()
         data = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
         self.id = data[0]
         self.created_at = data[1]
         self.updated_at = data[2]
+        self.after_create()
         return self
 
     def update(self, attributes = None):
+        self.before_update()
         self_attributes = self.to_dict()
         if attributes != None:
             to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
             self_attributes.update(to_update)
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
         self.updated_at = data[0]
+        self.after_update()
         self.reload()
         return self
 
     def patch_update(self, attributes = None):
+        self.before_update()
         self_attributes = self.to_dict()
         if attributes != None:
             to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
@@ -172,20 +229,28 @@ class ApplicationModel:
                     self_attributes[key] = attributes[key]
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
         self.updated_at = data[0]
+        self.after_update()
         self.reload()
         return self
 
     def destroy(self):
+        self.before_destroy()
         data = self.db_adapter().delete(self.table_name(), self.id)
         deleted_id = data[0]
+        self.after_destroy()
         return deleted_id
 
     def valid(self):
+        self.before_validation()
         self.errors = []
+
         if not self.__class__.validates:
+            self.after_validation()            
             return True
         for v in self.__class__.validates:
             self.perform_attribute_validations(v)
+        self.after_validation()            
+
         if self.errors:
             return False
         return True

@@ -168,7 +168,7 @@ class TestApplicationMigration:
 
     def test_add_column(self, mocker):
         mocker.patch.object(self.migration.adapter, 'add_column')
-        self.migration.add_column('users', 'name', 'string')
+        self.migration.add_column('users', { 'name': 'string' })
         assert self.migration.adapter.add_column.call_count == 1
         assert self.migration.adapter.add_column.call_args_list == [
             (('users', 'name', 'string'),)

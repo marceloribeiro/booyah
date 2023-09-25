@@ -166,8 +166,9 @@ class ApplicationMigration:
     def drop_table(self, table_name):
         self.adapter.drop_table(table_name)
 
-    def add_column(self, table_name, column_name, column_type):
-        self.adapter.add_column(table_name, column_name, column_type)
+    def add_column(self, table_name, data):
+        for column_name, column_type in data.items():
+            self.adapter.add_column(table_name, column_name, column_type)
 
     def drop_column(self, table_name, column_name):
         self.adapter.drop_column(table_name, column_name)

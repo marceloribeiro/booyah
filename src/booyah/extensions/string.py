@@ -50,14 +50,19 @@ def titleize(self):
 def transliterate(self):
     return String(inflection.transliterate(self))
 
+def downcase(self):
+    return String(self.lower())
+
 def underscore(self):
     clean_string = self.strip().replace(" ", "_")
     clean_string = inflection.underscore(clean_string)
     return String(clean_string.replace("__", "_"))
 
+def slugify(self):
+    return self.downcase().replace(' ', '-')
+
 String.reverse = reverse
 String.constantize = constantize
-
 String.camelize = camelize
 String.dasherize = dasherize
 String.humanize = humanize
@@ -70,6 +75,8 @@ String.tableize = tableize
 String.titleize = titleize
 String.transliterate = transliterate
 String.underscore = underscore
+String.slugify = slugify
+String.downcase = downcase
 
 def classify(self):
     return String(String(self.titleize()).transliterate().replace(' ', ''))
