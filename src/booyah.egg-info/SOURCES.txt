@@ -65,8 +65,13 @@ src/booyah/helpers/io.py
 src/booyah/helpers/request_format_helper.py
 src/booyah/models/__init__.py
 src/booyah/models/application_model.py
+src/booyah/models/attachment.py
+src/booyah/models/file.py
+src/booyah/models/helpers.py
 src/booyah/models/model_query_builder.py
 src/booyah/models/user.py
+src/booyah/models/helpers/__init__.py
+src/booyah/models/helpers/attachment_helper.py
 src/booyah/response/__init__.py
 src/booyah/response/application_response.py
 src/booyah/response/asset_response.py
