@@ -226,16 +226,17 @@ class ApplicationModel:
         self.fill_attributes(attributes)
         if validate and not self.valid():
             return False
+        self.updated_at = datetime.now()
         self.before_update()
         self_attributes = self.to_dict()
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
-        self.updated_at = data[0]
         self.after_update()
         return self
 
     def patch_update(self, attributes = None):
         self.before_update()
         self.fill_attributes(attributes, ignore_none=True)
+        self.updated_at = datetime.now()
         self_attributes = self.to_dict()
         if attributes != None:
             to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
@@ -243,7 +244,6 @@ class ApplicationModel:
                 if attributes.get(key) != None:
                     self_attributes[key] = attributes[key]
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
-        self.updated_at = data[0]
         self.after_update()
         return self
 
