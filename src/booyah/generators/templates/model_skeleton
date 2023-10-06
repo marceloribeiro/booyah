@@ -1,4 +1,5 @@
 from booyah.models.application_model import ApplicationModel
+{{model_imports}}
 
 class {{model_name}}(ApplicationModel):
-    pass
+{{model_content}}

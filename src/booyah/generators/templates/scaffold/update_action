@@ -1,10 +1,10 @@
-{{model_name}} = {{model_name.camelize()}}.find(self.params['id'])
+{{model_name.underscore()}} = {{model_name.camelize()}}.find(self.params['id'])
         if self.is_put_request():
-            {{model_name}}.update(self.{{model_name}}_params())
+            {{model_name.underscore()}}.update(self.{{model_name.underscore()}}_params())
         else:
-            {{model_name}}.patch_update(self.{{model_name}}_params())
+            {{model_name.underscore()}}.patch_update(self.{{model_name.underscore()}}_params())
 
         return self.respond_to(
-            html=lambda: self.redirect(f'/{{model_name.pluralize()}}/{{'{'}}{{model_name}}.id{{'}'}}'),
-            json=lambda: self.render({ "{{model_name}}": {{model_name.camelize()}}Serializer({{model_name}}).to_dict() })
+            html=lambda: self.redirect(f'/{{model_name.underscore().pluralize()}}/{{'{'}}{{model_name.underscore()}}.id{{'}'}}'),
+            json=lambda: self.render({ "{{model_name}}": {{model_name.camelize()}}Serializer({{model_name.underscore()}}).to_dict() })
         )

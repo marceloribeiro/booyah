@@ -7,6 +7,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 #  booyah g controller home main contact
 class ControllerGenerator(BaseGenerator):
     def __init__(self, target_folder, controller_name, actions, scaffold=False, model_name=None, model_attributes=[]):
+        self.has_attachment = False
         self.target_folder = target_folder
         self.controller_name = f"{controller_name}_controller"
         self.actions = list(set(actions))
@@ -69,7 +70,7 @@ class ControllerGenerator(BaseGenerator):
     def get_scaffold_content(self, mode):
         content = {}
 
-        for action in (self.actions + ['form']):
+        for action in (self.actions + ['form', 'form_multipart']):
             if mode == 'view' and action in ['create', 'update', 'destroy']:
                 continue
 
@@ -97,7 +98,9 @@ class ControllerGenerator(BaseGenerator):
             output_file.write(self.content)
         print_success(f"controller created: {self.target_file}")
 
-    def create_view_for_action(self, action):
+    def create_view_for_action(self, action, template_name=None):
+        if not template_name:
+            template_name = action
         if self.scaffold and action in ['create', 'update', 'destroy']:
             return
 
@@ -111,9 +114,9 @@ class ControllerGenerator(BaseGenerator):
             return
 
         if self.scaffold:
-            content = self.get_scaffold_content('view')[action]
+            content = self.get_scaffold_content('view')[template_name]
         else:
-            template_name = f"scaffold/{action}_view" if self.scaffold else 'view_skeleton'
+            template_name = f"scaffold/{template_name}_view" if self.scaffold else 'view_skeleton'
             template = self.template_environment.get_template(template_name)
             content = template.render(**self.data)
 
@@ -125,14 +128,17 @@ class ControllerGenerator(BaseGenerator):
     def create_views_from_template(self):
         for action in self.actions:
             self.create_view_for_action(action)
-        self.create_view_for_action('form')
+        if self.has_attachment:
+            self.create_view_for_action('form', template_name='form_multipart')
+        else:
+            self.create_view_for_action('form')
 
     def get_model_attributes_names(self):
         if not self.model_name:
             return ''
         return ', '.join([f"'{attribute['name']}'" for attribute in self.model_attributes])
 
-    def get_field_type(self, type):
+    def get_field_type(self, field_type):
         options = {
             'string': 'text_field',
             'text': 'textarea_field',
@@ -142,5 +148,14 @@ class ControllerGenerator(BaseGenerator):
             'date': 'date_field',
             'time': 'time_field',
             'datetime': 'datetime_field',
+            'file': 'file_field',
+            'attachment': 'file_field',
+            'image': 'file_field',
+            'pdf': 'file_field',
+            'doc': 'file_field',
         }
-        return options[type] if type in options else 'text_field'
+        if field_type in options:
+            if options[field_type] == 'file_field':
+                self.has_attachment = True
+            return options[field_type]
+        return 'text_field'

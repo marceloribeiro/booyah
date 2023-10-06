@@ -1,7 +1,7 @@
 {{'{% extends "layouts/application.html" %}
 {% block title %}'}}Show {{model_name.camelize()}}{{'{% endblock %}
 {% block content %}'}}
-  <a href="/{{model_name.pluralize()}}">back</a>
+  <a href="/{{model_name.underscore().pluralize()}}">back</a>
   <h1>Show {{model_name.camelize()}}</h1>
   {%- for attribute in model_attributes %}
   <p>
@@ -9,5 +9,5 @@
     {{'{{'}} {{model_name.underscore()}}.{{attribute['name']}} {{'-}}'}}
   </p>
   {%- endfor %}
-  <a href="/{{model_name.pluralize()}}/{{'{{'}} {{model_name}}.id {{'-}}'}}/edit">Edit</a>
+  <a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name}}.id {{'-}}'}}/edit">Edit</a>
 {{'{% endblock %}'}}

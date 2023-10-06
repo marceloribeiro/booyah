@@ -1,5 +1,5 @@
 from booyah.models.application_model import ApplicationModel
-from booyah.models.helpers import *
+from booyah.models.helpers.callbacks import *
 
 class BlogPostLog:
     @classmethod

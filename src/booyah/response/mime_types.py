@@ -14,6 +14,10 @@ MIME_TYPE_BY_EXTENSION = {
     'xml': 'application/xml',
     'txt': 'text/plain',
     'zip': 'application/zip',
+    'doc': 'application/msword',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'xls': 'application/vnd.ms-excel',
+    'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 }
 
 DEFAULT_MIME_TYPE = 'application/octet-stream'

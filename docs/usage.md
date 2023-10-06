@@ -90,7 +90,8 @@ $ python -m booyah --version
 
 You can configure an attachment file to a model by adding folowing code:
 
-> Attachment.configure(User, 'photo')
+> class User(ApplicationModel):
+>  has_attached_file('photo', required=True, bucket='bucket_name')
 
 This will configure photo string field to work as an attachment, you can create an html input field user[photo] and it will be uploaded as a booyah File.
 

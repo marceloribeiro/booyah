@@ -18,13 +18,13 @@ class RequestFormatHelper:
             raise ValueError("Missing http accept header")
 
     def respond_to(self, html_block=None, json_block=None, text_block=None):
-        if html_block is not None and ContentType.HTML.value in self.http_accept:
+        if html_block is not None and (ContentType.HTML.value in self.http_accept or self.http_accept == '*/*'):
             self.environment['CONTENT_TYPE'] = ContentType.HTML.value
             return html_block()
-        if json_block is not None and ContentType.JSON.value in self.http_accept:
+        if json_block is not None and (ContentType.JSON.value in self.http_accept or self.http_accept == '*/*'):
             self.environment['CONTENT_TYPE'] = ContentType.JSON.value
             return json_block()
-        if text_block is not None and ContentType.TEXT.value in self.http_accept:
+        if text_block is not None and (ContentType.TEXT.value in self.http_accept or self.http_accept == '*/*'):
             self.environment['CONTENT_TYPE'] = ContentType.TEXT.value
             return text_block()
 

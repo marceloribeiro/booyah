@@ -1,0 +1,1 @@
+<input type="file" name="{{model_name.underscore()}}[{{attribute['name']}}]" id="{{model_name.underscore()}}_{{attribute['name']}}" />

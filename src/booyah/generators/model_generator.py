@@ -10,6 +10,8 @@ class ModelGenerator(BaseGenerator):
     def __init__(self, target_folder, model_name, attributes):
         self.target_folder = target_folder
         self.model_name = model_name
+        self.model_content = '    pass'
+        self.model_imports = ''
         self.attributes = list(set(attributes))
         self.class_name = String(self.model_name).classify()
         self.target_file = os.path.join(self.target_folder, self.class_name.underscore() + '.py')
@@ -23,7 +25,36 @@ class ModelGenerator(BaseGenerator):
         self.generate_migration()
         if not self.should_create_file():
             return False
+        self.fill_model_content()
         self.create_model_from_template()
+    
+    def fill_model_content(self):
+        has_attachment = False
+        for attribute in self.attributes:
+            if ':' in attribute:
+                name = attribute.split(':')[0]
+                bucket = String(name).pluralize()
+                format = attribute.split(':')[1]
+                if format in ['file', 'image', 'pdf', 'doc', 'attachment']:
+                    if not has_attachment:
+                        self.model_imports += 'from booyah.models.attachment import Attachment'
+                    has_attachment = True
+                    content_types = self.content_types_for(format)
+                    if self.model_content:
+                        self.model_content += '\n'
+                    if content_types:
+                        self.model_content += f'Attachment.configure({self.model_name}, \'{name}\', bucket=\'{bucket}\', content_types={content_types})'
+                    else:
+                        self.model_content += f'Attachment.configure({self.model_name}, \'{name}\', bucket=\'{bucket}\')'
+    
+    def content_types_for(self, format):
+        if format == 'image':
+            return ['png', 'jpg', 'jpeg', 'ico', 'gif']
+        elif format == 'pdf':
+            return ['pdf']
+        elif format == 'doc':
+            return ['doc', 'rtf', 'docx']
+        return None
 
     def generate_migration(self):
         table_name = String(self.model_name).pluralize()
@@ -41,7 +72,9 @@ class ModelGenerator(BaseGenerator):
     def load_content(self):
         template = self.template_environment.get_template('model_skeleton')
         self.data = {
-            "model_name": self.class_name
+            "model_name": self.class_name,
+            "model_content": self.model_content,
+            "model_imports": self.model_imports,
         }
         self.content = template.render(**self.data)
 
