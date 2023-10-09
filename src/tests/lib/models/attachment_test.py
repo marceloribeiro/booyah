@@ -36,11 +36,11 @@ class TestAttachment:
         assert hasattr(CustomModel, 'custom_validates') == True
         assert CustomModel.custom_validates != []
         assert hasattr(ApplicationModel, 'custom_validates') == False
-        assert hasattr(CustomModel, 'validate_attachments') and callable(getattr(CustomModel, 'validate_attachments')) == True
+        assert hasattr(CustomModel, '_validate_attachments') and callable(getattr(CustomModel, '_validate_attachments')) == True
         assert hasattr(ApplicationModel, 'validate_attachments')  == False
-        assert hasattr(CustomModel, 'save_attachments') and callable(getattr(CustomModel, 'save_attachments')) == True
+        assert hasattr(CustomModel, '_save_attachments') and callable(getattr(CustomModel, '_save_attachments')) == True
         assert hasattr(ApplicationModel, 'save_attachments')  == False
-        assert hasattr(CustomModel, 'delete_file') and callable(getattr(CustomModel, 'delete_file')) == True
+        assert hasattr(CustomModel, '_delete_file') and callable(getattr(CustomModel, '_delete_file')) == True
         assert hasattr(ApplicationModel, 'delete_file')  == False
-        assert hasattr(CustomModel, 'attachment_folder') and callable(getattr(CustomModel, 'attachment_folder')) == True
-        assert hasattr(ApplicationModel, 'attachment_folder')  == False
+        assert hasattr(CustomModel, '_attachment_folder') and callable(getattr(CustomModel, '_attachment_folder')) == True
+        assert hasattr(ApplicationModel, '_attachment_folder')  == False

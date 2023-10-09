@@ -39,7 +39,8 @@ class TestAttachmentHelper:
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=".txt") as temp_file:
             temp_file.write(content)
             temp_file_path = temp_file.name
-        custom_record.save_attachments({"photo": File(temp_file_path)})
+        custom_record.photo = File(temp_file_path, "original.txt")
+        custom_record._save_attachments()
         expected_destination = os.path.abspath(f'tests/public/attachments/test_files/{custom_record.photo}')
         assert os.path.exists(expected_destination) == True
         with open(expected_destination, 'r') as file:
@@ -50,7 +51,7 @@ class TestAttachmentHelper:
         self.create_custom_model_sample()
         custom_record = CustomModel.find(1)
         CustomModel._photo_options = {"required": True, "bucket": CustomModel._photo_options["bucket"]}
-        custom_record.validate_attachments()
+        custom_record._validate_attachments()
         CustomModel._photo_options = {"required": False, "bucket": CustomModel._photo_options["bucket"]}
         assert custom_record.errors == ['photo should not be blank.']
     
@@ -62,7 +63,8 @@ class TestAttachmentHelper:
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=".txt") as temp_file:
             temp_file.write(content)
             first_file_path = temp_file.name
-        custom_record.save_attachments({"photo": File(first_file_path)})
+        custom_record.photo = File(first_file_path, "original.txt")
+        custom_record._save_attachments()
         first_expected_destination = os.path.abspath(f'tests/public/attachments/test_files/{custom_record.photo}')
         assert os.path.exists(first_expected_destination) == True
         custom_record.photo_was = custom_record.photo
@@ -72,7 +74,8 @@ class TestAttachmentHelper:
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=".txt") as temp_file:
             temp_file.write(second_content)
             second_file_path = temp_file.name
-        custom_record.save_attachments({"photo": File(second_file_path)})
+        custom_record.photo = File(second_file_path, "second.txt")
+        custom_record._save_attachments()
         second_expected_destination = os.path.abspath(f'tests/public/attachments/test_files/{custom_record.photo}')
         assert os.path.exists(first_expected_destination) == False
         assert os.path.exists(second_expected_destination) == True

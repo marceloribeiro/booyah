@@ -6,8 +6,14 @@
   {%- for attribute in model_attributes %}
   <p>
     <strong>{{attribute['name'].camelize()}}:</strong>
+
+    {%- if attribute['field_type'] != 'file_field' %}
     {{'{{'}} {{model_name.underscore()}}.{{attribute['name']}} {{'-}}'}}
+    {%- else %}
+    <br />
+    <img src="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}" />
+    {%- endif %}
   </p>
   {%- endfor %}
-  <a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name}}.id {{'-}}'}}/edit">Edit</a>
+  <a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}/edit">Edit</a>
 {{'{% endblock %}'}}

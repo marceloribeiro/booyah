@@ -31,7 +31,9 @@ class PublicResponse:
                 self.file_bytes = file.read()
         except FileNotFoundError:
             self.status = "404 Not Found"
+            self.file_bytes = b""
             print(f"File '{self.file_name}' not found.")
         except Exception as e:
             self.status = "500 Internal Server Error"
+            self.file_bytes = b""
             print(f"An error occurred: {str(e)}")

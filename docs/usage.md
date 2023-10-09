@@ -88,10 +88,18 @@ $ python -m booyah --version
 
 **Attachments**
 
+You can automatically create and configure attachment field by using scaffold field type file, example:
+```sh
+$ booyah g scaffold User name:string photo:file
+```
+or
 You can configure an attachment file to a model by adding folowing code:
 
+> from booyah.models.attachment import Attachment
+> 
 > class User(ApplicationModel):
->  has_attached_file('photo', required=True, bucket='bucket_name')
+>  pass
+> Attachment.configure(User, 'photo', required=True, bucket='photos')
 
 This will configure photo string field to work as an attachment, you can create an html input field user[photo] and it will be uploaded as a booyah File.
 

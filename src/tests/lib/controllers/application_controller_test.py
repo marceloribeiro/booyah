@@ -1,6 +1,7 @@
 from booyah.controllers.application_controller import BooyahApplicationController
 import io
 from booyah.models.file import File
+from booyah.helpers.request_format_helper import parse_multipart
 
 class HomeController(BooyahApplicationController):
     def index(self):
@@ -161,7 +162,7 @@ class TestApplicationController:
         multipart_data = '\r\n'.join(multipart_body).encode('utf-8')
 
         application_controller = BooyahApplicationController(self.environment(), False)
-        parsed_params = application_controller.parse_multipart(multipart_data)
+        parsed_params = parse_multipart(self.environment(), multipart_data)
 
         assert 'user' in parsed_params.keys()
         assert list(parsed_params['user'].keys()) == ['name', 'email', 'photo']
@@ -198,7 +199,7 @@ class TestApplicationController:
         multipart_data = '\r\n'.join(multipart_body).encode('utf-8')
 
         application_controller = BooyahApplicationController(self.environment(), False)
-        parsed_params = application_controller.parse_multipart(multipart_data)
+        parsed_params = parse_multipart(self.environment(), multipart_data)
 
         assert 'user' in parsed_params.keys()
         assert list(parsed_params['user'].keys()) == ['name', 'email']

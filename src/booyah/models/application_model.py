@@ -148,7 +148,6 @@ class ApplicationModel:
     def save(self):
         if not self.valid():
             return False
-        self.before_save()
         if self.is_new_record():
             self.insert()
         else:
@@ -214,6 +213,7 @@ class ApplicationModel:
         return not hasattr(self, 'id') or self.id == None
 
     def insert(self):
+        self.before_save()
         self.before_create()
         data = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
         self.id = data[0]
@@ -227,6 +227,7 @@ class ApplicationModel:
         if validate and not self.valid():
             return False
         self.updated_at = datetime.now()
+        self.before_save()
         self.before_update()
         self_attributes = self.to_dict()
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)

@@ -1,6 +1,8 @@
 class File:
-    def __init__(self, file_path):
+    def __init__(self, file_path, original_file_name, environment=None):
         self.file_path = file_path
+        self.original_file_name = original_file_name
+        self.environment = environment
 
     def __eq__(self, other):
         if isinstance(other, File):
