@@ -1,1 +1,5 @@
+{{'{%-'}} if {{model_name.underscore()}}.{{attribute['name']}} {{'%}'}}
+<img src="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}" style="max-height: 70px; max-width: 70px;" />
+<br />
+{{'{%- endif %}'}}
 <input type="file" name="{{model_name.underscore()}}[{{attribute['name']}}]" id="{{model_name.underscore()}}_{{attribute['name']}}" />
