@@ -109,5 +109,6 @@ class TestApplicationModel:
         assert user.is_new_record() == False
         user.update({ 'age': 15 })
         assert user.is_new_record() == False
-        assert user.age == 15
         assert user.valid() == False
+        user.reload()
+        assert user.age == 18

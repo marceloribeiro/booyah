@@ -70,7 +70,7 @@ class ActionSupport:
         if self.around_action_blocks:
             self.around_action(action, action_name)
         else:
-            action()
+            self.application_response = action()
         self.after_action(action_name)
         return self.application_response
 

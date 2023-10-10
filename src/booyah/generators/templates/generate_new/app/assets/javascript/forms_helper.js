@@ -17,18 +17,24 @@ function submitEditForm(event, form, methodOverride) {
     event.preventDefault();
 
     var url = form.action;
-
     var xhr = new XMLHttpRequest();
     xhr.open(methodOverride, url, true);
     xhr.setRequestHeader("X-HTTP-Method-Override", methodOverride);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
     xhr.onload = function() {
         handleResponse(xhr);
     };
 
-    var formData = new FormData(form);
-    var params = new URLSearchParams(formData).toString();
-    xhr.send(params);
+    var formData;
+
+    if (form.enctype === "multipart/form-data") {
+        formData = new FormData(form); // Use FormData for multipart/form-data
+    } else {
+        formData = new URLSearchParams(new FormData(form)).toString(); // Use URLSearchParams for application/x-www-form-urlencoded
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    }
+
+    xhr.send(formData);
 
     return false;
 }

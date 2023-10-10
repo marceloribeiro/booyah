@@ -1,7 +1,7 @@
 from {{project_module}}.app.controllers.application_controller import ApplicationController
 {% if scaffold -%}
-from {{project_module}}.app.models.{{model_name}} import {{model_name.camelize()}}
-from {{project_module}}.app.serializers.{{model_name}}_serializer import {{model_name.camelize()}}Serializer
+from {{project_module}}.app.models.{{model_name.underscore()}} import {{model_name.camelize()}}
+from {{project_module}}.app.serializers.{{model_name.underscore()}}_serializer import {{model_name.camelize()}}Serializer
 {%- endif %}
 
 class {{controller_name}}(ApplicationController):
@@ -10,8 +10,8 @@ class {{controller_name}}(ApplicationController):
         {{action_content[action]}}
     {% endfor %}
     {% if scaffold %}
-    def {{model_name}}_params(self):
-        return { key: value for key, value in self.params['{{model_name}}'].items() if key in self.permitted_params() }
+    def {{model_name.underscore()}}_params(self):
+        return { key: value for key, value in self.params['{{model_name.underscore()}}'].items() if key in self.permitted_params() }
 
     def permitted_params(self):
         return [{{model_attributes_names}}]

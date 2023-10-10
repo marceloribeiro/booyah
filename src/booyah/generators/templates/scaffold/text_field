@@ -1,1 +1,1 @@
-<input type="text" name="{{model_name}}[{{attribute['name']}}]" id="{{model_name}}_{{attribute['name']}}" value="{{'{{'}}{{model_name}}.{{attribute['name']}} or ''{{'}}'}}" />
+<input type="text" name="{{model_name.underscore()}}[{{attribute['name']}}]" id="{{model_name.underscore()}}_{{attribute['name']}}" value="{{'{{'}}{{model_name.underscore()}}.{{attribute['name']}} or ''{{'}}'}}" />

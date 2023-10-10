@@ -1,12 +1,12 @@
 import os
 from booyah.response.mime_types import MIME_TYPE_BY_EXTENSION, DEFAULT_MIME_TYPE
 
-class AssetResponse:
+class PublicResponse:
     DEFAULT_HTTP_STATUS = '200 OK'
 
     def __init__(self, environment, status = DEFAULT_HTTP_STATUS):
         self.environment = environment
-        self.file_name = os.path.join(os.environ["ROOT_PROJECT_PATH"], 'app', environment['PATH_INFO'][1:])
+        self.file_name = os.path.join(os.environ["ROOT_PROJECT_PATH"], 'public', environment['PATH_INFO'][1:])
         self.load_file_content()
         self.status = status
 
@@ -32,7 +32,7 @@ class AssetResponse:
         except FileNotFoundError:
             self.status = "404 Not Found"
             self.file_bytes = b""
-            print(f"File '{file_path}' not found.")
+            print(f"File '{self.file_name}' not found.")
         except Exception as e:
             self.status = "500 Internal Server Error"
             self.file_bytes = b""

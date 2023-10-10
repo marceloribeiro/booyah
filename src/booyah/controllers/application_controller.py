@@ -3,8 +3,8 @@ from booyah.response.application_response import ApplicationResponse
 from booyah.response.redirect_response import RedirectResponse
 from urllib.parse import parse_qs
 from booyah.logger import logger
-from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType
 from booyah.application_support.action_support import ActionSupport
+from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType, parse_header, parse_multipart
 
 class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
@@ -61,7 +61,6 @@ class BooyahApplicationController(ActionSupport):
 
         content_type = self.environment['CONTENT_TYPE']
         content_length = int(self.environment['CONTENT_LENGTH'])
-
         body_params = {}
         if content_length:
             body = self.environment['wsgi.input'].read(content_length)
@@ -74,7 +73,7 @@ class BooyahApplicationController(ActionSupport):
             elif content_type == ContentType.FORM_URLENCODED.value:
                 body_params = self.parse_nested_attributes(str(body.decode('utf-8')))
             elif ContentType.MULTIPART.value in content_type:
-                raise ValueError(f"{ContentType.MULTIPART.value} not supported yet, see ApplicationController load_params_from_gunicorn_body")
+                body_params = parse_multipart(self.environment, body)
             else:
                 for param in body.decode('utf-8').split('&'):
                     key, value = param.split('=')

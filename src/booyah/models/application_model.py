@@ -3,11 +3,37 @@ from booyah.models.model_query_builder import ModelQueryBuilder
 from booyah.extensions.string import String
 from booyah.observers.application_model_observer import ApplicationModelObserver
 import json
+from datetime import datetime
 
 class ApplicationModel:
     validates = []
     table_columns = None
     _query_builder = None
+
+    def __init__(self, attributes={}):
+        self.errors = []
+        self.fill_attributes(attributes, from_init=True)
+        self.configure_static_var()
+
+    @classmethod
+    def configure_static_var(cls):
+        # this code is to avoid to set static var shared for all models
+        if not hasattr(cls, 'custom_validates') and not cls is ApplicationModel:
+            cls.custom_validates = []
+    
+    def fill_attributes(self, attributes, from_init=False, ignore_none=False):
+        if from_init:
+            for column in self.get_table_columns():
+                setattr(self, column, None)
+                setattr(self, f"{column}_was", None)
+        if not attributes:
+            return
+
+        for key in attributes:
+            if key in self.get_table_columns() and (ignore_none == False or attributes[key] != None):
+                setattr(self, key, attributes[key])
+                if from_init:
+                    setattr(self, f"{key}_was", attributes[key])
 
     @classmethod
     def db_adapter(self):
@@ -114,17 +140,6 @@ class ApplicationModel:
         self.model.save()
         return self.model
 
-    def __init__(self, attributes={}):
-        self.load_from_table_columns()
-        self.errors = []
-        for key in attributes:
-            if key in self.get_table_columns():
-                setattr(self, key, attributes[key])
-
-    def load_from_table_columns(self):
-        for column in self.get_table_columns():
-            setattr(self, column, None)
-
     def serialized_attribute(self, attribute):
         if hasattr(self, attribute):
             return getattr(self, attribute)
@@ -133,11 +148,10 @@ class ApplicationModel:
     def save(self):
         if not self.valid():
             return False
-        self.before_save()
         if self.is_new_record():
             self.insert()
         else:
-            self.update()
+            self.update(validate=False)
         self.reload()
         self.after_save()
         return self
@@ -199,6 +213,7 @@ class ApplicationModel:
         return not hasattr(self, 'id') or self.id == None
 
     def insert(self):
+        self.before_save()
         self.before_create()
         data = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
         self.id = data[0]
@@ -207,20 +222,22 @@ class ApplicationModel:
         self.after_create()
         return self
 
-    def update(self, attributes = None):
+    def update(self, attributes = None, validate=True):
+        self.fill_attributes(attributes)
+        if validate and not self.valid():
+            return False
+        self.updated_at = datetime.now()
+        self.before_save()
         self.before_update()
         self_attributes = self.to_dict()
-        if attributes != None:
-            to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
-            self_attributes.update(to_update)
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
-        self.updated_at = data[0]
         self.after_update()
-        self.reload()
         return self
 
     def patch_update(self, attributes = None):
         self.before_update()
+        self.fill_attributes(attributes, ignore_none=True)
+        self.updated_at = datetime.now()
         self_attributes = self.to_dict()
         if attributes != None:
             to_update = {key: value for key, value in attributes.items() if key in self.get_table_columns()}
@@ -228,9 +245,7 @@ class ApplicationModel:
                 if attributes.get(key) != None:
                     self_attributes[key] = attributes[key]
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
-        self.updated_at = data[0]
         self.after_update()
-        self.reload()
         return self
 
     def destroy(self):
@@ -244,16 +259,16 @@ class ApplicationModel:
         self.before_validation()
         self.errors = []
 
-        if not self.__class__.validates:
+        if not self.__class__.validates and not self.__class__.custom_validates:
             self.after_validation()            
             return True
         for v in self.__class__.validates:
             self.perform_attribute_validations(v)
-        self.after_validation()            
 
-        if self.errors:
-            return False
-        return True
+        for v in self.__class__.custom_validates:
+            v(self)
+        self.after_validation()            
+        return False if self.errors else True
 
     def perform_attribute_validations(self, attribute_validations):
         attribute = list(attribute_validations.keys())[0]

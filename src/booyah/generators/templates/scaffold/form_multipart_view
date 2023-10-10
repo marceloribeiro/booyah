@@ -1,4 +1,4 @@
-<form action=/{{model_name.underscore().pluralize()}}/{{'{{'}}{{model_name.underscore()}}.id or ''{{'}}'}}  method="POST" id="{{model_name.underscore()}}_form">
+<form action=/{{model_name.underscore().pluralize()}}/{{'{{'}}{{model_name.underscore()}}.id or ''{{'}}'}}  method="POST" id="{{model_name.underscore()}}_form" enctype="multipart/form-data">
   <input type="hidden" name="_method" value="{{'{{'}} "PUT" if {{model_name.underscore()}}.id else "POST" {{'}}'}}" />
   {%- for attribute in model_attributes %}
     {%- if attribute['name'] != 'id' %}

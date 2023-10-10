@@ -6,10 +6,7 @@ from booyah.observers.application_model_observer import ApplicationModelObserver
 def caller_class():
     current_frame = inspect.currentframe()
     caller_frame = inspect.getouterframes(current_frame, 2)
-    if os.getenv('BOOYAH_ENV') == 'test':
-        return caller_frame[2][3]
-    else:
-        return caller_frame[1][3]
+    return caller_frame[2][3]
 
 def before_save(*blocks):
     for block in blocks:

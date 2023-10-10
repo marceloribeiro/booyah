@@ -1,13 +1,19 @@
 {{'{% extends "layouts/application.html" %}
 {% block title %}'}}Show {{model_name.camelize()}}{{'{% endblock %}
 {% block content %}'}}
-  <a href="/{{model_name.pluralize()}}">back</a>
+  <a href="/{{model_name.underscore().pluralize()}}">back</a>
   <h1>Show {{model_name.camelize()}}</h1>
   {%- for attribute in model_attributes %}
   <p>
     <strong>{{attribute['name'].camelize()}}:</strong>
+
+    {%- if attribute['field_type'] != 'file_field' %}
     {{'{{'}} {{model_name.underscore()}}.{{attribute['name']}} {{'-}}'}}
+    {%- else %}
+    <br />
+    <img src="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}" />
+    {%- endif %}
   </p>
   {%- endfor %}
-  <a href="/{{model_name.pluralize()}}/{{'{{'}} {{model_name}}.id {{'-}}'}}/edit">Edit</a>
+  <a href="/{{model_name.underscore().pluralize()}}/{{'{{'}} {{model_name.underscore()}}.id {{'-}}'}}/edit">Edit</a>
 {{'{% endblock %}'}}

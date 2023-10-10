@@ -1,6 +1,7 @@
 from booyah.router.application_route import ApplicationRoute
 from booyah.response.application_response import ApplicationResponse
 from booyah.response.asset_response import AssetResponse
+from booyah.response.public_response import PublicResponse
 from booyah.helpers.controller_helper import get_controller_action
 from booyah.logger import logger
 
@@ -34,13 +35,16 @@ class ApplicationRouter:
             return AssetResponse(environment)
 
         controller_action_dict = self.action(environment)
+
+        if not controller_action_dict:
+            return PublicResponse(environment)
+
         controller = controller_action_dict['controller']
         action = controller_action_dict['action']
         if controller and action:
             response = controller.run_action(action)
         else:
             response = self.not_found(environment)
-
         return response
 
     def not_found(self, environment):
