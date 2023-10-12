@@ -35,26 +35,17 @@ class ModelGenerator(BaseGenerator):
                 name = attribute.split(':')[0]
                 bucket = String(name).pluralize()
                 format = attribute.split(':')[1]
-                if format in ['file', 'image', 'pdf', 'doc', 'attachment']:
+                if self.is_file_field(format):
                     if not has_attachment:
                         self.model_imports += 'from booyah.models.attachment import Attachment'
                     has_attachment = True
-                    content_types = self.content_types_for(format)
+                    file_extensions = self.file_extensions_for(format)
                     if self.model_content:
                         self.model_content += '\n'
-                    if content_types:
-                        self.model_content += f'Attachment.configure({self.model_name}, \'{name}\', bucket=\'{bucket}\', content_types={content_types})'
+                    if file_extensions:
+                        self.model_content += f'Attachment.configure({self.model_name}, \'{name}\', bucket=\'{bucket}\', file_extensions={file_extensions})'
                     else:
                         self.model_content += f'Attachment.configure({self.model_name}, \'{name}\', bucket=\'{bucket}\')'
-    
-    def content_types_for(self, format):
-        if format == 'image':
-            return ['png', 'jpg', 'jpeg', 'ico', 'gif']
-        elif format == 'pdf':
-            return ['pdf']
-        elif format == 'doc':
-            return ['doc', 'rtf', 'docx']
-        return None
 
     def generate_migration(self):
         table_name = String(self.model_name).pluralize()

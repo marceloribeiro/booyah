@@ -7,6 +7,7 @@ from datetime import datetime
 
 class ApplicationModel:
     validates = []
+    accessors = []
     table_columns = None
 
     def __init__(self, attributes={}):
@@ -25,13 +26,16 @@ class ApplicationModel:
             for column in self.get_table_columns():
                 setattr(self, column, None)
                 setattr(self, f"{column}_was", None)
+            for accessor in self.__class__.accessors:
+                setattr(self, accessor, None)
+
         if not attributes:
             return
 
         for key in attributes:
-            if key in self.get_table_columns() and (ignore_none == False or attributes[key] != None):
+            if (key in self.get_table_columns() or key in self.__class__.accessors) and (ignore_none == False or attributes[key] != None):
                 setattr(self, key, attributes[key])
-                if from_init:
+                if from_init and key in self.get_table_columns():
                     setattr(self, f"{key}_was", attributes[key])
 
     @classmethod

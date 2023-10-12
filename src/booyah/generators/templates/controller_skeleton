@@ -14,5 +14,5 @@ class {{controller_name}}(ApplicationController):
         return { key: value for key, value in self.params['{{model_name.underscore()}}'].items() if key in self.permitted_params() }
 
     def permitted_params(self):
-        return [{{model_attributes_names}}]
+        return [{{permit_attributes}}]
     {%- endif %}

@@ -10,8 +10,15 @@
     {%- if attribute['field_type'] != 'file_field' %}
     {{'{{'}} {{model_name.underscore()}}.{{attribute['name']}} {{'-}}'}}
     {%- else %}
-    <br />
-    <img src="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}" />
+      <br />
+      {{'{%'}} if {{model_name.underscore()}}.{{attribute['name']}} %}
+        {%- if attribute['format'] == 'image' %}
+          <img src="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}" style="max-height: 200px; max-width: 200px;" />
+          <br />
+        {%- endif %}
+        <a target="_blank" href="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}">show {{attribute['name']}}</a>
+        <br />
+      {{'{% endif %}'}}
     {%- endif %}
   </p>
   {%- endfor %}

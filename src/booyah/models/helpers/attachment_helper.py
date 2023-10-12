@@ -2,12 +2,30 @@ import os
 from booyah.models.file import File
 import uuid
 import types
+import boto3
+
+def _s3_instance(self, attachment, options):
+    s3_attribute = f'_s3_{attachment}'
+    if not hasattr(self, ):
+        session = boto3.Session(
+            aws_access_key_id=options['storage']['ACCESS_KEY'],
+            aws_secret_access_key=options['storage']['SECRET_KEY'],
+            aws_session_token=options['storage']['SESSION_TOKEN'],
+        )
+
+        setattr(self, s3_attribute, session.resource('s3'))
+    return getattr(self, s3_attribute)
 
 def _save_attachments(self):
     for attachment in self._attachments:
         options = getattr(self, f"_{attachment}_options")
         current_value = getattr(self, attachment)
+        should_delete = getattr(self, f'_destroy_{attachment}')
         previous_value = None if not hasattr(self, f"{attachment}_was") else getattr(self, f"{attachment}_was")
+        if should_delete and type(previous_value) is not File:
+            self._delete_file(previous_value, options)
+            setattr(self, attachment, None)
+            continue
         if type(previous_value) is File:
             previous_value = None
         if type(current_value) is File:
@@ -21,14 +39,24 @@ def _save_attachments(self):
                 target_path = os.path.join(self._attachment_folder(options), full_file_name)
                 self._save_local_attachment(str(current_value), target_path)
                 setattr(self, attachment, full_file_name)
-        elif current_value == '' and previous_value:
-            self._delete_file(previous_value, options)
 
 def _validate_attachments(self):
     for attachment in self._attachments:
         options = getattr(self, f"_{attachment}_options")
-        if options['required'] and not getattr(self, attachment):
-            self.errors.append(f'{attachment} should not be blank.')
+        current_value = getattr(self, attachment)
+        if options['required'] and not current_value:
+            self.errors.append(f"{attachment} should not be blank.")
+        if type(current_value) is File:
+            if options['file_extensions'] and '*' not in options['file_extensions']:
+                root, extension = os.path.splitext(current_value.file_path)
+                if extension not in options['file_extensions']:
+                    error_message = f"{attachment} '{current_value.original_file_name}' is not a valid file type ({','.join(options['file_extensions'])})."
+                    self.errors.append(error_message)
+            if options['size'] and options['size']['min'] and current_value.file_length < options['size']['min']:
+                self.errors.append(f"{attachment} should have at least {options['size']['min']} bytes.")
+            if options['size'] and options['size']['max'] and current_value.file_length > options['size']['max']:
+                self.errors.append(f"{attachment} should have at most {options['size']['max']} bytes.")
+
 
 def _attachment_folder(self, options, full_path=True):
     if full_path:

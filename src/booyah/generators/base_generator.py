@@ -50,3 +50,15 @@ class BaseGenerator:
             print("Source folder not found.")
         except Exception as e:
             print(f"An error occurred: {str(e)}")
+    
+    def file_extensions_for(self, format):
+        if format == 'image':
+            return ['.png', '.jpg', '.jpeg', '.ico', '.gif', '.bmp']
+        elif format == 'pdf':
+            return ['.pdf']
+        elif format == 'doc':
+            return ['.doc', '.rtf', '.docx', '.pdf', '.txt']
+        return ['*']
+    
+    def is_file_field(self, format):
+        return format in ['file', 'image', 'pdf', 'doc', 'attachment']

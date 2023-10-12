@@ -1,5 +1,14 @@
-{{'{%-'}} if {{model_name.underscore()}}.{{attribute['name']}} {{'%}'}}
-<img src="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}" style="max-height: 70px; max-width: 70px;" />
-<br />
-{{'{%- endif %}'}}
-<input type="file" name="{{model_name.underscore()}}[{{attribute['name']}}]" id="{{model_name.underscore()}}_{{attribute['name']}}" />
+{%- if attribute['format'] == 'image' %}
+      {{'{%-'}} if {{model_name.underscore()}}.{{attribute['name']}} {{'%}'}}
+        <img src="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}" style="max-height: 70px; max-width: 70px;" />
+        <br />
+      {{'{%- endif %}'}}
+{%- endif %}
+      {{'{%'}} if {{model_name.underscore()}}.{{attribute['name']}} %}
+        <a target="_blank" href="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}">show {{attribute['name']}}</a>
+        <br />
+        <input type="checkbox" name="{{model_name.underscore()}}[_destroy_{{attribute['name']}}]" id="{{model_name.underscore()}}_destroy_{{attribute['name']}}" value="1" {{'{%'}} if {{model_name.underscore()}}._destroy_{{attribute['name']}} %}checked{{'{% endif %}'}} />
+        delete {{attribute['name']}}?
+        <br />
+      {{'{% endif %}'}}
+      <input type="file" name="{{model_name.underscore()}}[{{attribute['name']}}]" id="{{model_name.underscore()}}_{{attribute['name']}}" accept="{{'{{'}}','.join({{model_name.underscore()}}._{{attribute['name']}}_options['file_extensions']){{'}}'}}" />
