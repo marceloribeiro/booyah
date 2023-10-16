@@ -101,6 +101,17 @@ You can configure an attachment file to a model by adding folowing code:
 >  pass
 > Attachment.configure(User, 'photo', required=True, bucket='photos')
 
+You can also configure multiple attachments using multiple storage types:
+
+> class User(ApplicationModel):
+>     pass
+> Attachment.configure(User, 'photo', bucket='booyahtest', \
+>     file_extensions=['.png', '.jpg', '.jpeg', '.ico', '.gif', '.bmp'], \
+>     storage={'type': 's3', 'ACCESS_KEY': os.environ.get('AWS_ACCESS_KEY_ID'), \
+>     'SECRET_KEY': os.environ.get('AWS_SECRET_ACCESS_KEY'), 'SESSION_TOKEN': None})
+> Attachment.configure(User, 'document', bucket='booyahtest', \
+>     file_extensions=['.doc', '.rtf', '.docx', '.pdf', '.txt'])
+
 This will configure photo string field to work as an attachment, you can create an html input field user[photo] and it will be uploaded as a booyah File.
 
 **Logging**
