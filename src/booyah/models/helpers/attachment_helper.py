@@ -1,12 +1,18 @@
 import os
 from booyah.models.file import File
-import uuid
+from booyah.models.helpers.local_storage import LocalStorage
+from booyah.models.helpers.s3_storage import S3Storage
 import types
 import boto3
 
-def _s3_instance(self, attachment, options):
+def _s3_instance(self, attachment):
+    if not hasattr(self, f"_{attachment}_options"):
+        raise ValueError(f'the attribute {self.__class__.__name__}.{attachment} is not an attachment field!')
+    options = getattr(self, f"_{attachment}_options")
+    if options['storage']['type'] != 's3':
+        raise ValueError(f'the attribute {self.__class__.__name__}.{attachment} is not configured to use s3 storage!')
     s3_attribute = f'_s3_{attachment}'
-    if not hasattr(self, ):
+    if not hasattr(self, s3_attribute):
         session = boto3.Session(
             aws_access_key_id=options['storage']['ACCESS_KEY'],
             aws_secret_access_key=options['storage']['SECRET_KEY'],
@@ -14,6 +20,12 @@ def _s3_instance(self, attachment, options):
         )
 
         setattr(self, s3_attribute, session.resource('s3'))
+        found_bucket = False
+        for bucket in session.resource('s3').buckets.all():
+            if bucket.name == options['bucket']:
+                found_bucket = True
+        if not found_bucket:
+            raise ValueError(f"s3 bucket for {self.__class__.__name__}.{attachment} named {options['bucket']} not found!")
     return getattr(self, s3_attribute)
 
 def _save_attachments(self):
@@ -23,22 +35,18 @@ def _save_attachments(self):
         should_delete = getattr(self, f'_destroy_{attachment}')
         previous_value = None if not hasattr(self, f"{attachment}_was") else getattr(self, f"{attachment}_was")
         if should_delete and type(previous_value) is not File:
-            self._delete_file(previous_value, options)
+            self._delete_file(attachment, previous_value)
             setattr(self, attachment, None)
             continue
         if type(previous_value) is File:
             previous_value = None
         if type(current_value) is File:
             if previous_value:
-                self._delete_file(previous_value, options)
-            random_filename = str(uuid.uuid4())
-            extension = str(current_value).split('.')[-1]
-            full_file_name = f"{random_filename}.{extension}"
+                self._delete_file(attachment, previous_value)
+            setattr(self, attachment, self._save_attachment(attachment, current_value))
 
-            if os.getenv('BOOYAH_ENV') != 'production':
-                target_path = os.path.join(self._attachment_folder(options), full_file_name)
-                self._save_local_attachment(str(current_value), target_path)
-                setattr(self, attachment, full_file_name)
+def _save_attachment(self, attachment, file_value):
+    return self._storage_for(attachment).save(file_value)
 
 def _validate_attachments(self):
     for attachment in self._attachments:
@@ -58,34 +66,34 @@ def _validate_attachments(self):
                 self.errors.append(f"{attachment} should have at most {options['size']['max']} bytes.")
 
 
-def _attachment_folder(self, options, full_path=True):
-    if full_path:
-        return os.path.join(os.environ["ROOT_PROJECT_PATH"], 'public', 'attachments', options['bucket'])
-    else:
-        return '/' + os.path.join('attachments', options['bucket'])
+def _attachment_folder(self, attachment, full_path=True):
+    return self._storage_for(attachment).attachment_folder(full_path)
 
-def _delete_file(self, file_name, options):
-    file_path = os.path.join(self._attachment_folder(options), file_name)
-    try:
-        os.remove(file_path)
-        print(f"'{file_path}' has been successfully deleted.")
-    except FileNotFoundError:
-        print(f"File '{file_path}' not found.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+def _attachment_url(self, attachment, file_name):
+    return self._storage_for(attachment).url(file_name)
+
+def _storage_for(self, attachment):
+    options = getattr(self, f"_{attachment}_options")
+    if options['storage']['type'] == 's3':
+        return S3Storage(self, attachment, options)
+    else:
+        return LocalStorage(self, attachment, options)
+
+def _delete_file(self, attachment, file_name):
+    return self._storage_for(attachment).delete_file(file_name)
 
 def _delete_all_files(self):
     for attachment in self._attachments:
         options = getattr(self, f"_{attachment}_options")
         current_value = getattr(self, attachment)
-        self._delete_file(current_value, options)
+        if current_value:
+            self._delete_file(attachment, current_value)
 
 def _add_field_method(cls, field_name):
     def field_url(self):
         file_name = getattr(self, field_name)
         if file_name:
-            folder_path = self._attachment_folder(getattr(self, f"_{field_name}_options"), full_path=False)
-            return os.path.join(folder_path, file_name)
+            return self._attachment_url(field_name, file_name)
         else:
             return ""
     
