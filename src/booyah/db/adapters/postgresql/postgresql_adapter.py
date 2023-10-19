@@ -192,8 +192,8 @@ class PostgresqlAdapter:
     def change_column(self, table_name, column_name, column_type):
         self.schema_helper().change_column(table_name, column_name, column_type)
 
-    def add_index(self, table_name, column_name):
-        self.schema_helper().add_index(table_name, column_name)
+    def add_index(self, table_name, column_names, index_name=None):
+        self.schema_helper().add_index(table_name, column_names, index_name=index_name)
 
     def remove_index(self, table_name, column_name):
         self.schema_helper().remove_index(table_name, column_name)

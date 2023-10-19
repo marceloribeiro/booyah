@@ -4,10 +4,13 @@ from booyah.extensions.string import String
 from booyah.observers.application_model_observer import ApplicationModelObserver
 import json
 from datetime import datetime
+import os
+import importlib
 
 class ApplicationModel:
     validates = []
     accessors = []
+    _has_one = []
     table_columns = None
 
     def __init__(self, attributes={}):
@@ -22,18 +25,19 @@ class ApplicationModel:
             cls.custom_validates = []
     
     def fill_attributes(self, attributes, from_init=False, ignore_none=False):
+        additional_attributes = self.__class__.accessors + self.__class__._has_one
         if from_init:
             for column in self.get_table_columns():
                 setattr(self, column, None)
                 setattr(self, f"{column}_was", None)
-            for accessor in self.__class__.accessors:
+            for accessor in additional_attributes:
                 setattr(self, accessor, None)
 
         if not attributes:
             return
 
         for key in attributes:
-            if (key in self.get_table_columns() or key in self.__class__.accessors) and (ignore_none == False or attributes[key] != None):
+            if (key in self.get_table_columns() or key in additional_attributes) and (ignore_none == False or attributes[key] != None):
                 setattr(self, key, attributes[key])
                 if from_init and key in self.get_table_columns():
                     setattr(self, f"{key}_was", attributes[key])
@@ -44,7 +48,7 @@ class ApplicationModel:
 
     @classmethod
     def table_name(self):
-        return self.__name__.lower() + 's'
+        return String(self.__name__).underscore().pluralize()
 
     @classmethod
     def get_table_columns(self):
@@ -152,9 +156,16 @@ class ApplicationModel:
             self.insert()
         else:
             self.update(validate=False)
-        self.reload()
+        self.save_relations()
         self.after_save()
+        self.reload(keep_accessors=True)
         return self
+    
+    def save_relations(self):
+        for relation in self.__class__._has_one:
+            value = getattr(self, relation)
+            if value != None and value.id == None:
+                value.save()
 
     def before_validation(self):
         self.run_callbacks('before_validation')
@@ -205,9 +216,14 @@ class ApplicationModel:
                     callback()        
 
 
-    def reload(self):
+    def reload(self, keep_accessors=False):
         if self.id:
-            self.__init__(self.__class__.find(self.id).to_dict())
+            dicttionary = self.__class__.find(self.id).to_dict()
+
+            if keep_accessors:
+                for accessor_name in self.__class__.accessors:
+                    dicttionary[accessor_name] = getattr(self, accessor_name)
+            self.__init__(dicttionary)
 
     def is_new_record(self):
         return not hasattr(self, 'id') or self.id == None
@@ -295,3 +311,13 @@ class ApplicationModel:
 
     def to_json(self):
         return json.dumps(self.to_dict(), default=str)
+    
+    def import_model(self, model_name, globals_ref):
+        model_name_str = String(model_name)
+        class_name = model_name_str.classify()
+        if class_name in globals_ref:
+            return
+        module_name = f"{os.getenv('ROOT_PROJECT')}.app.models.{model_name_str.underscore()}"
+        module = importlib.import_module(module_name)
+        class_ = getattr(module, class_name)
+        globals_ref[class_name] = class_

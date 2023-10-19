@@ -172,6 +172,10 @@ class ModelQueryBuilder:
         if self._offset:
             query += f" OFFSET {self._offset}"
         return query.strip()
+    
+    def destroy_all(self):
+        query = f"DELETE FROM {self.model_class.table_name()} WHERE " + ' AND '.join(self.where_conditions)
+        self.db_adapter.execute(query, expect_result=False)
 
     def model_from_result(self, result):
         return self.model_class(dict(zip(self.model_class.get_table_columns(), result)))

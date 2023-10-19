@@ -4,6 +4,9 @@ from booyah.generators.helpers.io import print_error, prompt_override_file
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 class BaseGenerator:
+    def booyah_root(self):
+        return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
     def should_create_file(self):
         if os.path.exists(self.target_file):
             if prompt_override_file(self.target_file) == False:
