@@ -11,11 +11,12 @@ from booyah.extensions.number import Number
 from booyah.models.helpers.callbacks import after_destroy
 
 class BooyahAttachment(ApplicationModel):
-    after_destroy('custom_destroy')
+    after_destroy('delete_file')
 
     def __init__(self, attributes={}):
         super().__init__(attributes)
         self.file_object = attributes.get('file_object')
+        self._pending_delete_file = None
 
     @property
     def record(self):
@@ -31,10 +32,6 @@ class BooyahAttachment(ApplicationModel):
             self.record_type = new_value.__class__.__name__
             self.record_id = new_value.id
     
-    def custom_destroy(self):
-        breakpoint()
-        print('it comes custom_destroy')
-    
     def record_options(self):
         self.import_model(self.record_type, globals())
         return getattr(globals()[self.record_type], f"_{self.name}_options")
@@ -43,21 +40,38 @@ class BooyahAttachment(ApplicationModel):
         r = loaded_record if loaded_record else self.record()
         return BooyahAttachment.field_url(r, self.name, self.key)
     
-    def save(self):
-        for field_name in record._attachments:
-            options = getattr(record, f"_{field_name}_options")
-            current_value = getattr(record, field_name)
-            should_delete = getattr(record, f'_destroy_{field_name}')
-            previous_value = None if not hasattr(record, f"{field_name}_was") else getattr(record, f"{field_name}_was")
-            if should_delete and type(previous_value) is not File:
-                BooyahAttachment.delete_model_attachment(record, field_name)
-                continue
-            if type(previous_value) is File:
-                previous_value = None
-            if type(current_value) is File:
-                if previous_value:
-                    BooyahAttachment.delete_model_attachment(record, field_name)
-                BooyahAttachment.save_model_attachment(record, field_name, current_value)
+    def insert(self, validate=True):
+        self.record_id = self.record_id if self.record_id else self.record.id
+        if validate and not self.valid():
+            return False
+        self.save_file()
+        if not super().insert(validate=False):
+            self.delete_file()
+    
+    def update(self, attributes = None, validate=True):
+        self.record_id = self.record_id if self.record_id else self.record.id
+        if validate and not self.valid():
+            return False
+        self.save_file()
+        if not super().update(attributes, validate=False):
+            self.delete_file()
+
+    def save_file(self):
+        if not self.file_object:
+            return
+
+        options = getattr(self.record, f"_{self.name}_options")
+        if type(self.file_object) is File:
+            new_file_name = BooyahAttachment.storage_for(self.record, self.name).save(self.file_object)
+            if new_file_name:
+                self.key = new_file_name
+                self.filename = self.file_object.original_file_name
+                self.extension = str(self.file_object).split('.')[-1]
+                self.byte_size = self.file_object.file_length
+
+    def delete_file(self):
+        self.storage().delete_file(self.key)
+        setattr(self.record, self.name, None)
     
     @staticmethod
     def find_attachment(record, field_name):
@@ -66,94 +80,46 @@ class BooyahAttachment(ApplicationModel):
                 .where('name', field_name).first()
     
     @staticmethod
-    def configure(cls, name, required=False, bucket="booyah", file_extensions=['*'], \
+    def configure(klass, name, required=False, bucket="booyah", file_extensions=['*'], \
                     size={'min': 0, 'max': Number(50).megabytes()}, \
                     storage={'type': 'local'}):
-        if not hasattr(cls, '_attachments'):
-            cls._attachments = [name]
+        if not hasattr(klass, '_attachments'):
+            klass._attachments = [name]
         else:
-            cls._attachments.append(name)
-        setattr(cls, f"_{name}_options", {
+            klass._attachments.append(name)
+        setattr(klass, f"_{name}_options", {
             'required': required,
             'bucket': bucket,
             'file_extensions': file_extensions,
             'size': size,
             'storage': storage
         })
-        BooyahAttachment.copy_required_methods_to_class(cls)
-        _add_field_methods(cls, name)
-        if not hasattr(cls, 'custom_validates'):
-            cls.custom_validates = []
-        
-        if not cls._validate_attachments in cls.custom_validates:
-            cls.custom_validates.append(cls._validate_attachments)
-        cls._has_one.append(name)
-        cls.accessors.append(f'_destroy_{name}')
-        # ApplicationModelObserver.add_callback('after_save', cls.__name__, '_save_attachments')
-        ApplicationModelObserver.add_callback('after_destroy', cls.__name__, '_delete_all_files')
+        BooyahAttachment.copy_required_methods_to_class(klass)
+        _add_field_methods(klass, name)
+        klass._has_one.append({
+            'name': name,
+            'dependent': 'destroy',
+            'class_name': BooyahAttachment.__name__,
+            'foreign_key': 'record_id'
+        })
+        klass.accessors.append(f'_destroy_{name}')
 
     @staticmethod
     def copy_required_methods_to_class(cls):
         cls._validate_attachments = _validate_attachments
-        cls._save_attachments = _save_attachments
-        cls._delete_all_files = _delete_all_files
         cls._s3_instance = _s3_instance
         cls._attachment_url = _attachment_url
-    
-    @staticmethod
-    def save_model_attachment(record, field_name, file_value):
-        new_file_name = BooyahAttachment.storage_for(record, field_name).save(file_value)
-        BooyahAttachment.create({
-            'record_id': record.id,
-            'record_type': record.__class__.__name__,
-            'name': field_name,
-            'key': new_file_name,
-            'filename': file_value.original_file_name,
-            'extension': str(file_value).split('.')[-1],
-            'byte_size': file_value.file_length,
-        })
-        setattr(record, field_name, file_value.original_file_name)
-
-    # @staticmethod
-    # def save_model_attachments(record):
-    #     for field_name in record._attachments:
-    #         options = getattr(record, f"_{field_name}_options")
-    #         current_value = getattr(record, field_name)
-    #         should_delete = getattr(record, f'_destroy_{field_name}')
-    #         previous_value = None if not hasattr(record, f"{field_name}_was") else getattr(record, f"{field_name}_was")
-    #         if should_delete and type(previous_value) is not File:
-    #             BooyahAttachment.delete_model_attachment(record, field_name)
-    #             continue
-    #         if type(previous_value) is File:
-    #             previous_value = None
-    #         if type(current_value) is File:
-    #             if previous_value:
-    #                 BooyahAttachment.delete_model_attachment(record, field_name)
-    #             BooyahAttachment.save_model_attachment(record, field_name, current_value)
 
     @staticmethod
     def field_url(record, field_name, file_name):
         return BooyahAttachment.storage_for(record, field_name).url(file_name)
 
-    @staticmethod
-    def field_value(record, field_name):
-        pass
-
-    @staticmethod
-    def delete_model_attachment(record, field_name, file_name=None):
-        query = BooyahAttachment.where('record_id', record.id) \
-                .where('record_type', record.__class__.__name__) \
-                .where('name', field_name)
-        if file_name:
-            query = query.where('filename', file_name)
-        query.destroy_all()
-        query.cleanup()
-        setattr(record, field_name, None)
-
-    @staticmethod
-    def delete_model_attachments(record):
-        for field_name in record._attachments:
-            BooyahAttachment.delete_model_attachment(record, field_name)
+    def storage(self):
+        options = getattr(self.record.__class__, f"_{self.name}_options")
+        if options['storage']['type'] == 's3':
+            return S3Storage(self.record, self.name, options)
+        else:
+            return LocalStorage(self.record, self.name, options)
 
     @staticmethod
     def storage_for(record, field_name):
@@ -163,33 +129,26 @@ class BooyahAttachment(ApplicationModel):
         else:
             return LocalStorage(record, field_name, options)
 
-    @staticmethod
-    def validate_model_attachments(record):
-        for field_name in record._attachments:
-            options = getattr(record, f"_{field_name}_options")
-            current_value = getattr(record, field_name)
-            if options['required'] and not current_value:
-                record.errors.append(f"{field_name} should not be blank.")
-            if type(current_value) is File:
-                if options['file_extensions'] and '*' not in options['file_extensions']:
-                    root, extension = os.path.splitext(current_value.file_path)
-                    if extension not in options['file_extensions']:
-                        error_message = f"{field_name} '{current_value.original_file_name}' is not a valid file type ({','.join(options['file_extensions'])})."
-                        record.errors.append(error_message)
-                if options['size'] and options['size']['min'] and current_value.file_length < options['size']['min']:
-                    record.errors.append(f"{field_name} should have at least {options['size']['min']} bytes.")
-                if options['size'] and options['size']['max'] and current_value.file_length > options['size']['max']:
-                    record.errors.append(f"{field_name} should have at most {options['size']['max']} bytes.")
+    def file_validation(self):
+        options = getattr(self.record, f"_{self.name}_options")
+        current_value = self.file_object
+        if options['required'] and not current_value:
+            self.errors.append(f"{self.name} file should not be blank.")
+        if type(current_value) is File:
+            if options['file_extensions'] and '*' not in options['file_extensions']:
+                root, extension = os.path.splitext(current_value.file_path)
+                if extension not in options['file_extensions']:
+                    error_message = f"{self.name} '{current_value.original_file_name}' is not a valid file type ({','.join(options['file_extensions'])})."
+                    self.errors.append(error_message)
+            if options['size'] and options['size']['min'] and current_value.file_length < options['size']['min']:
+                self.errors.append(f"{self.name} should have at least {options['size']['min']} bytes.")
+            if options['size'] and options['size']['max'] and current_value.file_length > options['size']['max']:
+                    self.errors.append(f"{self.name} should have at most {options['size']['max']} bytes.")
 
+BooyahAttachment.custom_validates().append(BooyahAttachment.file_validation)
 
 def _validate_attachments(self):
     BooyahAttachment.validate_model_attachments(self)
-
-#def _save_attachments(self):
-#    BooyahAttachment.save_model_attachments(self)
-
-def _delete_all_files(self):
-    BooyahAttachment.delete_model_attachments(self)
 
 def _s3_instance(self, field_name):
     if not hasattr(self, f"_{field_name}_options"):

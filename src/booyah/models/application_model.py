@@ -16,16 +16,15 @@ class ApplicationModel:
     def __init__(self, attributes={}):
         self.errors = []
         self.fill_attributes(attributes, from_init=True)
-        self.configure_static_var()
 
     @classmethod
-    def configure_static_var(cls):
-        # this code is to avoid to set static var shared for all models
-        if not hasattr(cls, 'custom_validates') and not cls is ApplicationModel:
-            cls.custom_validates = []
+    def custom_validates(klass):
+        if not hasattr(klass, '_custom_validates') and not klass is ApplicationModel:
+            klass._custom_validates = []
+        return klass._custom_validates
     
     def fill_attributes(self, attributes, from_init=False, ignore_none=False):
-        additional_attributes = self.__class__.accessors + self.__class__._has_one
+        additional_attributes = self.__class__.accessors + [item['name'] for item in self.__class__._has_one]
         if from_init:
             for column in self.get_table_columns():
                 setattr(self, column, None)
@@ -150,19 +149,17 @@ class ApplicationModel:
         return None
 
     def save(self):
-        if not self.valid():
-            return False
         if self.is_new_record():
             self.insert()
         else:
-            self.update(validate=False)
+            self.update()
         self.save_relations()
         self.after_save()
         self.reload(keep_accessors=True)
         return self
     
     def save_relations(self):
-        for relation in self.__class__._has_one:
+        for relation in [item['name'] for item in self.__class__._has_one]:
             value = getattr(self, relation)
             if value != None and value.id == None:
                 value.save()
@@ -228,7 +225,9 @@ class ApplicationModel:
     def is_new_record(self):
         return not hasattr(self, 'id') or self.id == None
 
-    def insert(self):
+    def insert(self, validate=True):
+        if validate and not self.valid():
+            return False
         self.before_save()
         self.before_create()
         data = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
@@ -266,25 +265,48 @@ class ApplicationModel:
 
     def destroy(self):
         self.before_destroy()
+        self.apply_destroy_dependent_action()
         data = self.db_adapter().delete(self.table_name(), self.id)
         deleted_id = data[0]
         self.after_destroy()
         return deleted_id
+    
+    def apply_destroy_dependent_action(self):
+        for item in self.__class__._has_one:
+            value = getattr(self, item['name'])
+            if value:
+                if item.get('dependent') == 'destroy':
+                    value.destroy()
+                elif item.get('dependent') == 'nullify':
+                    setattr(value, item['foreign_key'], None)
+                    value.save()
 
     def valid(self):
         self.before_validation()
         self.errors = []
 
         if not self.__class__.validates and not self.__class__.custom_validates:
+            result = self.relations_valid()
             self.after_validation()            
-            return True
+            return result
         for v in self.__class__.validates:
             self.perform_attribute_validations(v)
 
-        for v in self.__class__.custom_validates:
+        for v in self.__class__.custom_validates():
             v(self)
+        result = self.relations_valid()
         self.after_validation()            
         return False if self.errors else True
+    
+    def relations_valid(self):
+        is_valid = True
+        for relation_name in [item['name'] for item in self.__class__._has_one]:
+            value = getattr(self, relation_name)
+            if value != None and value.id == None:
+                if not value.valid():
+                    is_valid = False
+                    self.errors.append(f"{relation_name} invalid: {', '.join(value.errors)}")
+        return is_valid
 
     def perform_attribute_validations(self, attribute_validations):
         attribute = list(attribute_validations.keys())[0]
@@ -319,5 +341,5 @@ class ApplicationModel:
             return
         module_name = f"{os.getenv('ROOT_PROJECT')}.app.models.{model_name_str.underscore()}"
         module = importlib.import_module(module_name)
-        class_ = getattr(module, class_name)
-        globals_ref[class_name] = class_
+        klass = getattr(module, class_name)
+        globals_ref[class_name] = klass
