@@ -7,24 +7,27 @@ from datetime import datetime
 import os
 import importlib
 
-class ApplicationModel:
-    validates = []
-    accessors = []
-    _has_one = []
+# this will grant each child class with your own static attributes instead of sharing from the base class
+class ClassInitializer(type):
+    def __init__(klass, name, bases, attrs):
+        klass._accessors = ['_destroy']
+        klass._validates = []
+        klass._has_one = []
+        klass._custom_validates = []
+        super(ClassInitializer, klass).__init__(name, bases, attrs)
+
+class ApplicationModel(metaclass=ClassInitializer):
     table_columns = None
 
     def __init__(self, attributes={}):
         self.errors = []
         self.fill_attributes(attributes, from_init=True)
-
-    @classmethod
-    def custom_validates(klass):
-        if not hasattr(klass, '_custom_validates') and not klass is ApplicationModel:
-            klass._custom_validates = []
-        return klass._custom_validates
+    
+    def respond_to(self, name):
+        return hasattr(self, name)
     
     def fill_attributes(self, attributes, from_init=False, ignore_none=False):
-        additional_attributes = self.__class__.accessors + [item['name'] for item in self.__class__._has_one]
+        additional_attributes = self.__class__._accessors + [item['name'] for item in self.__class__._has_one]
         if from_init:
             for column in self.get_table_columns():
                 setattr(self, column, None)
@@ -37,7 +40,10 @@ class ApplicationModel:
 
         for key in attributes:
             if (key in self.get_table_columns() or key in additional_attributes) and (ignore_none == False or attributes[key] != None):
-                setattr(self, key, attributes[key])
+                if isinstance(attributes[key], dict):
+                    getattr(self, key).fill_attributes(attributes[key])
+                else:
+                    setattr(self, key, attributes[key])
                 if from_init and key in self.get_table_columns():
                     setattr(self, f"{key}_was", attributes[key])
 
@@ -153,7 +159,6 @@ class ApplicationModel:
             self.insert()
         else:
             self.update()
-        self.save_relations()
         self.after_save()
         self.reload(keep_accessors=True)
         return self
@@ -161,8 +166,11 @@ class ApplicationModel:
     def save_relations(self):
         for relation in [item['name'] for item in self.__class__._has_one]:
             value = getattr(self, relation)
-            if value != None and value.id == None:
-                value.save()
+            if value != None:
+                if value._destroy == '1' or value._destroy == True:
+                    value.destroy()
+                else:
+                    value.save()
 
     def before_validation(self):
         self.run_callbacks('before_validation')
@@ -218,7 +226,7 @@ class ApplicationModel:
             dicttionary = self.__class__.find(self.id).to_dict()
 
             if keep_accessors:
-                for accessor_name in self.__class__.accessors:
+                for accessor_name in self.__class__._accessors:
                     dicttionary[accessor_name] = getattr(self, accessor_name)
             self.__init__(dicttionary)
 
@@ -234,6 +242,7 @@ class ApplicationModel:
         self.id = data[0]
         self.created_at = data[1]
         self.updated_at = data[2]
+        self.save_relations()
         self.after_create()
         return self
 
@@ -246,6 +255,7 @@ class ApplicationModel:
         self.before_update()
         self_attributes = self.to_dict()
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.save_relations()
         self.after_update()
         return self
 
@@ -260,6 +270,7 @@ class ApplicationModel:
                 if attributes.get(key) != None:
                     self_attributes[key] = attributes[key]
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.save_relations()
         self.after_update()
         return self
 
@@ -285,14 +296,14 @@ class ApplicationModel:
         self.before_validation()
         self.errors = []
 
-        if not self.__class__.validates and not self.__class__.custom_validates:
+        if not self.__class__._validates and not self.__class__._custom_validates:
             result = self.relations_valid()
             self.after_validation()            
             return result
-        for v in self.__class__.validates:
+        for v in self.__class__._validates:
             self.perform_attribute_validations(v)
 
-        for v in self.__class__.custom_validates():
+        for v in self.__class__._custom_validates:
             v(self)
         result = self.relations_valid()
         self.after_validation()            

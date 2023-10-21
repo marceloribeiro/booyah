@@ -16,7 +16,6 @@ class BooyahAttachment(ApplicationModel):
     def __init__(self, attributes={}):
         super().__init__(attributes)
         self.file_object = attributes.get('file_object')
-        self._pending_delete_file = None
 
     @property
     def record(self):
@@ -60,8 +59,9 @@ class BooyahAttachment(ApplicationModel):
         if not self.file_object:
             return
 
-        options = getattr(self.record, f"_{self.name}_options")
         if type(self.file_object) is File:
+            if self.key:
+                self.storage().delete_file(self.key)
             new_file_name = BooyahAttachment.storage_for(self.record, self.name).save(self.file_object)
             if new_file_name:
                 self.key = new_file_name
@@ -102,7 +102,6 @@ class BooyahAttachment(ApplicationModel):
             'class_name': BooyahAttachment.__name__,
             'foreign_key': 'record_id'
         })
-        klass.accessors.append(f'_destroy_{name}')
 
     @staticmethod
     def copy_required_methods_to_class(cls):
@@ -145,7 +144,7 @@ class BooyahAttachment(ApplicationModel):
             if options['size'] and options['size']['max'] and current_value.file_length > options['size']['max']:
                     self.errors.append(f"{self.name} should have at most {options['size']['max']} bytes.")
 
-BooyahAttachment.custom_validates().append(BooyahAttachment.file_validation)
+BooyahAttachment._custom_validates.append(BooyahAttachment.file_validation)
 
 def _validate_attachments(self):
     BooyahAttachment.validate_model_attachments(self)
@@ -191,12 +190,17 @@ def _add_field_methods(cls, field_name):
         if value is not None and not isinstance(value, File) and not isinstance(value, BooyahAttachment):
             raise ValueError(f"{self.__class__.__name__}.{field_name} must be a File or BooyahAttachment")
         if isinstance(value, File):
-            new_booyah_attachment = BooyahAttachment({
-                'file_object': value,
-                'name': field_name,
-            })
-            new_booyah_attachment.record = self
-            setattr(self, private_name, new_booyah_attachment)
+            booyah_attachment = None
+            if getattr(self, field_name):
+                booyah_attachment = getattr(self, field_name)
+                booyah_attachment.file_object = value
+            else:
+                booyah_attachment = BooyahAttachment({
+                    'file_object': value,
+                    'name': field_name,
+                })
+            booyah_attachment.record = self
+            setattr(self, private_name, booyah_attachment)
         else:
             setattr(self, private_name, value)
 
