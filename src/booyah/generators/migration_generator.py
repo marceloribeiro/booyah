@@ -24,6 +24,8 @@ class MigrationGenerator(BaseGenerator):
         )
 
     def prepare_fields(self, fields):
+        if not isinstance(fields, list):
+            fields = [fields]
         attachment_fields = [item for item in fields if ':' in item and item.split(':')[1] in ATTACHMENT_TYPES]
         if attachment_fields:
             self.add_attachment_code(attachment_fields)

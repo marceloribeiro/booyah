@@ -258,6 +258,6 @@ class TestApplicationModel:
     def test_custom_validates(self):
         self.create_custom_validation_tests_sample()
         record = CustomValidationTest.find(1)
-        CustomValidationTest.custom_validates.append(custom_validation)
+        CustomValidationTest._custom_validates.append(custom_validation)
         record.valid()
         assert record.errors == ['Fixed error']

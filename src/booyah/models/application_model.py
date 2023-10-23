@@ -11,7 +11,8 @@ import importlib
 class ClassInitializer(type):
     def __init__(klass, name, bases, attrs):
         klass._accessors = ['_destroy']
-        klass._validates = []
+        if not hasattr(klass, '_validates'):
+            klass._validates = []
         klass._has_one = []
         klass._custom_validates = []
         super(ClassInitializer, klass).__init__(name, bases, attrs)
@@ -159,6 +160,8 @@ class ApplicationModel(metaclass=ClassInitializer):
             self.insert()
         else:
             self.update()
+        if self.errors:
+            return False
         self.after_save()
         self.reload(keep_accessors=True)
         return self
@@ -295,17 +298,16 @@ class ApplicationModel(metaclass=ClassInitializer):
     def valid(self):
         self.before_validation()
         self.errors = []
-
         if not self.__class__._validates and not self.__class__._custom_validates:
-            result = self.relations_valid()
+            self.relations_valid()
             self.after_validation()            
-            return result
+            return False if self.errors else True
         for v in self.__class__._validates:
             self.perform_attribute_validations(v)
 
         for v in self.__class__._custom_validates:
             v(self)
-        result = self.relations_valid()
+        self.relations_valid()
         self.after_validation()            
         return False if self.errors else True
     
