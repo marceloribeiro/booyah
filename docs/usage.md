@@ -88,6 +88,12 @@ $ python -m booyah --version
 
 **Attachments**
 
+Before using attachments, you have to run the install command, and migrate command, it will create required table:
+```sh
+$ booyah g attachments install
+$ booyah db migrate
+```
+
 You can automatically create and configure attachment field by using scaffold field type file, example:
 ```sh
 $ booyah g scaffold User name:string photo:file
