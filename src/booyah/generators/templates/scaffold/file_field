@@ -7,8 +7,9 @@
       {{'{%'}} if {{model_name.underscore()}}.{{attribute['name']}} %}
         <a target="_blank" href="{{'{{'}} {{model_name.underscore()}}.{{attribute['name']}}_url() {{'-}}'}}">show {{attribute['name']}}</a>
         <br />
-        <input type="checkbox" name="{{model_name.underscore()}}[_destroy_{{attribute['name']}}]" id="{{model_name.underscore()}}_destroy_{{attribute['name']}}" value="1" {{'{%'}} if {{model_name.underscore()}}._destroy_{{attribute['name']}} %}checked{{'{% endif %}'}} />
-        delete {{attribute['name']}}?
+        <input type="hidden" name="{{model_name.underscore()}}[{{attribute['name']}}][id]" value="{{'{{'}}{{model_name.underscore()}}.{{attribute['name']}}.id{{'-}}'}}" />
+        <input type="checkbox" name="{{model_name.underscore()}}[{{attribute['name']}}][_destroy]" id="{{model_name.underscore()}}_destroy_{{attribute['name']}}" value="1" {{'{%'}} if {{model_name.underscore()}}._destroy_{{attribute['name']}} %}checked{{'{% endif %}'}} />
+        delete file?
         <br />
       {{'{% endif %}'}}
       <input type="file" name="{{model_name.underscore()}}[{{attribute['name']}}]" id="{{model_name.underscore()}}_{{attribute['name']}}" accept="{{'{{'}}','.join({{model_name.underscore()}}._{{attribute['name']}}_options['file_extensions']){{'}}'}}" />
