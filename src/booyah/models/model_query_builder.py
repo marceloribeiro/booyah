@@ -51,31 +51,64 @@ class ModelQueryBuilder:
         return self
 
     def where(self, *args):
-        condition = f"{args[0]}"
-        if len(args) > 1:
-            for operator in QUERY_OPERATORS.values():
-                if operator in condition:
-                    condition = condition.replace(' ?', f" {self.quote_if_needed(args[1])}")
-                    self.where_conditions.append(condition)
-                    return self
-                elif args[1] == None:
-                    condition = f"{condition} is NULL"
-                    self.where_conditions.append(condition)
-                    return self
-            condition = f"{condition} = {self.quote_if_needed(args[1])}"
-        self.where_conditions.append(condition)
+        if len(args) == 1:
+            if isinstance(args[0], str):
+                self.where_conditions.append(args[0])
+            elif isinstance(args[0], list):
+                if len(args[0]) == 1:
+                    self.where_conditions.append(args[0][0])
+                else:
+                    result = args[0][0]
+                    if len(args[0]) == 2 and isinstance(args[0][1], dict):
+                        for k, v in args[0][1].items():
+                            result = result.replace(f':{k}', self.sql_value(v))
+                    else:
+                        for i in range(1, len(args[0])):
+                            result = self.replace_first_sql_value(result, self.sql_value(args[0][i]))
+                    self.where_conditions.append(result)
+            elif isinstance(args[0], dict):
+                result = []
+                for k, v in args[0].items():
+                    if isinstance(v, list):
+                        result.append(f'{k} IN ({self.sql_value(v)})')
+                    else:
+                        result.append(f'{k} = {self.sql_value(v)}')
+                self.where_conditions.append(' AND '.join(result))
+        else:
+            if isinstance(args[1], list):
+                condition = self.replace_first_sql_value(args[0], self.sql_value(args[1]))
+            else:
+                condition = f"{args[0]}"
+                for operator in QUERY_OPERATORS.values():
+                    if operator in condition:
+                        condition = condition.replace(' ?', f" {self.sql_value(args[1])}")
+                        self.where_conditions.append(condition)
+                        return self
+                    elif args[1] == None:
+                        condition = f"{condition} is NULL"
+                        self.where_conditions.append(condition)
+                        return self
+                condition = f"{condition} = {self.sql_value(args[1])}"
+            self.where_conditions.append(condition)
         return self
+
+    def replace_first_sql_value(self, sql, value):
+        return sql.replace('?', value, 1)
+    
+    def sql_value(self, value):
+        if isinstance(value, str):
+            sql_escaped = value.replace("'", "''")
+            return f"\'{sql_escaped}\'"
+        elif isinstance(value, list):
+            return ','.join(str(self.sql_value(item)) for item in value)
+        else:
+            return value
 
     def exists(self, conditions):
         scope = self.select('1')
         for key, value in conditions.items():
             scope.where(key, value)
         return scope.count() > 0
-
-    def quote_if_needed(self, value):
-        if isinstance(value, str):
-            return f"'{value}'"
-        return value
 
     def offset(self, offset):
         self._offset = offset

@@ -85,6 +85,7 @@ class TestModelQueryBuilder:
         assert query_builder.where_conditions == ['name = \'Test User\'']
         query_builder.where('email = ?', 'test@user.com')
         assert query_builder.where_conditions == ['name = \'Test User\'', 'email = \'test@user.com\'']
+        
 
     def test_where_with_operator(self):
         query_builder = ModelQueryBuilder(User)
@@ -95,11 +96,31 @@ class TestModelQueryBuilder:
         query_builder.where('created_at > ?', '2020-01-01')
         assert query_builder.where_conditions == ['name = \'Test User\'', 'email = \'test@user.com\'' , 'created_at > \'2020-01-01\'']
         assert query_builder.build_query() == 'SELECT users.created_at, users.email, users.id, users.name, users.updated_at FROM users WHERE name = \'Test User\' AND email = \'test@user.com\' AND created_at > \'2020-01-01\''
+    
+    def test_where_single_arg_types(self):
+        assert ModelQueryBuilder(User).where('single_where = 1').where_conditions == ['single_where = 1']
+        assert ModelQueryBuilder(User).where(['single_where = 1']).where_conditions == ['single_where = 1']
+        assert ModelQueryBuilder(User).where(
+            ["name = ? and email = ?", "Joe", "joe@example.com"]
+        ).where_conditions == ["name = 'Joe' and email = 'joe@example.com'"]
+        assert ModelQueryBuilder(User).where(
+            ["name = :name1 and email = :email1", { 'name1': "Joe", 'email1': "joe@example.com" }]
+        ).where_conditions == ["name = 'Joe' and email = 'joe@example.com'"]
+        assert ModelQueryBuilder(User).where(
+            { 'name': "Joe", 'email': "joe@example.com" }
+        ).where_conditions == ["name = 'Joe' AND email = 'joe@example.com'"]
+
+    def test_where_with_array_value(self):
+        assert ModelQueryBuilder(User).where('single_where IN (?)', [1, 2]).where_conditions == ['single_where IN (1,2)']
+        assert ModelQueryBuilder(User).where(
+            { 'name': ["Joe", "Klaus"], 'email': "joe@example.com" }
+        ).where_conditions == ["name IN ('Joe','Klaus') AND email = 'joe@example.com'"]
 
     def test_quote_if_needed(self):
         query_builder = ModelQueryBuilder(User)
-        assert query_builder.quote_if_needed('Test User') == '\'Test User\''
-        assert query_builder.quote_if_needed(1) == 1
+        assert query_builder.sql_value('Test User') == '\'Test User\''
+        assert query_builder.sql_value("Test ' User") == "'Test '' User'"
+        assert query_builder.sql_value(1) == 1
 
     def test_build_query(self):
         query_builder = ModelQueryBuilder(User)

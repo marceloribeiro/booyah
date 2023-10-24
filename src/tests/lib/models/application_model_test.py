@@ -100,6 +100,11 @@ class TestApplicationModel:
     def test_query_builder(self):
         assert User.query_builder().model_class == User
 
+    def test_query_builder_should_not_cache(self):
+        query = User.where('1', '1')
+        assert query.where_conditions == ["1 = '1'"]
+        assert User.query_builder().where_conditions == []
+
     def test_count(self):
         self.create_users_sample()
         assert User.count() == 3

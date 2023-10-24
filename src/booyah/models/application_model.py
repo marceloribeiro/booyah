@@ -8,7 +8,6 @@ from datetime import datetime
 class ApplicationModel:
     validates = []
     table_columns = None
-    _query_builder = None
 
     def __init__(self, attributes={}):
         self.errors = []
@@ -61,10 +60,7 @@ class ApplicationModel:
 
     @classmethod
     def query_builder(self):
-        if self._query_builder != None:
-            return self._query_builder
-        self._query_builder = ModelQueryBuilder(self)
-        return self._query_builder
+        return ModelQueryBuilder(self)
 
     @classmethod
     def count(self):
@@ -83,8 +79,8 @@ class ApplicationModel:
             return None
 
     @classmethod
-    def where(self, column, value):
-        return self.query_builder().where(column, value)
+    def where(self, *args):
+        return self.query_builder().where(*args)
 
     @classmethod
     def exists(self, conditions):
