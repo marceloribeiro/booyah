@@ -14,7 +14,7 @@ class ControllerGenerator(BaseGenerator):
         self.scaffold = scaffold
         self.model_name = model_name
         self.model_attributes = self.format_attributes(model_attributes)
-        self.permit_attributes = self.permit_attributes(model_attributes)
+        self.permit_attributes = self.model_attributes
         self.class_name = String(self.controller_name).classify()
         self.target_file = os.path.join(self.target_folder, self.class_name.underscore() + '.py')
         self.content = ''
@@ -48,21 +48,6 @@ class ControllerGenerator(BaseGenerator):
                 "field_type": String(self.get_field_type(format)),
                 "extra": String(self.get_field_extra(format))
             })
-        return formatted
-
-    def permit_attributes(self, attributes):
-        formatted = []
-        for attribute in attributes:
-            if ':' not in attribute:
-                name = attribute
-                format = 'string'
-            else:
-                name = attribute.split(':')[0]
-                format = attribute.split(':')[1]
-            formatted.append(String(name))
-            if String(self.get_field_type(format)) == 'file_field':
-                formatted.append(String(f'_destroy_{name}'))
-
         return formatted
 
     def get_template_data(self):
@@ -159,7 +144,7 @@ class ControllerGenerator(BaseGenerator):
     def get_permit_attributes_names(self):
         if not self.permit_attributes:
             return ''
-        return ', '.join([f"'{attribute}'" for attribute in self.permit_attributes])
+        return ', '.join([f"'{attribute['name']}'" for attribute in self.permit_attributes])
 
     def get_field_extra(self, field_type):
         if field_type in ['image', 'pdf', 'doc']:

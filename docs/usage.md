@@ -88,7 +88,7 @@ $ python -m booyah --version
 
 **Attachments**
 
-Before using attachments, you have to run the install command, and migrate command, it will create required table:
+Before using attachments, you must to run the install and migrate commands:
 ```sh
 $ booyah g attachments install
 $ booyah db migrate
