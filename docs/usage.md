@@ -120,6 +120,20 @@ You can also configure multiple attachments using multiple storage types:
 
 This will configure photo string field to work as an attachment, you can create an html input field user[photo] and it will be uploaded as a booyah File.
 
+You can also create a global config, it will be used as default for all attachments that is not changing the config, for that, configure the following vars:
+
+> # Attachment Global Config
+> BOOYAH_ATTACHMENT_REQUIRED=False
+> BOOYAH_ATTACHMENT_BUCKET=bucket_name
+> BOOYAH_ATTACHMENT_EXTENSIONS=jpg,png,doc,docx,pdf
+> BOOYAH_ATTACHMENT_SIZE='{"min": 0, "max": 52428800}'
+> BOOYAH_ATTACHMENT_STORAGE='{
+>     "type": "s3",
+>     "ACCESS_KEY": "...",
+>     "SECRET_KEY": "...",
+>     "SESSION_TOKEN": "",
+> }'
+
 **Logging**
 
 Check for configurations in .env file, you can change LOG_LEVEL and LOG_FILE_PATH.

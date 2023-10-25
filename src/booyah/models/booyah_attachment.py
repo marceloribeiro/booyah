@@ -8,7 +8,16 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 import os
 from booyah.extensions.number import Number
+from booyah.helpers.conversion import to_bool, to_list, to_dict
 from booyah.models.helpers.callbacks import after_destroy
+
+ATTACHMENT_DEFAULTS = {
+    'required': to_bool(os.getenv('BOOYAH_ATTACHMENT_REQUIRED', False)),
+    'bucket': os.getenv('BOOYAH_ATTACHMENT_BUCKET', 'booyah'),
+    'file_extensions': to_list(os.getenv('BOOYAH_ATTACHMENT_EXTENSIONS', ['*'])),
+    'size': to_dict(os.getenv('BOOYAH_ATTACHMENT_SIZE', {'min': 0, 'max': Number(50).megabytes()})),
+    'storage': to_dict(os.getenv('BOOYAH_ATTACHMENT_STORAGE', {'type': 'local'})),
+}
 
 class BooyahAttachment(ApplicationModel):
     after_destroy('delete_file')
@@ -16,6 +25,34 @@ class BooyahAttachment(ApplicationModel):
     def __init__(self, attributes={}):
         super().__init__(attributes)
         self.file_object = attributes.get('file_object')
+    
+    @staticmethod
+    def configure(klass, name, required=ATTACHMENT_DEFAULTS['required'], \
+                    bucket=ATTACHMENT_DEFAULTS['bucket'], \
+                    file_extensions=ATTACHMENT_DEFAULTS['file_extensions'], \
+                    size=ATTACHMENT_DEFAULTS['size'], \
+                    storage=ATTACHMENT_DEFAULTS['storage']):
+        if not hasattr(klass, '_attachments'):
+            klass._attachments = [name]
+        else:
+            klass._attachments.append(name)
+        if 'SESSION_TOKEN' in storage and storage['SESSION_TOKEN'] == '':
+            storage['SESSION_TOKEN'] = None
+        setattr(klass, f"_{name}_options", {
+            'required': required,
+            'bucket': bucket,
+            'file_extensions': file_extensions,
+            'size': size,
+            'storage': storage
+        })
+        BooyahAttachment.copy_required_methods_to_class(klass)
+        _add_field_methods(klass, name)
+        klass._has_one.append({
+            'name': name,
+            'dependent': 'destroy',
+            'class_name': BooyahAttachment.__name__,
+            'foreign_key': 'record_id'
+        })
 
     @property
     def record(self):
@@ -78,30 +115,6 @@ class BooyahAttachment(ApplicationModel):
         return BooyahAttachment.where('record_id', record.id) \
                 .where('record_type', record.__class__.__name__) \
                 .where('name', field_name).first()
-    
-    @staticmethod
-    def configure(klass, name, required=False, bucket="booyah", file_extensions=['*'], \
-                    size={'min': 0, 'max': Number(50).megabytes()}, \
-                    storage={'type': 'local'}):
-        if not hasattr(klass, '_attachments'):
-            klass._attachments = [name]
-        else:
-            klass._attachments.append(name)
-        setattr(klass, f"_{name}_options", {
-            'required': required,
-            'bucket': bucket,
-            'file_extensions': file_extensions,
-            'size': size,
-            'storage': storage
-        })
-        BooyahAttachment.copy_required_methods_to_class(klass)
-        _add_field_methods(klass, name)
-        klass._has_one.append({
-            'name': name,
-            'dependent': 'destroy',
-            'class_name': BooyahAttachment.__name__,
-            'foreign_key': 'record_id'
-        })
 
     @staticmethod
     def copy_required_methods_to_class(cls):
