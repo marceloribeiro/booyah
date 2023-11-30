@@ -30,7 +30,9 @@ class BooyahConsole:
         Load extensions to console
         """
         from booyah.extensions.string import String
+        from booyah.framework import Booyah
         globals()['String'] = String
+        globals()['Booyah'] = Booyah
         os.environ["PROJECT_NAME"] = String(os.environ["ROOT_PROJECT"]).titleize()
 
     def load_models(self):
