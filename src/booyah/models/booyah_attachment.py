@@ -1,15 +1,13 @@
+import types
+import boto3
+import os
 from booyah.models.application_model import ApplicationModel
 from booyah.models.helpers.local_storage import LocalStorage
 from booyah.models.helpers.s3_storage import S3Storage
 from booyah.models.file import File
-from booyah.observers.application_model_observer import ApplicationModelObserver
-import types
-import boto3
-from botocore.exceptions import NoCredentialsError
-import os
+from booyah.models.helpers.callbacks import before_destroy
 from booyah.extensions.number import Number
 from booyah.helpers.conversion import to_bool, to_list, to_dict
-from booyah.models.helpers.callbacks import after_destroy
 
 ATTACHMENT_DEFAULTS = {
     'required': to_bool(os.getenv('BOOYAH_ATTACHMENT_REQUIRED', False)),
@@ -20,7 +18,7 @@ ATTACHMENT_DEFAULTS = {
 }
 
 class BooyahAttachment(ApplicationModel):
-    after_destroy('delete_file')
+    before_destroy('delete_file')
 
     def __init__(self, attributes={}):
         super().__init__(attributes)
@@ -177,12 +175,6 @@ def _s3_instance(self, field_name):
         )
 
         setattr(self, s3_attribute, session.resource('s3'))
-        found_bucket = False
-        for bucket in session.resource('s3').buckets.all():
-            if bucket.name == options['bucket']:
-                found_bucket = True
-        if not found_bucket:
-            raise ValueError(f"s3 bucket for {self.__class__.__name__}.{field_name} named {options['bucket']} not found!")
     return getattr(self, s3_attribute)
 
 def _attachment_url(self, attachment, file_name):
@@ -226,10 +218,10 @@ def _add_field_methods(cls, field_name):
         else:
             return ""
     
-    method1 = types.FunctionType(
+    field_url_method = types.FunctionType(
         field_url.__code__,
         globals(),
         f'{field_name}_url',
         closure=(field_url.__closure__[0],),
     )
-    setattr(cls, f'{field_name}_url', method1)
+    setattr(cls, f'{field_name}_url', field_url_method)

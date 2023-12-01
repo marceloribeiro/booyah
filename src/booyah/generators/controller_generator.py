@@ -2,6 +2,7 @@ import os
 from booyah.extensions.string import String
 from booyah.generators.helpers.io import print_error, print_success
 from booyah.generators.base_generator import BaseGenerator
+from booyah.generators.attachments_generator import file_extensions_for, is_file_field
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 #  booyah g controller home main contact
@@ -148,12 +149,12 @@ class ControllerGenerator(BaseGenerator):
 
     def get_field_extra(self, field_type):
         if field_type in ['image', 'pdf', 'doc']:
-            return ','.join(self.file_extensions_for(field_type))
+            return ','.join(file_extensions_for(field_type))
         elif field_type in ['file', 'attachment']:
             return '*'
 
     def get_field_type(self, field_type):
-        if self.is_file_field(field_type):
+        if is_file_field(field_type):
             self.has_attachment = True
             return 'file_field'
 

@@ -15,6 +15,32 @@ BOOYAH_ATTACHMENT_FIELDS = [
 ]
 
 MIGRATION_TEMPLATE_NAME = 'create_table_booyah_attachments.py'
+ATTACHMENT_TYPES = ['file', 'image', 'pdf', 'doc', 'attachment']
+    
+def file_extensions_for(format):
+    if format == 'image':
+        return ['.png', '.jpg', '.jpeg', '.ico', '.gif', '.bmp']
+    elif format == 'pdf':
+        return ['.pdf']
+    elif format == 'doc':
+        return ['.doc', '.rtf', '.docx', '.pdf', '.txt']
+    return ['*']
+
+def is_file_field(format):
+    return format in ATTACHMENT_TYPES
+
+def attachment_import_string():
+    return 'from booyah.models.booyah_attachment import BooyahAttachment'
+
+def attachment_config_prefix(model_name, name):
+    return f'BooyahAttachment.configure({model_name}, \'{name}\','
+
+def attachment_config_string(model_name, name, format, bucket):
+    file_extensions = file_extensions_for(format)
+    if file_extensions:
+        return f'{attachment_config_prefix(model_name, name)} bucket=\'{bucket}\', file_extensions={file_extensions})'
+    else:
+        return f'{attachment_config_prefix(model_name, name)} bucket=\'{bucket}\')'
 
 #  booyah g attachments install
 class AttachmentsGenerator(BaseGenerator):

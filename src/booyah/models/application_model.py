@@ -226,12 +226,12 @@ class ApplicationModel(metaclass=ClassInitializer):
 
     def reload(self, keep_accessors=False):
         if self.id:
-            dicttionary = self.__class__.find(self.id).to_dict()
+            dictionary = self.__class__.find(self.id).to_dict()
 
             if keep_accessors:
                 for accessor_name in self.__class__._accessors:
-                    dicttionary[accessor_name] = getattr(self, accessor_name)
-            self.__init__(dicttionary)
+                    dictionary[accessor_name] = getattr(self, accessor_name)
+            self.__init__(dictionary)
 
     def is_new_record(self):
         return not hasattr(self, 'id') or self.id == None
@@ -337,12 +337,12 @@ class ApplicationModel(metaclass=ClassInitializer):
         return [ self.serialized_attribute(column) for column in self.get_table_columns() ]
 
     def compact_to_dict(self):
-        dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
-        return { k: v for k, v in dicttionary.items() if v is not None }
+        dictionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
+        return { k: v for k, v in dictionary.items() if v is not None }
 
     def to_dict(self):
-        dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
-        return json.loads(json.dumps(dicttionary, default=str))
+        dictionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
+        return json.loads(json.dumps(dictionary, default=str))
 
     def to_json(self):
         return json.dumps(self.to_dict(), default=str)

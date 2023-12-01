@@ -1,4 +1,3 @@
-import os
 import uuid
 
 class S3Storage:
@@ -9,14 +8,8 @@ class S3Storage:
     
     def delete_file(self, file_name):
         file_path = self.attachment_folder() + file_name
-        try:
-            self.s3.Bucket(self.bucket_name).Object(file_name).delete()
-            print(f"'{file_path}' has been successfully deleted.")
-        except ClientError as e:
-            if e.response['Error']['Code'] == 'NoSuchKey':
-                print(f"File '{file_path}' not found.")
-            else:
-                print(f"An error occurred: {e}")
+        self.s3.Bucket(self.bucket_name).Object(file_name).delete()
+        print(f"'{file_path}' has been successfully deleted.")
     
     def attachment_folder(self, full_path=True):
         return f'https://{self.bucket_name}.s3.amazonaws.com/'

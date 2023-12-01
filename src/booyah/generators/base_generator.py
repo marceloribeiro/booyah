@@ -3,8 +3,6 @@ import shutil
 from booyah.generators.helpers.io import print_error, prompt_override_file
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-ATTACHMENT_TYPES = ['file', 'image', 'pdf', 'doc', 'attachment']
-
 class BaseGenerator:
     def booyah_root(self):
         return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -55,28 +53,3 @@ class BaseGenerator:
             print("Source folder not found.")
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-    
-    def file_extensions_for(self, format):
-        if format == 'image':
-            return ['.png', '.jpg', '.jpeg', '.ico', '.gif', '.bmp']
-        elif format == 'pdf':
-            return ['.pdf']
-        elif format == 'doc':
-            return ['.doc', '.rtf', '.docx', '.pdf', '.txt']
-        return ['*']
-    
-    def is_file_field(self, format):
-        return format in ATTACHMENT_TYPES
-
-    def attachment_import_string(self):
-        return 'from booyah.models.booyah_attachment import BooyahAttachment'
-
-    def attachment_config_prefix(self, model_name, name):
-        return f'BooyahAttachment.configure({model_name}, \'{name}\','
-    
-    def attachment_config_string(self, model_name, name, format, bucket):
-        file_extensions = self.file_extensions_for(format)
-        if file_extensions:
-            return f'{self.attachment_config_prefix(model_name, name)} bucket=\'{bucket}\', file_extensions={file_extensions})'
-        else:
-            return f'{self.attachment_config_prefix(model_name, name)} bucket=\'{bucket}\')'

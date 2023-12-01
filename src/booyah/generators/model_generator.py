@@ -1,7 +1,8 @@
 import os
 from booyah.extensions.string import String
 from booyah.generators.helpers.io import print_error, print_success
-from booyah.generators.base_generator import BaseGenerator, ATTACHMENT_TYPES
+from booyah.generators.base_generator import BaseGenerator
+from booyah.generators.attachments_generator import ATTACHMENT_TYPES, is_file_field, attachment_import_string, attachment_config_string
 from booyah.generators.migration_generator import MigrationGenerator
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -39,13 +40,13 @@ class ModelGenerator(BaseGenerator):
                 name = attribute.split(':')[0]
                 bucket = String(name).pluralize()
                 format = attribute.split(':')[1]
-                if self.is_file_field(format):
+                if is_file_field(format):
                     if not has_attachment:
-                        self.model_imports += self.attachment_import_string()
+                        self.model_imports += attachment_import_string()
                     has_attachment = True
                     if self.model_content:
                         self.model_content += '\n'
-                    self.model_content += self.attachment_config_string(self.model_name, name, format, bucket)
+                    self.model_content += attachment_config_string(self.model_name, name, format, bucket)
 
     def generate_migration(self):
         table_name = String(self.model_name).pluralize()

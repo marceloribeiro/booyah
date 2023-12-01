@@ -4,7 +4,8 @@ from datetime import datetime
 from booyah.extensions.string import String
 from booyah.generators.helpers.io import print_error, print_success
 from jinja2 import Environment, PackageLoader, select_autoescape
-from booyah.generators.base_generator import BaseGenerator, ATTACHMENT_TYPES
+from booyah.generators.base_generator import BaseGenerator
+from booyah.generators.attachments_generator import ATTACHMENT_TYPES, attachment_import_string, attachment_config_prefix, attachment_config_string
 
 #  booyah g migration create_table_comments comments user_id:integer title content:text
 class MigrationGenerator(BaseGenerator):
@@ -42,15 +43,15 @@ class MigrationGenerator(BaseGenerator):
         for attachment_field in attachment_fields:
             name = attachment_field.split(':')[0]
             format = attachment_field.split(':')[1]
-            search_for = self.attachment_config_prefix(model_class_name, name)
+            search_for = attachment_config_prefix(model_class_name, name)
             with open(model_file_path, "r") as file:
                 file_contents = file.read()
             if re.sub(r'\s', '', search_for) not in re.sub(r'\s', '', file_contents):
-                has_import = re.sub(r'\s', '', self.attachment_import_string()) in re.sub(r'\s', '', file_contents)
-                attachment_code = f"\n{self.attachment_config_string(model_class_name, name, format, name)}"
+                has_import = re.sub(r'\s', '', attachment_import_string()) in re.sub(r'\s', '', file_contents)
+                attachment_code = f"\n{attachment_config_string(model_class_name, name, format, name)}"
                 if not has_import:
                     with open(model_file_path, 'w') as file:
-                        file.write(f"{self.attachment_import_string()}\n{file_contents}{attachment_code}")
+                        file.write(f"{attachment_import_string()}\n{file_contents}{attachment_code}")
                 else:
                     with open(model_file_path, "a") as file:
                         file.write(attachment_code)
