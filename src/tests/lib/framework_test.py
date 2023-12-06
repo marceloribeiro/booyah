@@ -2,6 +2,12 @@ import os
 import tempfile
 import unittest
 import shutil
+from booyah.extensions.string import String
+
+PROD_DB_PASSWORD = "pwd_from_env"
+DEFAULT_DB_PASSWORD = "default_pwd"
+BOOYAH_ENV = 'test'
+TEST_DB_HOST = "host_test"
 
 class TestFramework(unittest.TestCase):
 
@@ -25,11 +31,14 @@ class TestFramework(unittest.TestCase):
     def create_env_file(self):
         file_path = os.path.join(self.temp_dir, '.env')
         with open(file_path, 'w') as file:
-            file.write("DB_PASSWORD=pwd_from_env")
+            file.write(f"""
+DB_PASSWORD={PROD_DB_PASSWORD}
+BOOYAH_ENV={BOOYAH_ENV}
+            """)
     
     @classmethod
     def create_application_yaml(self):
-        yaml_content = """
+        yaml_content = f"""
 defaults:
     database: &database
         host: localhost
@@ -37,7 +46,14 @@ defaults:
         adapter: postgresql
         database: booyah
         username: postgres
-        password: defaultpwd
+        password: {DEFAULT_DB_PASSWORD}
+test:
+    database:
+        <<: *database
+        host: {TEST_DB_HOST}
+        port: 5432
+        adapter: postgresql
+        database: booyah
 development:
     database:
         <<: *database
@@ -72,3 +88,33 @@ production:
     def test_get_version(self):
         from booyah.framework import Booyah
         assert Booyah.version == "99.99.99"
+    
+    def test_root(self):
+        from booyah.framework import Booyah
+        assert self.temp_dir in Booyah.root
+    
+    def test_name(self):
+        from booyah.framework import Booyah
+        assert Booyah.name == String(os.path.basename(self.temp_dir)).titleize()
+    
+    def test_anchor_yaml(self):
+        from booyah.framework import Booyah
+        assert Booyah.config['development']['database']['password'] == DEFAULT_DB_PASSWORD
+    
+    def test_env_in_yaml(self):
+        from booyah.framework import Booyah
+        assert Booyah.config['production']['database']['password'] == PROD_DB_PASSWORD
+    
+    def test_environment(self):
+        from booyah.framework import Booyah
+        assert Booyah.environment == BOOYAH_ENV
+
+    def test_is_environment(self):
+        from booyah.framework import Booyah
+        assert Booyah.is_test == True
+        assert Booyah.is_development == False
+        assert Booyah.is_production == False
+    
+    def test_env_config(self):
+        from booyah.framework import Booyah
+        assert Booyah.env_config['database']['host'] == TEST_DB_HOST
