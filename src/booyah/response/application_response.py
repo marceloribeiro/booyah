@@ -2,6 +2,7 @@ import json
 import os
 from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.logger import logger
+from booyah.cookies.cookies_manager import CookiesManager
 
 class ApplicationResponse:
     APP_NAME = 'booyah'
@@ -22,13 +23,16 @@ class ApplicationResponse:
         )
 
     def response_headers(self):
+        cookies_manager = CookiesManager.from_environment(self.environment)
         if (self.headers != []):
-            return self.headers
+            return cookies_manager.apply_cookies(self.headers)
         else:
-            return [
+            default_headers = [
               ('Content-type', self.environment.get('CONTENT_TYPE', self.DEFAULT_CONTENT_TYPE)),
               ('Content-Length', str(len(self.body)))
             ]
+            cookies_manager.apply_cookies(default_headers)
+            return default_headers
 
     def format(self):
         return self.environment.get('RESPONSE_FORMAT')

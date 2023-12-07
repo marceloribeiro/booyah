@@ -5,10 +5,14 @@ from urllib.parse import parse_qs
 from booyah.logger import logger
 from booyah.application_support.action_support import ActionSupport
 from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType, parse_header, parse_multipart
+from booyah.cookies.cookies_manager import CookiesManager
 
 class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
+        self.cookies_manager = CookiesManager.to_environment(environment)
         self.environment = environment
+        if not self.cookies_manager.has_cookie('sessionid'):
+            self.cookies_manager.create_session()
         self.params = {}
         self.application_response = None
         if should_load_params:

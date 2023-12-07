@@ -5,10 +5,10 @@ from booyah.models.user import User
 
 class HomeController(BooyahApplicationController):
     def index(self):
-        return self.render({'text': 'Home Controller, Index Action'})
+        return self.render({'text': 'Home Controller, Index Action', 'str': str, 'cookies': self.cookies_manager.get_all_cookies()})
 
     def about(self):
-        return self.render({'text': 'Home Controller, About Action'})
+        return self.render({'text': 'Home Controller, About Action', 'str': str, 'cookies': self.cookies_manager.get_all_cookies()})
 
     def status(self):
         db_adapter = BaseAdapter.get_instance()
