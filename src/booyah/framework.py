@@ -22,12 +22,12 @@ class Booyah:
                 config[key] = os.path.expandvars(real_value)
     
     @classmethod
-    def confuse_to_dict(self, config):
+    def config_to_dict(self, config):
         result = {}
         for key, value in config.items():
             real_value = value.get()
             if isinstance(real_value, dict):
-                result[key] = Booyah.confuse_to_dict(value)
+                result[key] = Booyah.config_to_dict(value)
             else:
                 result[key] = real_value
         return result
@@ -44,7 +44,7 @@ class Booyah:
         config = confuse.Configuration(Booyah.name.classify())
         config.set_file(os.path.join(Booyah.root, 'config', 'application.yml'))
         Booyah.substitute_env_variables(config)
-        config_dict = Booyah.confuse_to_dict(config)
+        config_dict = Booyah.config_to_dict(config)
 
         if self.environment and self.environment in config_dict:
             self.env_config = config_dict[self.environment]
