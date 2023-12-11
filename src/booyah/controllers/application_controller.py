@@ -9,7 +9,7 @@ from booyah.cookies.cookies_manager import CookiesManager
 
 class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
-        self.cookies_manager = CookiesManager.to_environment(environment)
+        self.cookies_manager = CookiesManager.add_to(environment)
         self.environment = environment
         if not self.cookies_manager.has_cookie('sessionid'):
             self.cookies_manager.create_session()

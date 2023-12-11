@@ -15,7 +15,7 @@ class CookiesManager:
             self.cookies.load(self.environment['HTTP_COOKIE'])
 
     @classmethod
-    def to_environment(self, environment):
+    def add_to(self, environment):
         environment['cookies_manager'] = CookiesManager(environment)
         return environment['cookies_manager']
     
@@ -29,7 +29,10 @@ class CookiesManager:
         if max_age is not None:
             self.cookies[key]['max-age'] = max_age
         elif expires is not None:
-            self.cookies[key]['expires'] = expires
+            if isinstance(expires, datetime):
+                self.cookies[key]['expires'] = expires.strftime('%a, %d %b %Y %H:%M:%S GMT')
+            else:
+                self.cookies[key]['expires'] = expires
         else:
             self.cookies[key]['expires'] = (datetime.utcnow() + DEFAULT_EXPIRATION).strftime('%a, %d %b %Y %H:%M:%S GMT')
 
@@ -48,7 +51,10 @@ class CookiesManager:
             self.cookies[key]['samesite'] = same_site
 
     def get_cookie(self, key):
-        return self.cookies.get(key, None)
+        cookie = self.cookies.get(key, None)
+        if not cookie == None and not self.is_expired(cookie):
+            return cookie.value
+        return None
 
     def create_session(self):
         sessionid = str(uuid.uuid4())
@@ -56,15 +62,31 @@ class CookiesManager:
         return sessionid
     
     def has_cookie(self, key):
-        return key in self.cookies
+        return key in self.get_all_cookies()
 
     def delete_cookie(self, key, path='/', domain=None):
         self.set_cookie(key, '', expires='Thu, 01 Jan 1970 00:00:00 GMT', path=path, domain=domain)
+    
+    def is_expired(self, cookie):
+        cookie_instance = cookie
+        if isinstance(cookie, str):
+            cookie_instance = self.cookies[cookie]
+        if not cookie_instance.get('expires'):
+            return False
+        current_time = datetime.utcnow()
+        if isinstance(cookie_instance.get('expires'), datetime) and current_time <= cookie_instance['expires']:
+            return False
+        elif isinstance(cookie_instance.get('expires'), str) and current_time <= datetime.strptime(cookie_instance['expires'], '%a, %d %b %Y %H:%M:%S GMT'):
+            return False
+        return True
 
     def get_all_cookies(self):
         all_cookies = {}
-        for cookie in self.cookies.values():
-            all_cookies[cookie.key] = cookie.value
+
+        for key, cookie in self.cookies.items():
+            if not self.is_expired(cookie):
+                all_cookies[key] = cookie.value
+
         return all_cookies
 
     def apply_cookies(self, target_array):
