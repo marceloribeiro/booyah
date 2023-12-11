@@ -107,7 +107,6 @@ class TestCookiesManager:
 
         assert len(response_headers) == 2
         assert response_headers[0] == ('Content-Type', 'application/json')
-        breakpoint()
         assert 'abc=123; expires=' in response_headers[1][1]
         assert 'def=456; expires=' in response_headers[1][1]
         assert '; HttpOnly; Path=/;' in response_headers[1][1]
