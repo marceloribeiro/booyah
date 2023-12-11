@@ -3,7 +3,7 @@ from booyah.models.application_model import ApplicationModel
 
 class User(ApplicationModel):
     EMAIL_PATTERN = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-    validates = [
+    _validates = [
         { 'name': { 'presence': True } },
         { 'email': { 'presence': True, 'format': EMAIL_PATTERN, 'length': {
             'minimum': 10,

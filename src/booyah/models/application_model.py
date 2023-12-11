@@ -4,34 +4,48 @@ from booyah.extensions.string import String
 from booyah.observers.application_model_observer import ApplicationModelObserver
 import json
 from datetime import datetime
+import os
+import importlib
 
-class ApplicationModel:
-    validates = []
+# this will grant each child class with your own static attributes instead of sharing from the base class
+class ClassInitializer(type):
+    def __init__(klass, name, bases, attrs):
+        klass._accessors = ['_destroy']
+        if not hasattr(klass, '_validates'):
+            klass._validates = []
+        klass._has_one = []
+        klass._custom_validates = []
+        super(ClassInitializer, klass).__init__(name, bases, attrs)
+
+class ApplicationModel(metaclass=ClassInitializer):
     table_columns = None
 
     def __init__(self, attributes={}):
         self.errors = []
         self.fill_attributes(attributes, from_init=True)
-        self.configure_static_var()
-
-    @classmethod
-    def configure_static_var(cls):
-        # this code is to avoid to set static var shared for all models
-        if not hasattr(cls, 'custom_validates') and not cls is ApplicationModel:
-            cls.custom_validates = []
+    
+    def respond_to(self, name):
+        return hasattr(self, name)
     
     def fill_attributes(self, attributes, from_init=False, ignore_none=False):
+        additional_attributes = self.__class__._accessors + [item['name'] for item in self.__class__._has_one]
         if from_init:
             for column in self.get_table_columns():
                 setattr(self, column, None)
                 setattr(self, f"{column}_was", None)
+            for accessor in additional_attributes:
+                setattr(self, accessor, None)
+
         if not attributes:
             return
 
         for key in attributes:
-            if key in self.get_table_columns() and (ignore_none == False or attributes[key] != None):
-                setattr(self, key, attributes[key])
-                if from_init:
+            if (key in self.get_table_columns() or key in additional_attributes) and (ignore_none == False or attributes[key] != None):
+                if isinstance(attributes[key], dict):
+                    getattr(self, key).fill_attributes(attributes[key])
+                else:
+                    setattr(self, key, attributes[key])
+                if from_init and key in self.get_table_columns():
                     setattr(self, f"{key}_was", attributes[key])
 
     @classmethod
@@ -40,7 +54,7 @@ class ApplicationModel:
 
     @classmethod
     def table_name(self):
-        return self.__name__.lower() + 's'
+        return String(self.__name__).underscore().pluralize()
 
     @classmethod
     def get_table_columns(self):
@@ -142,15 +156,24 @@ class ApplicationModel:
         return None
 
     def save(self):
-        if not self.valid():
-            return False
         if self.is_new_record():
             self.insert()
         else:
-            self.update(validate=False)
-        self.reload()
+            self.update()
+        if self.errors:
+            return False
         self.after_save()
+        self.reload(keep_accessors=True)
         return self
+    
+    def save_relations(self):
+        for relation in [item['name'] for item in self.__class__._has_one]:
+            value = getattr(self, relation)
+            if value != None:
+                if value._destroy == '1' or value._destroy == True:
+                    value.destroy()
+                else:
+                    value.save()
 
     def before_validation(self):
         self.run_callbacks('before_validation')
@@ -201,20 +224,28 @@ class ApplicationModel:
                     callback()        
 
 
-    def reload(self):
+    def reload(self, keep_accessors=False):
         if self.id:
-            self.__init__(self.__class__.find(self.id).to_dict())
+            dictionary = self.__class__.find(self.id).to_dict()
+
+            if keep_accessors:
+                for accessor_name in self.__class__._accessors:
+                    dictionary[accessor_name] = getattr(self, accessor_name)
+            self.__init__(dictionary)
 
     def is_new_record(self):
         return not hasattr(self, 'id') or self.id == None
 
-    def insert(self):
+    def insert(self, validate=True):
+        if validate and not self.valid():
+            return False
         self.before_save()
         self.before_create()
         data = self.db_adapter().insert(self.table_name(), self.compact_to_dict())
         self.id = data[0]
         self.created_at = data[1]
         self.updated_at = data[2]
+        self.save_relations()
         self.after_create()
         return self
 
@@ -227,6 +258,7 @@ class ApplicationModel:
         self.before_update()
         self_attributes = self.to_dict()
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.save_relations()
         self.after_update()
         return self
 
@@ -241,30 +273,53 @@ class ApplicationModel:
                 if attributes.get(key) != None:
                     self_attributes[key] = attributes[key]
         data = self.db_adapter().update(self.table_name(), self.id, self_attributes)
+        self.save_relations()
         self.after_update()
         return self
 
     def destroy(self):
         self.before_destroy()
+        self.apply_destroy_dependent_action()
         data = self.db_adapter().delete(self.table_name(), self.id)
         deleted_id = data[0]
         self.after_destroy()
         return deleted_id
+    
+    def apply_destroy_dependent_action(self):
+        for item in self.__class__._has_one:
+            value = getattr(self, item['name'])
+            if value:
+                if item.get('dependent') == 'destroy':
+                    value.destroy()
+                elif item.get('dependent') == 'nullify':
+                    setattr(value, item['foreign_key'], None)
+                    value.save()
 
     def valid(self):
         self.before_validation()
         self.errors = []
-
-        if not self.__class__.validates and not self.__class__.custom_validates:
+        if not self.__class__._validates and not self.__class__._custom_validates:
+            self.relations_valid()
             self.after_validation()            
-            return True
-        for v in self.__class__.validates:
+            return False if self.errors else True
+        for v in self.__class__._validates:
             self.perform_attribute_validations(v)
 
-        for v in self.__class__.custom_validates:
+        for v in self.__class__._custom_validates:
             v(self)
+        self.relations_valid()
         self.after_validation()            
         return False if self.errors else True
+    
+    def relations_valid(self):
+        is_valid = True
+        for relation_name in [item['name'] for item in self.__class__._has_one]:
+            value = getattr(self, relation_name)
+            if value != None and value.id == None:
+                if not value.valid():
+                    is_valid = False
+                    self.errors.append(f"{relation_name} invalid: {', '.join(value.errors)}")
+        return is_valid
 
     def perform_attribute_validations(self, attribute_validations):
         attribute = list(attribute_validations.keys())[0]
@@ -282,12 +337,22 @@ class ApplicationModel:
         return [ self.serialized_attribute(column) for column in self.get_table_columns() ]
 
     def compact_to_dict(self):
-        dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
-        return { k: v for k, v in dicttionary.items() if v is not None }
+        dictionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
+        return { k: v for k, v in dictionary.items() if v is not None }
 
     def to_dict(self):
-        dicttionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
-        return json.loads(json.dumps(dicttionary, default=str))
+        dictionary = { column: self.serialized_attribute(column) for column in self.get_table_columns() }
+        return json.loads(json.dumps(dictionary, default=str))
 
     def to_json(self):
         return json.dumps(self.to_dict(), default=str)
+    
+    def import_model(self, model_name, globals_ref):
+        model_name_str = String(model_name)
+        class_name = model_name_str.classify()
+        if class_name in globals_ref:
+            return
+        module_name = f"{os.getenv('ROOT_PROJECT')}.app.models.{model_name_str.underscore()}"
+        module = importlib.import_module(module_name)
+        klass = getattr(module, class_name)
+        globals_ref[class_name] = klass

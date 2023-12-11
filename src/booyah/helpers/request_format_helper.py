@@ -77,6 +77,7 @@ def parse_multipart(environment, body_bytes, temp_dir=None):
 
     for part in parts[1:-1]:
         headers, content = part.split(b'\r\n\r\n', 1)
+        content = content[:-2]
         field_data = parse_header(headers.decode())
         field_name = field_data[1].get('name')
 
@@ -88,7 +89,7 @@ def parse_multipart(environment, body_bytes, temp_dir=None):
                     temp_file = tempfile.NamedTemporaryFile(delete=False, dir=temp_dir, suffix=file_extension)
                     temp_file.write(content)
                     temp_file.close()
-                    form_data[field_name] = File(temp_file.name, filename, environment)
+                    form_data[field_name] = File(temp_file.name, filename, os.path.getsize(temp_file.name), environment)
             else:
                 form_data[field_name] = content.rstrip(b'\r\n').decode()
     form_data = flatten_dict(form_data)

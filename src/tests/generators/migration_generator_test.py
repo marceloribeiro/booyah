@@ -7,7 +7,7 @@ class TestMigrationGenerator:
         migration_generator = MigrationGenerator('target_folder', 'migration_name', 'fields')
         assert migration_generator.target_folder == 'target_folder'
         assert migration_generator.migration_name == 'migration_name'
-        assert migration_generator.fields == 'fields'
+        assert migration_generator.fields == ['fields']
         assert migration_generator.class_name == 'MigrationName'
         assert migration_generator.target_file == f"target_folder/{migration_generator.current_datetime}_migration_name.py"
         assert migration_generator.table_name == ''

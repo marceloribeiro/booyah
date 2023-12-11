@@ -2,6 +2,7 @@ import os
 from booyah.extensions.string import String
 from booyah.generators.helpers.io import print_error, print_success
 from booyah.generators.base_generator import BaseGenerator
+from booyah.generators.attachments_generator import ATTACHMENT_TYPES, is_file_field, attachment_import_string, attachment_config_string
 from booyah.generators.migration_generator import MigrationGenerator
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -13,6 +14,8 @@ class ModelGenerator(BaseGenerator):
         self.model_content = '    pass'
         self.model_imports = ''
         self.attributes = list(set(attributes))
+        self.fill_model_content()
+        self.attributes = self.prepare_attributes(self.attributes)
         self.class_name = String(self.model_name).classify()
         self.target_file = os.path.join(self.target_folder, self.class_name.underscore() + '.py')
         self.content = ''
@@ -25,8 +28,10 @@ class ModelGenerator(BaseGenerator):
         self.generate_migration()
         if not self.should_create_file():
             return False
-        self.fill_model_content()
         self.create_model_from_template()
+
+    def prepare_attributes(self, attributes):
+        return [item for item in attributes if ':' not in item or item.split(':')[1] not in ATTACHMENT_TYPES]
     
     def fill_model_content(self):
         has_attachment = False
@@ -35,26 +40,13 @@ class ModelGenerator(BaseGenerator):
                 name = attribute.split(':')[0]
                 bucket = String(name).pluralize()
                 format = attribute.split(':')[1]
-                if format in ['file', 'image', 'pdf', 'doc', 'attachment']:
+                if is_file_field(format):
                     if not has_attachment:
-                        self.model_imports += 'from booyah.models.attachment import Attachment'
+                        self.model_imports += attachment_import_string()
                     has_attachment = True
-                    content_types = self.content_types_for(format)
                     if self.model_content:
                         self.model_content += '\n'
-                    if content_types:
-                        self.model_content += f'Attachment.configure({self.model_name}, \'{name}\', bucket=\'{bucket}\', content_types={content_types})'
-                    else:
-                        self.model_content += f'Attachment.configure({self.model_name}, \'{name}\', bucket=\'{bucket}\')'
-    
-    def content_types_for(self, format):
-        if format == 'image':
-            return ['png', 'jpg', 'jpeg', 'ico', 'gif']
-        elif format == 'pdf':
-            return ['pdf']
-        elif format == 'doc':
-            return ['doc', 'rtf', 'docx']
-        return None
+                    self.model_content += attachment_config_string(self.model_name, name, format, bucket)
 
     def generate_migration(self):
         table_name = String(self.model_name).pluralize()

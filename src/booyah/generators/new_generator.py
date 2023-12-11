@@ -15,7 +15,6 @@ globals()['String'] = booyah.extensions.string.String
 
 class NewGenerator(BaseGenerator):
     def __init__(self, args):
-        self.booyah_root = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
         parser = argparse.ArgumentParser(description='Creating New Booyah Project')
         parser.add_argument("project_name", help="The project name")
         args = parser.parse_args(args)
@@ -73,7 +72,7 @@ class NewGenerator(BaseGenerator):
         Copy folders required to run a new booyah project
         """
 
-        source_folder = os.path.realpath(os.path.join(self.booyah_root, 'generators', 'templates', 'generate_new'))
+        source_folder = os.path.realpath(os.path.join(self.booyah_root(), 'generators', 'templates', 'generate_new'))
         destination_folder = self.folder_name
 
         self.copy_folder_tree_with_prompt(source_folder, destination_folder)

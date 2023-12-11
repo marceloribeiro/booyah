@@ -2,6 +2,7 @@ import os
 from booyah.extensions.string import String
 from booyah.generators.helpers.io import print_error, print_success
 from booyah.generators.base_generator import BaseGenerator
+from booyah.generators.attachments_generator import file_extensions_for, is_file_field
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 #  booyah g controller home main contact
@@ -14,6 +15,7 @@ class ControllerGenerator(BaseGenerator):
         self.scaffold = scaffold
         self.model_name = model_name
         self.model_attributes = self.format_attributes(model_attributes)
+        self.permit_attributes = self.model_attributes
         self.class_name = String(self.controller_name).classify()
         self.target_file = os.path.join(self.target_folder, self.class_name.underscore() + '.py')
         self.content = ''
@@ -44,7 +46,8 @@ class ControllerGenerator(BaseGenerator):
             formatted.append({
                 "name": String(name),
                 "format": String(format),
-                "field_type": String(self.get_field_type(format))
+                "field_type": String(self.get_field_type(format)),
+                "extra": String(self.get_field_extra(format))
             })
         return formatted
 
@@ -58,6 +61,7 @@ class ControllerGenerator(BaseGenerator):
             "view_content": self.get_scaffold_content('view') if self.scaffold else {},
             'model_attributes': self.model_attributes if self.scaffold else [],
             "model_attributes_names": self.get_model_attributes_names(),
+            "permit_attributes": self.get_permit_attributes_names(),
             "scaffold": self.scaffold
         }
         return data
@@ -138,7 +142,22 @@ class ControllerGenerator(BaseGenerator):
             return ''
         return ', '.join([f"'{attribute['name']}'" for attribute in self.model_attributes])
 
+    def get_permit_attributes_names(self):
+        if not self.permit_attributes:
+            return ''
+        return ', '.join([f"'{attribute['name']}'" for attribute in self.permit_attributes])
+
+    def get_field_extra(self, field_type):
+        if field_type in ['image', 'pdf', 'doc']:
+            return ','.join(file_extensions_for(field_type))
+        elif field_type in ['file', 'attachment']:
+            return '*'
+
     def get_field_type(self, field_type):
+        if is_file_field(field_type):
+            self.has_attachment = True
+            return 'file_field'
+
         options = {
             'string': 'text_field',
             'text': 'textarea_field',
@@ -148,14 +167,7 @@ class ControllerGenerator(BaseGenerator):
             'date': 'date_field',
             'time': 'time_field',
             'datetime': 'datetime_field',
-            'file': 'file_field',
-            'attachment': 'file_field',
-            'image': 'file_field',
-            'pdf': 'file_field',
-            'doc': 'file_field',
         }
         if field_type in options:
-            if options[field_type] == 'file_field':
-                self.has_attachment = True
             return options[field_type]
         return 'text_field'

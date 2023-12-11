@@ -1,16 +1,19 @@
 import os
+import re
 from datetime import datetime
 from booyah.extensions.string import String
-from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
+from booyah.generators.helpers.io import print_error, print_success
 from jinja2 import Environment, PackageLoader, select_autoescape
+from booyah.generators.base_generator import BaseGenerator
+from booyah.generators.attachments_generator import ATTACHMENT_TYPES, attachment_import_string, attachment_config_prefix, attachment_config_string
 
 #  booyah g migration create_table_comments comments user_id:integer title content:text
-class MigrationGenerator:
+class MigrationGenerator(BaseGenerator):
     def __init__(self, target_folder, migration_name, fields):
         self.current_datetime = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
         self.target_folder = target_folder
-        self.migration_name = migration_name
-        self.fields = fields
+        self.migration_name = String(migration_name).underscore()
+        self.fields = self.prepare_fields(fields)
         self.class_name = String(self.migration_name).classify()
         self.target_file = os.path.join(self.target_folder, self.current_datetime + '_' + self.class_name.underscore() + '.py')
         self.table_name = ''
@@ -21,6 +24,41 @@ class MigrationGenerator:
             autoescape=select_autoescape()
         )
 
+    def prepare_fields(self, fields):
+        if not isinstance(fields, list):
+            fields = [fields]
+        attachment_fields = [item for item in fields if ':' in item and item.split(':')[1] in ATTACHMENT_TYPES]
+        if attachment_fields:
+            self.add_attachment_code(attachment_fields)
+        return [item for item in fields if item not in attachment_fields]
+
+    def add_attachment_code(self, attachment_fields):
+        self.load_table_name()
+        model_file_name = String(self.table_name).singularize().underscore()
+        model_class_name = model_file_name.classify()
+        model_file_path = os.path.abspath(f"{self.target_folder}/../../app/models/{model_file_name}.py")
+        if not os.path.isfile(model_file_path):
+            print_error(f'Model file not found {model_file_path}')
+            return
+        for attachment_field in attachment_fields:
+            name = attachment_field.split(':')[0]
+            format = attachment_field.split(':')[1]
+            search_for = attachment_config_prefix(model_class_name, name)
+            with open(model_file_path, "r") as file:
+                file_contents = file.read()
+            if re.sub(r'\s', '', search_for) not in re.sub(r'\s', '', file_contents):
+                has_import = re.sub(r'\s', '', attachment_import_string()) in re.sub(r'\s', '', file_contents)
+                attachment_code = f"\n{attachment_config_string(model_class_name, name, format, name)}"
+                if not has_import:
+                    with open(model_file_path, 'w') as file:
+                        file.write(f"{attachment_import_string()}\n{file_contents}{attachment_code}")
+                else:
+                    with open(model_file_path, "a") as file:
+                        file.write(attachment_code)
+                print_success(f'Successfully configured attachment {name} with type {format} for {model_class_name}')
+            else:
+                print_error(f'{model_class_name} already has an attachment named {name}')
+    
     def formatted_fields(self):
       if self._formatted_fields:
         return self._formatted_fields
@@ -102,6 +140,9 @@ class MigrationGenerator:
     def perform(self):
         if self.is_existing_migration():
             print_error(f"There is already a migration with the name {self.migration_name}")
+            return False
+        elif not self.fields:
+            print_error(f"There are no fields to create a migration file!")
             return False
         else:
             self.create_file_from_template()
