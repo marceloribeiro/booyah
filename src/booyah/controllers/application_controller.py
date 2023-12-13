@@ -5,17 +5,16 @@ from urllib.parse import parse_qs
 from booyah.logger import logger
 from booyah.application_support.action_support import ActionSupport
 from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType, parse_header, parse_multipart
-from booyah.cookies.cookies_manager import CookiesManager
+from booyah.cookies.cookies_manager import cookies_manager
 from booyah.session.session_manager import session_manager
 
 class BooyahApplicationController(ActionSupport):
     def __init__(self, environment, should_load_params=True):
-        self.cookies_manager = CookiesManager.add_to(environment)
+        cookies_manager.initialize(environment)
         self.environment = environment
-        if not self.cookies_manager.has_cookie('sessionid'):
-            self.cookies_manager.create_session()
-        self.session = session_manager.get_session(self.cookies_manager.get_cookie('sessionid'))
-        breakpoint()
+        if not cookies_manager.has_cookie('sessionid'):
+            cookies_manager.create_session()
+        self.session = session_manager.from_cookie()
         self.params = {}
         self.application_response = None
         if should_load_params:
@@ -108,3 +107,6 @@ class BooyahApplicationController(ActionSupport):
 
     def is_patch_request(self):
         return self.environment['REQUEST_METHOD'] == 'PATCH'
+    
+    def cookies(self):
+        return cookies_manager.get_all_cookies()

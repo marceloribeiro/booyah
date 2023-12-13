@@ -22,9 +22,11 @@ class TestApplicationResponse:
         self.response = ApplicationResponse(self._environment, self._data)
 
     def test_response_headers(self):
-        assert self.response.response_headers() == [
+        response_headers = self.response.response_headers()
+        assert response_headers == [
             ('Content-type', self._environment.get('CONTENT_TYPE', '')),
-            ('Content-Length', str(len(self.response.body)))
+            ('Content-Length', str(len(self.response.body))),
+            ('Set-Cookie', response_headers[-1][1])
         ]
 
     def test_format(self):

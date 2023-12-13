@@ -1,35 +1,54 @@
 
 import json
 from booyah.models.session_storage import SessionStorage
+from booyah.session.storages.base_storage import BaseStorage
 
-class DatabaseStorage(dict):
+class DatabaseStorage(BaseStorage):
+    def __init__(self):
+        self.record = None
 
-    def find_record(self, key):
-        if self.record and self.record.session_id != key:
-            self.save()
-            self.clear()
+    def find_record(self, session_id):
+        if self.record and self.record.session_id != session_id:
             self.record = None
-        elif not self.record:
-            self.record = SessionStorage.where('session_id', key)
-            if self.record:
+        
+        if not self.record:
+            self.record = SessionStorage.where('session_id', session_id)
+            if len(self.record) > 0:
                 self.record = self.record[0]
-                self.clear()
-                self.update(json.loads(self.record.data))
-        return self.record
+                if self.record.is_expired():
+                    self.record.destroy()
+                    self.record = None
+            else:
+                self.record = None
 
-    def __getitem__(self, key):
-        self.find_record(key)
-        return super().__getitem__(key)
-
-    def __setitem__(self, key, value):
-        self.find_record(key)
-        super().__setitem__(key, value)
-    
-    def save(self, key):
-        self.find_record(key)
-        data = json.dumps(self)
+    def get_session_dict(self, session_id):
+        self.find_record(session_id)
         if self.record:
-            self.record.data = data
+            return json.loads(self.record.data)
         else:
-            self.record = SessionStorage({'session_id': key, 'data': data})
+            return {}
+
+    def destroy_session(self, session_id):
+        self.find_record(session_id)
+        if self.record:
+            self.record.destroy()
+
+    def save_session(self, session_id, data, expiration):
+        self.find_record(session_id)
+        data_str = json.dumps(data)
+        if self.record:
+            self.record.data = data_str
+        else:
+            self.record = SessionStorage({'session_id': session_id, 'data': data_str, 'expires_at': expiration})
         self.record.save()
+
+    def create_storage(self):
+        SessionStorage.drop_table()
+        SessionStorage.create_table({
+            'id': 'primary_key',
+            'session_id': 'string',
+            'data': 'text',
+            'expires_at': 'datetime',
+            'created_at': 'datetime',
+            'updated_at': 'datetime'
+        })

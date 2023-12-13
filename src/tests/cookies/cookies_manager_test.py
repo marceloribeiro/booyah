@@ -5,36 +5,23 @@ import time
 class TestCookiesManager:
     def test_empty_init(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         assert cookies_manager.get_all_cookies() == {}
-        assert cookies_manager.environment == environment
 
     def test_init_with_cookie(self):
         environment = {'HTTP_COOKIE': 'username=johndoe; sessionid=abc123'}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         all_cookies = cookies_manager.get_all_cookies()
         assert not all_cookies == {}
         assert all_cookies['username'] == 'johndoe'
         assert all_cookies['sessionid'] == 'abc123'
-
-    def test_add_to(self):
-        environment = {'HTTP_COOKIE': 'added=yes;'}
-        cookies_manager = CookiesManager.add_to(environment)
-        all_cookies = cookies_manager.get_all_cookies()
-        assert not all_cookies == {}
-        assert all_cookies['added'] == 'yes'
-
-    def test_from_environment(self):
-        environment = {'HTTP_COOKIE': 'from_environment=yes;'}
-        CookiesManager.add_to(environment)
-        cookies_manager = CookiesManager.from_environment(environment)
-        all_cookies = cookies_manager.get_all_cookies()
-        assert not all_cookies == {}
-        assert all_cookies['from_environment'] == 'yes'
     
     def test_set_cookie_expiration(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         expiration_time = datetime.utcnow() + timedelta(seconds=1)
         cookies_manager.set_cookie('abc', '123', expires=expiration_time)
         assert cookies_manager.get_all_cookies()['abc'] == '123'
@@ -43,35 +30,40 @@ class TestCookiesManager:
     
     def test_get_cookie(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         expiration_time = datetime.utcnow() + timedelta(seconds=1)
         cookies_manager.set_cookie('abc', '123', expires=expiration_time)
         assert cookies_manager.get_cookie('abc') == '123'
 
     def test_get_expired_cookie(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         expiration_time = datetime.utcnow() - timedelta(seconds=1)
         cookies_manager.set_cookie('abc', '123', expires=expiration_time)
         assert cookies_manager.get_cookie('abc') == None
 
     def test_has_cookie(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         cookies_manager.set_cookie('abc', '123')
         assert cookies_manager.has_cookie('abc') == True
         assert cookies_manager.has_cookie('abcdef') == False
 
     def test_create_session(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         cookies_manager.create_session()
         assert cookies_manager.has_cookie('sessionid') == True
         assert len(cookies_manager.get_cookie('sessionid')) == 36
 
     def test_delete_cookie(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         cookies_manager.set_cookie('abc', '123')
         assert cookies_manager.has_cookie('abc') == True
         assert cookies_manager.get_cookie('abc') == '123'
@@ -82,7 +74,8 @@ class TestCookiesManager:
 
     def test_get_all_cookies(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         expiration_time = datetime.utcnow() + timedelta(seconds=1)
         cookies_manager.set_cookie('abc', '123', expires=expiration_time)
         cookies_manager.set_cookie('def', '456')
@@ -96,7 +89,8 @@ class TestCookiesManager:
 
     def test_apply_cookies(self):
         environment = {}
-        cookies_manager = CookiesManager(environment)
+        cookies_manager = CookiesManager()
+        cookies_manager.initialize(environment)
         expiration_time = datetime.utcnow() + timedelta(seconds=1)
         cookies_manager.set_cookie('abc', '123', expires=expiration_time)
         cookies_manager.set_cookie('def', '456')
