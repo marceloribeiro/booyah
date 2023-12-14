@@ -9,7 +9,7 @@ defaults:
 test:
   database:
     <<: *database
-    database: booyah_test
+    database: $DB_DATABASE
     host: $DB_HOST
     port: $DB_PORT
     username: $DB_USERNAME
