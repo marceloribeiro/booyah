@@ -7,6 +7,7 @@ from booyah.generators.controller_generator import ControllerGenerator
 from booyah.generators.model_generator import ModelGenerator
 from booyah.generators.scaffold_generator import ScaffoldGenerator
 from booyah.generators.attachments_generator import AttachmentsGenerator
+from booyah.generators.session_generator import SessionGenerator
 from booyah.extensions.string import String
 
 def main(args):
@@ -28,7 +29,8 @@ def main(args):
         'migration',
         'model',
         'scaffold',
-        'attachments'
+        'attachments',
+        'session'
     ]
 
     if args.generate not in known_generators:
@@ -46,6 +48,7 @@ def get_target_folder(generate):
         "migration": "db/migrate",
         "model": "app/models",
         "scaffold": "app",
-        'attachments': 'db/migrate'
+        'attachments': 'db/migrate',
+        'session': 'db/migrate'
     }
     return folders[generate]

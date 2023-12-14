@@ -10,10 +10,11 @@ defaults:
 development:
   database:
     <<: *database
-    host: localhost
-    port: 5432
-    adapter: postgresql
-    database: booyah
+
+development:
+  database:
+    <<: *database
+    database: booyah_test
 
 production:
   database:
