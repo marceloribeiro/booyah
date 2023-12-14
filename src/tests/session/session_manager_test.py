@@ -1,14 +1,14 @@
 from booyah.session.session_manager import SessionManager
 from booyah.models.session_storage import SessionStorage
 from datetime import timedelta, datetime
-import time
+import unittest
 from booyah.session.storages.database_storage import DatabaseStorage
 import json
 
 DEFAULT_DATA = {'name': 'johndoe'}
 
-class TestSessionManager:
-    def create_session_storage_table(self):
+class TestSessionManager(unittest.TestCase):
+    def setUp(self):
         SessionStorage.drop_table()
         SessionStorage.create_table({
             'id': 'primary_key',
@@ -18,23 +18,20 @@ class TestSessionManager:
             'created_at': 'datetime',
             'updated_at': 'datetime'
         })
-    
-    def create_record(self):
-        self.create_session_storage_table()
         record_params = {'session_id': 'abc', 'data': json.dumps({'name': 'johndoe'}), 'expires_at': datetime.utcnow() + timedelta(days=1)}
         record = SessionStorage(record_params)
         record.save()
-        return record
-    
+        self.record = record
+        
     def test_init_default_storage(self):
         assert isinstance(SessionManager().storage, DatabaseStorage)
     
     def test_get_session(self):
-        record = self.create_record()
+        record = self.record
         assert SessionManager().get_session(record.session_id) == {'name': 'johndoe'}
     
     def test_delete_session(self):
-        record = self.create_record()
+        record = self.record
         SessionManager().delete_session(record.session_id)
         assert SessionManager().get_session(record.session_id) == {}
 

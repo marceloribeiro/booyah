@@ -41,14 +41,3 @@ class DatabaseStorage(BaseStorage):
         else:
             self.record = SessionStorage({'session_id': session_id, 'data': data_str, 'expires_at': expiration})
         self.record.save()
-
-    def create_storage(self):
-        SessionStorage.drop_table()
-        SessionStorage.create_table({
-            'id': 'primary_key',
-            'session_id': 'string',
-            'data': 'text',
-            'expires_at': 'datetime',
-            'created_at': 'datetime',
-            'updated_at': 'datetime'
-        })

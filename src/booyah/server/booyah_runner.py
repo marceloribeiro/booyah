@@ -46,17 +46,9 @@ class BooyahRunner:
             print("i.e: pyenv activate booyah")
             sys.exit(1)
     
-    def load_env(self):
-        os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
-        os.environ["ROOT_PROJECT"] = os.path.basename(os.getcwd())
-        os.environ["PROJECT_NAME"] = String(os.environ["ROOT_PROJECT"]).titleize()
-        read_dotenv('.env')
-        sys.path.append(os.path.dirname(os.environ["ROOT_PROJECT_PATH"]))
-    
     def run_db(self):
         params = sys.argv[2:]
         environment = os.environ.get('BOOYAH_ENV', 'development')
-        self.load_env()
         if not params:
             return BaseAdapter.open_client()
         db_operation = params[0]
