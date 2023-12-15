@@ -18,6 +18,7 @@ class TestSessionManager(unittest.TestCase):
             'created_at': 'datetime',
             'updated_at': 'datetime'
         })
+        SessionStorage.table_columns = None
         record_params = {'session_id': 'abc', 'data': json.dumps({'name': 'johndoe'}), 'expires_at': datetime.utcnow() + timedelta(days=1)}
         record = SessionStorage(record_params)
         record.save()
