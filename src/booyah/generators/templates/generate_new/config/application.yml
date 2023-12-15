@@ -11,7 +11,7 @@ development:
   database:
     <<: *database
 
-development:
+test:
   database:
     <<: *database
     database: booyah_test
