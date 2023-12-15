@@ -8,7 +8,7 @@ import json
 DEFAULT_DATA = {'name': 'johndoe'}
 
 class TestSessionManager(unittest.TestCase):
-    def setUp(self):
+    def create_table_and_record(self):
         SessionStorage.drop_table()
         SessionStorage.create_table({
             'id': 'primary_key',
@@ -21,21 +21,22 @@ class TestSessionManager(unittest.TestCase):
         record_params = {'session_id': 'abc', 'data': json.dumps({'name': 'johndoe'}), 'expires_at': datetime.utcnow() + timedelta(days=1)}
         record = SessionStorage(record_params)
         record.save()
-        self.record = record
+        return record
         
     def test_init_default_storage(self):
         assert isinstance(SessionManager().storage, DatabaseStorage)
     
     def test_get_session(self):
-        record = self.record
+        record = self.create_table_and_record()
         assert SessionManager().get_session(record.session_id) == {'name': 'johndoe'}
     
     def test_delete_session(self):
-        record = self.record
+        record = self.create_table_and_record()
         SessionManager().delete_session(record.session_id)
         assert SessionManager().get_session(record.session_id) == {}
 
     def test_save_session(self):
+        self.create_table_and_record()
         from booyah.cookies.cookies_manager import cookies_manager
         environment = {}
         cookies_manager.initialize(environment)

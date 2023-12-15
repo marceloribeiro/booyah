@@ -88,6 +88,7 @@ production:
         os.chdir(self.previous_dir)
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
+        Booyah.configure()
     
     def test_get_version(self):
         assert Booyah.version == "99.99.99"
