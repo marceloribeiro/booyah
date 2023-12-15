@@ -63,7 +63,7 @@ $ booyah db
 ```
 **Session and Cookies**
 
-By default the session storage is in database, with the table named session_storage. You can access cookies dict and you can access/change session dict in controller as following:
+By default the session storage is database, with a table named session_storage. You can access cookies dict and you can access/change session dict in controller as following:
 
 > class HomeController(BooyahApplicationController):
 >    def index(self):
