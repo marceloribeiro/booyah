@@ -1,12 +1,7 @@
-from py_dotenv import read_dotenv
 import os
-from booyah.extensions.string import String
+from booyah.framework import Booyah
 
-os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
-os.environ["ROOT_PROJECT"] = os.path.basename(os.getcwd())
-os.environ["PROJECT_NAME"] = String(os.environ["ROOT_PROJECT"]).titleize()
-read_dotenv('.env')
-print('Spinning up environment [' + os.getenv('BOOYAH_ENV') + ']')
+print('Spinning up environment [' + Booyah.environment + ']')
 
 from booyah.router.application_router import ApplicationRouter
 from booyah.router.application_routes import ApplicationRoutes

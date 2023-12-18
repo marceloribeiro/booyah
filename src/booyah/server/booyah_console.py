@@ -13,17 +13,6 @@ import os
 import importlib
 
 class BooyahConsole:
-    def load_env(self):
-        read_dotenv('.env')
-        os.environ["ROOT_PROJECT_PATH"] = os.getcwd()
-        os.environ["ROOT_PROJECT"] = os.path.basename(os.getcwd())
-
-    def import_current_project(self):
-        """
-        Add current folder as a module
-        """
-        folder_path = os.environ["ROOT_PROJECT_PATH"]
-        sys.path.append(os.path.dirname(folder_path))
 
     def configure(self):
         """
@@ -33,7 +22,7 @@ class BooyahConsole:
         from booyah.framework import Booyah
         globals()['String'] = String
         globals()['Booyah'] = Booyah
-        os.environ["PROJECT_NAME"] = String(os.environ["ROOT_PROJECT"]).titleize()
+        sys.path.append(os.path.dirname(Booyah.root))
 
     def load_models(self):
         """
@@ -62,7 +51,6 @@ class BooyahConsole:
         print(formatted_line)
 
     def start(self):
-        self.import_current_project()
         self.configure()
         self.load_models()
 
@@ -80,7 +68,6 @@ def help():
 
 def reload():
     # env should be reloaded first, cause the libs may need to use it
-    __console.load_env()
     global _initial_global_keys
 
     current_global_keys = set(globals().keys())
@@ -98,5 +85,4 @@ __console.welcome_message()
 
 # Everything loaded to global until here will be kept as default/not realoading
 _initial_global_keys = set(globals().keys())
-__console.load_env()
 __console.start()

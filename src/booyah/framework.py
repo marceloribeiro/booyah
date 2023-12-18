@@ -17,8 +17,8 @@ class Booyah:
                     "Error: This directory does not seem to be a Booyah project.\n"
                     "Please make sure you are in the correct directory or initialize a new Booyah project."
                 )
-        self.root = os.getcwd()
-        self.folder_name = os.path.basename(os.getcwd())
+        self.root = String(os.getcwd())
+        self.folder_name = String(os.path.basename(os.getcwd()))
         self.name = String(os.path.basename(os.getcwd())).titleize()
 
     @classmethod
@@ -45,11 +45,11 @@ class Booyah:
     def configure(self):
         self.initial_config()
         try:
-            read_dotenv('.env' if not _is_lib_test else 'tests/.env.test')
+            read_dotenv('.env' if not self.is_lib_test else 'tests/.env.test')
         except:
             print('.env file not found')
         self.getenv = os.getenv
-        self.environment = os.getenv('BOOYAH_ENV')
+        self.environment = os.getenv('BOOYAH_ENV') or 'development'
         self.is_development = self.environment == 'development'
         self.is_test = self.environment == 'test'
         self.is_production = self.environment == 'production'
