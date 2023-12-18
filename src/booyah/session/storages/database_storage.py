@@ -1,9 +1,10 @@
 
 import json
 from booyah.models.session_storage import SessionStorage
-from booyah.session.storages.base_storage import BaseStorage
+from booyah.src.booyah.session.storages.base_session_storage import BaseSessionStorage
+from cryptography.fernet import Fernet
 
-class DatabaseStorage(BaseStorage):
+class DatabaseStorage(BaseSessionStorage):
     def __init__(self):
         self.record = None
 
@@ -21,10 +22,11 @@ class DatabaseStorage(BaseStorage):
             else:
                 self.record = None
 
-    def get_session_dict(self, session_id):
+    def get_session_dict(self, session_id, key):
         self.find_record(session_id)
         if self.record:
-            return json.loads(self.record.data)
+            f = Fernet(key)
+            return json.loads(f.decrypt(self.record.data.encode('utf-8')).decode('utf-8'))
         else:
             return {}
 
@@ -33,9 +35,11 @@ class DatabaseStorage(BaseStorage):
         if self.record:
             self.record.destroy()
 
-    def save_session(self, session_id, data, expiration):
+    def save_session(self, session_id, key, data, expiration):
         self.find_record(session_id)
         data_str = json.dumps(data)
+        f = Fernet(key)
+        data_str = f.encrypt(data_str.encode('utf-8')).decode('utf-8')
         if self.record:
             self.record.data = data_str
         else:

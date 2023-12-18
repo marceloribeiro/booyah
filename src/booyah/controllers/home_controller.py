@@ -5,7 +5,7 @@ from booyah.models.user import User
 
 class HomeController(BooyahApplicationController):
     def index(self):
-        return self.render({'text': 'Home Controller, Index Action'})
+        return self.render({'text': 'Home Controller, Index Action', 'session': self.session, 'cookies': self.cookies()})
 
     def about(self):
         return self.render({'text': 'Home Controller, About Action'})

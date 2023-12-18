@@ -50,7 +50,9 @@ class CookiesManager:
 
     def create_session(self):
         sessionid = str(uuid.uuid4())
+        sessionkey = str(uuid.uuid4())
         self.set_cookie('sessionid', sessionid, secure=True, http_only=True)
+        self.set_cookie('sessionkey', sessionkey, secure=True, http_only=True)
         return sessionid
     
     def has_cookie(self, key):
