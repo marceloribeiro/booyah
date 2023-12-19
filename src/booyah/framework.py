@@ -17,7 +17,7 @@ class Booyah:
                     "Error: This directory does not seem to be a Booyah project.\n"
                     "Please make sure you are in the correct directory or initialize a new Booyah project."
                 )
-        self.root = String(os.getcwd())
+        self.root = os.getcwd()
         self.folder_name = String(os.path.basename(os.getcwd()))
         self.name = String(os.path.basename(os.getcwd())).titleize()
 

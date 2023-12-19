@@ -33,7 +33,7 @@ class BooyahConsole:
         file_names = [f for f in os.listdir(models_folder) if f.endswith(".py") and f not in ignore_list and not f.startswith('_')]
         for file_name in file_names:
             module_name = file_name[:-3]
-            module = importlib.reload(importlib.import_module(f"{os.getenv('ROOT_PROJECT')}.app.models.{module_name}"))
+            module = importlib.reload(importlib.import_module(f"{Booyah.folder_name}.app.models.{module_name}"))
 
             for class_name in dir(module):
                 cls = getattr(module, class_name)

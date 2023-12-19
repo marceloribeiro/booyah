@@ -1,7 +1,7 @@
 
 import json
 from booyah.models.session_storage import SessionStorage
-from booyah.src.booyah.session.storages.base_session_storage import BaseSessionStorage
+from booyah.session.storages.base_session_storage import BaseSessionStorage
 from cryptography.fernet import Fernet
 
 class DatabaseStorage(BaseSessionStorage):
@@ -13,9 +13,9 @@ class DatabaseStorage(BaseSessionStorage):
             self.record = None
         
         if not self.record:
-            self.record = SessionStorage.where('session_id', session_id)
-            if len(self.record) > 0:
-                self.record = self.record[0]
+            record = SessionStorage.where('session_id', session_id).first()
+            if record:
+                self.record = record
                 if self.record.is_expired():
                     self.record.destroy()
                     self.record = None

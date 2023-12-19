@@ -99,9 +99,9 @@ class TestCookiesManager:
         response_headers = [('Content-Type', 'application/json')]
         cookies_manager.apply_cookies(response_headers)
 
-        assert len(response_headers) == 2
+        assert len(response_headers) == 4
         assert response_headers[0] == ('Content-Type', 'application/json')
         assert 'abc=123; expires=' in response_headers[1][1]
-        assert 'def=456; expires=' in response_headers[1][1]
-        assert '; HttpOnly; Path=/;' in response_headers[1][1]
-        assert 'ghi=789; expires=' in response_headers[1][1]
+        assert 'def=456; expires=' in response_headers[2][1]
+        assert '; HttpOnly; Path=/' in response_headers[2][1]
+        assert 'ghi=789; expires=' in response_headers[3][1]

@@ -2,11 +2,12 @@ from booyah.router.application_router import ApplicationRouter
 from booyah.logger import logger
 import importlib.util
 import os
+from booyah.framework import Booyah
 
 class ApplicationRoutes:
     def __init__(self):
         self.application_router = ApplicationRouter.get_instance()
-        file_path = os.path.join(os.environ["ROOT_PROJECT_PATH"], 'config', 'routes.py')
+        file_path = os.path.join(Booyah.root, 'config', 'routes.py')
         spec = importlib.util.spec_from_file_location("config.routes", file_path)
         file_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(file_module)

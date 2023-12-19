@@ -1,6 +1,7 @@
 from http.cookies import SimpleCookie
 from datetime import datetime, timedelta
 import uuid
+from cryptography.fernet import Fernet
 
 DEFAULT_EXPIRATION = timedelta(days=365)
 EXPIRATION_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
@@ -50,7 +51,7 @@ class CookiesManager:
 
     def create_session(self):
         sessionid = str(uuid.uuid4())
-        sessionkey = str(uuid.uuid4())
+        sessionkey = Fernet.generate_key().decode('utf-8')
         self.set_cookie('sessionid', sessionid, secure=True, http_only=True)
         self.set_cookie('sessionkey', sessionkey, secure=True, http_only=True)
         return sessionid
@@ -97,7 +98,8 @@ class CookiesManager:
         return all_cookies
 
     def apply_cookies(self, target_array):
-        target_array.append(('Set-Cookie', self.cookies.output(header='', sep='; ')))
+        for key, cookie in self.cookies.items():
+            target_array.append(('Set-Cookie', cookie.output(header='')))
         return target_array
 
 cookies_manager = CookiesManager()

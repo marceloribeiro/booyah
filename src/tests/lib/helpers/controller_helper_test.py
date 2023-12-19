@@ -1,5 +1,5 @@
 from booyah.helpers.controller_helper import *
-from booyah.controllers.home_controller import HomeController
+from booyah.framework import Booyah
 
 class TestControllerHelper():
     def setup_method(self):

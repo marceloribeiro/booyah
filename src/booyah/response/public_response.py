@@ -1,12 +1,13 @@
 import os
 from booyah.response.mime_types import MIME_TYPE_BY_EXTENSION, DEFAULT_MIME_TYPE
+from booyah.framework import Booyah
 
 class PublicResponse:
     DEFAULT_HTTP_STATUS = '200 OK'
 
     def __init__(self, environment, status = DEFAULT_HTTP_STATUS):
         self.environment = environment
-        self.file_name = os.path.join(os.environ["ROOT_PROJECT_PATH"], 'public', environment['PATH_INFO'][1:])
+        self.file_name = os.path.join(Booyah.root, 'public', environment['PATH_INFO'][1:])
         self.load_file_content()
         self.status = status
 

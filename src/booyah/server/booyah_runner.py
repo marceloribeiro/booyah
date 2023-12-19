@@ -45,6 +45,8 @@ class BooyahRunner:
     def run_db(self):
         params = sys.argv[2:]
         environment = os.environ.get('BOOYAH_ENV', 'development')
+        from booyah.framework import Booyah
+        sys.path.append(os.path.dirname(Booyah.root))
         if not params:
             from booyah.db.adapters.base_adapter import BaseAdapter
             return BaseAdapter.open_client()

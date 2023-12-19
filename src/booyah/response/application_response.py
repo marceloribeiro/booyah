@@ -4,6 +4,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.logger import logger
 from booyah.cookies.cookies_manager import cookies_manager
 from booyah.session.session_manager import session_manager
+from booyah.framework import Booyah
 
 class ApplicationResponse:
     APP_NAME = 'booyah'
@@ -52,7 +53,7 @@ class ApplicationResponse:
 
     def html_body(self):
         template = self.template_environment.get_template(self.get_template_path())
-        self.data['project_name'] = os.environ["PROJECT_NAME"]
+        self.data['project_name'] = Booyah.name
         self.body = template.render(**self.data)
         return bytes(self.body, self.DEFAULT_RESPONSE_ENCODING)
 
