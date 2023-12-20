@@ -17,6 +17,7 @@ class TestApplicationResponse:
             'created_at': 'datetime',
             'updated_at': 'datetime'
         })
+        SessionStorage.table_columns = None
         self._content_type = 'application/json'
         self._environment = {
             'REQUEST_METHOD': 'GET',
