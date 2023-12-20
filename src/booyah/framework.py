@@ -44,10 +44,11 @@ class Booyah:
     @classmethod
     def configure(self):
         self.initial_config()
-        try:
-            read_dotenv('.env' if not self.is_lib_test else 'tests/.env.test')
-        except:
-            print('.env file not found')
+        if not (os.getenv('GITHUB_RUNNER') == 'yes'):
+            try:
+                read_dotenv('.env' if not self.is_lib_test else 'tests/.env.test')
+            except:
+                print('.env file not found')
         self.getenv = os.getenv
         self.environment = os.getenv('BOOYAH_ENV') or 'development'
         self.is_development = self.environment == 'development'

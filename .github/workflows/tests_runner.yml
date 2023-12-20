@@ -66,3 +66,6 @@ jobs:
           DB_USERNAME: "postgres"
           DB_PASSWORD: "postgres"
           DB_DATABASE: "postgres"
+          DB_ADAPTER: "postgresql"
+          BOOYAH_LIB_TEST: 'yes'
+          GITHUB_RUNNER: 'yes'
