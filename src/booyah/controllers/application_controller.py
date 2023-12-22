@@ -15,6 +15,7 @@ class BooyahApplicationController(ActionSupport):
         if not cookies_manager.has_cookie('sessionid'):
             cookies_manager.create_session()
         self.session = session_manager.from_cookie()
+        self.flash = session_manager.flash_messages
         self.params = {}
         self.application_response = None
         if should_load_params:
@@ -87,10 +88,21 @@ class BooyahApplicationController(ActionSupport):
         self.params.update(body_params)
 
     def render(self, data = {}):
-        self.application_response = ApplicationResponse(self.environment, data)
+        system_params = { 'flash': self.flash }
+        self.application_response = ApplicationResponse(self.environment, {**data, **system_params})
         return self.application_response
 
-    def redirect(self, redirect_to):
+    def redirect(self, redirect_to, notice=None, error=None, warning=None, info=None, success=None):
+        if notice:
+            self.flash['notice'] = notice
+        if error:
+            self.flash['error'] = error
+        if warning:
+            self.flash['warning'] = warning
+        if info:
+            self.flash['info'] = info
+        if success:
+            self.flash['success'] = success
         return RedirectResponse(self.environment, redirect_to)
 
     def is_get_request(self):

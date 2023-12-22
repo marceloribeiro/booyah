@@ -2,6 +2,7 @@ from booyah.controllers.application_controller import BooyahApplicationControlle
 import io
 from booyah.models.file import File
 from booyah.helpers.request_format_helper import parse_multipart
+from booyah.response.redirect_response import RedirectResponse
 
 class HomeController(BooyahApplicationController):
     def index(self):
@@ -112,7 +113,7 @@ class TestApplicationController:
 
     def test_render(self):
         self.application_controller = BooyahApplicationController(self.environment())
-        assert self.application_controller.render({'foo': 'bar'}).json_body() == b'{"foo": "bar"}'
+        assert self.application_controller.render({'foo': 'bar'}).json_body() == b'{"foo": "bar", "flash": {}}'
 
     def test_render_text(self):
         self.application_controller = BooyahApplicationController(self.environment())
@@ -124,7 +125,7 @@ class TestApplicationController:
 
     def test_render_json(self):
         self.application_controller = BooyahApplicationController(self.environment())
-        assert self.application_controller.render({'foo': 'bar'}).json_body() == b'{"foo": "bar"}'
+        assert self.application_controller.render({'foo': 'bar'}).json_body() == b'{"foo": "bar", "flash": {}}'
 
     def test_get_action(self):
         self.home_controller = HomeController(self.environment())
@@ -204,3 +205,13 @@ class TestApplicationController:
         assert 'user' in parsed_params.keys()
         assert list(parsed_params['user'].keys()) == ['name', 'email']
         assert parsed_params['user']['name'] == 'John'
+    
+    def test_redirect(self):
+        application_controller = BooyahApplicationController(self.environment(), False)
+        assert isinstance(application_controller.redirect('/'), RedirectResponse)
+        application_controller.redirect('/', error='error', warning='warning', notice='notice', info='info', success='success')
+        assert application_controller.flash['notice'] == 'notice'
+        assert application_controller.flash['error'] == 'error'
+        assert application_controller.flash['warning'] == 'warning'
+        assert application_controller.flash['info'] == 'info'
+        assert application_controller.flash['success'] == 'success'

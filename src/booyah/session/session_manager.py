@@ -1,5 +1,6 @@
 from booyah.session.storages.database_storage import DatabaseStorage
 from booyah.cookies.cookies_manager import cookies_manager
+from booyah.session.flash_message import FlashMessage
 
 class SessionManager:
     def __init__(self, storage=None):
@@ -22,6 +23,10 @@ class SessionManager:
     
     def from_cookie(self):
         self.session = self.get_session(cookies_manager.get_cookie('sessionid'), cookies_manager.get_cookie('sessionkey'))
+        if not '_flash' in self.session:
+            self.session['_flash'] = {}
+        self.flash_messages = FlashMessage(self.session['_flash'])
+        self.flash_messages.set_session_manager(self)
         return self.session
 
 session_manager = SessionManager()
