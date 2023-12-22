@@ -87,13 +87,14 @@ class PostgresqlAdapter:
             if expect_result:
                 result = cursor.fetchone()
             self.connection.commit()
+            return result
         except psycopg2.Error as e:
             if isinstance(e, psycopg2.errors.InFailedSqlTransaction):
                 self.rollback()
                 print("Transaction rolled back due to error:", e)
             else:
                 raise e
-        return result
+        return None
 
     def fetch(self, query):
         self.connect()
