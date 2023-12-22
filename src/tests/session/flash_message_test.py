@@ -16,17 +16,6 @@ class TestFlashMessage(unittest.TestCase):
         cookies_manager.set_cookie('sessionkey', self.session_key)
 
     def create_table_and_record(self):
-        SessionStorage.drop_table()
-        SessionStorage.create_table({
-            'id': 'primary_key',
-            'session_id': 'string',
-            'data': 'text',
-            'expires_at': 'datetime',
-            'created_at': 'datetime',
-            'updated_at': 'datetime'
-        })
-        SessionStorage.table_columns = None
-
         self.init_cookies()
 
         record_data = {'name': 'johndoe'}

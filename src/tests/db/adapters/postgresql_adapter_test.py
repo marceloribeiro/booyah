@@ -63,7 +63,9 @@ class TestPostgresqlAdapter:
   def test_create_and_drop_database(self):
     self.adapter.create_database('db_test_create')
     self.adapter.drop_database('db_test_create')
-  
+
   def test_use_system_database(self):
+    previous_db = self.adapter.database
     self.adapter.use_system_database()
     assert self.adapter.database == 'postgres'
+    self.adapter.database = previous_db

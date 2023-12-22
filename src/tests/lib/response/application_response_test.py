@@ -8,16 +8,6 @@ class TestApplicationResponse:
         return self._content_type
 
     def setup_method(self):
-        SessionStorage.drop_table()
-        SessionStorage.create_table({
-            'id': 'primary_key',
-            'session_id': 'string',
-            'data': 'text',
-            'expires_at': 'datetime',
-            'created_at': 'datetime',
-            'updated_at': 'datetime'
-        })
-        SessionStorage.table_columns = None
         self._content_type = 'application/json'
         self._environment = {
             'REQUEST_METHOD': 'GET',
