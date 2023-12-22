@@ -197,4 +197,4 @@ class TestUsersController:
         returned = controller.destroy()
         decoded_body = returned.response_body().decode('utf-8')
         assert len(User.where("id", user.id)) == 0
-        assert decoded_body == '{"deleted": true, "deleted_id": ' + str(user.id) + '}'
+        assert decoded_body == '{"deleted": true, "deleted_id": ' + str(user.id) + ', "flash": {}}'
