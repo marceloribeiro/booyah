@@ -14,6 +14,7 @@ def pytest_configure(config):
     os.environ["ROOT_PROJECT"] = ''
     os.environ["PROJECT_NAME"] = 'booyah_test'
     os.environ['BOOYAH_ENV'] = 'test'
+    os.environ['BOOYAH_LIB_TEST'] = 'yes'
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
     src_path =  os.path.join(parent_dir, 'src')
     print(f'Adding src dir {src_path} to sys path')

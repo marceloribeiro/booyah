@@ -1,11 +1,23 @@
 from booyah.response.application_response import ApplicationResponse
-from booyah.controllers.application_controller import BooyahApplicationController
+from booyah.cookies.cookies_manager import cookies_manager
+from booyah.session.session_manager import session_manager
+from booyah.models.session_storage import SessionStorage
 
 class TestApplicationResponse:
     def content_type(self):
         return self._content_type
 
     def setup_method(self):
+        SessionStorage.drop_table()
+        SessionStorage.create_table({
+            'id': 'primary_key',
+            'session_id': 'string',
+            'data': 'text',
+            'expires_at': 'datetime',
+            'created_at': 'datetime',
+            'updated_at': 'datetime'
+        })
+        SessionStorage.table_columns = None
         self._content_type = 'application/json'
         self._environment = {
             'REQUEST_METHOD': 'GET',
@@ -20,11 +32,17 @@ class TestApplicationResponse:
         }
         self._data = { 'status': 'ok', 'text': 'hello world' }
         self.response = ApplicationResponse(self._environment, self._data)
+        cookies_manager.initialize({})
+        cookies_manager.create_session()
+        session_manager.from_cookie()
 
     def test_response_headers(self):
-        assert self.response.response_headers() == [
+        response_headers = self.response.response_headers()
+        assert response_headers == [
             ('Content-type', self._environment.get('CONTENT_TYPE', '')),
-            ('Content-Length', str(len(self.response.body)))
+            ('Content-Length', str(len(self.response.body))),
+            ('Set-Cookie', response_headers[-2][1]),
+            ('Set-Cookie', response_headers[-1][1])
         ]
 
     def test_format(self):

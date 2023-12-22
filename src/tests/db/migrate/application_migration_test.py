@@ -1,6 +1,7 @@
 import os
 from booyah.db.migrate.application_migration import ApplicationMigration
 from booyah.db.adapters.base_adapter import BaseAdapter
+from booyah.framework import Booyah
 
 class TestApplicationMigration:
     def setup_method(self):
@@ -16,7 +17,7 @@ class TestApplicationMigration:
         assert self.migration.version == '1'
 
     def test_migrations_folder(self):
-        assert self.migration.migrations_folder() == f"{os.getenv('ROOT_PROJECT_PATH')}/db/migrate"
+        assert self.migration.migrations_folder() == f"{Booyah.root}/db/migrate"
 
     def test_get_migrations(self, mocker):
         mocker.patch.object(self.migration, 'get_migrations', return_value=['1_create_users.py', '2_create_posts.py'])

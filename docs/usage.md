@@ -61,6 +61,23 @@ You can also connect to project database with the following command:
 ```sh
 $ booyah db
 ```
+**Session and Cookies**
+
+By default the session storage is database, with a table named session_storage. You can access cookies dict and you can access/change session dict in controller as following:
+
+> class HomeController(BooyahApplicationController):
+>    def index(self):
+>        self.session['user_name'] = 'Session user name'
+>        return self.render({'cookies': str(self.cookies()), 'session': str(self.session)})
+
+While cookies have some settings like (secure, path, expires, etc.) you can use the cookies_manager to set a cookie or to get the full cookie setting:
+
+> from booyah.cookies.cookies_manager import cookies_manager
+> 
+> class HomeController(BooyahApplicationController):
+>    def index(self):
+>        cookies_manager.set_cookie('new_cookie', 'New cookie value here', secure=True, http_only=True)
+>        return self.render({'cookies': str(self.cookies()), 'session': str(self.session)})
 
 **Console**
 

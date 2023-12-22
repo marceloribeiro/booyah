@@ -1,6 +1,7 @@
 from booyah.db.adapters.base_adapter import BaseAdapter
 from booyah.extensions.string import String
 import os
+from booyah.framework import Booyah
 
 class ApplicationMigration:
     def __init__(self, version=None):
@@ -13,7 +14,7 @@ class ApplicationMigration:
         self.already_created_schema = False
 
     def migrations_folder(self):
-        return f"{os.getenv('ROOT_PROJECT_PATH')}/db/migrate"
+        return f"{Booyah.root}/db/migrate"
 
     def get_migrations(self):
         migrations = []
@@ -78,7 +79,7 @@ class ApplicationMigration:
                 self.delete_version()
 
     def get_migration_class(self, migration, migration_class_name):
-        migration_module = __import__(f'{os.environ["ROOT_PROJECT"]}.db.migrate.{migration.split(".")[0]}', fromlist=[migration_class_name])
+        migration_module = __import__(f'{Booyah.folder_name}.db.migrate.{migration.split(".")[0]}', fromlist=[migration_class_name])
         migration_class = getattr(migration_module, migration_class_name)
         return migration_class
     

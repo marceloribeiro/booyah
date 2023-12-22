@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from booyah.logger import logger
 from booyah.db.adapters.postgresql.postgresql_schema_helper import PostgresqlSchemaHelper
-from booyah.db.adapters.base_adapter import BaseAdapter
+from booyah.framework import Booyah
 
 class PostgresqlAdapter:
     @staticmethod
@@ -17,11 +17,12 @@ class PostgresqlAdapter:
       self.load_config()
 
     def load_config(self):
-        self.host = os.getenv('DB_HOST')
-        self.port = os.getenv('DB_PORT')
-        self.user = os.getenv('DB_USERNAME')
-        self.password = os.getenv('DB_PASSWORD')
-        self.database = os.getenv('DB_DATABASE')
+        db_config = Booyah.env_config['database']
+        self.host = db_config.get('host')
+        self.port = db_config.get('port')
+        self.user = db_config.get('username')
+        self.password = db_config.get('password')
+        self.database = db_config.get('database')
         self.connection = None
     
     def create_database(self, database_name):
