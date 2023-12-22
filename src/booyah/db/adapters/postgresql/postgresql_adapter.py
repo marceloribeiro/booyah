@@ -33,6 +33,10 @@ class PostgresqlAdapter:
     
     def use_system_database(self):
         self.database = 'postgres'
+    
+    def rollback(self):
+        if self.connection:
+            self.connection.rollback()
 
     def connect(self):
         if self.connection:
@@ -62,26 +66,33 @@ class PostgresqlAdapter:
         self.close_connection()
 
     def execute(self, query, expect_result=True):
-        self.connect()
-        cursor = self.connection.cursor()
-        color = 'blue'
-        bold = False
-        upper_query = query.upper()
-        if upper_query.startswith("INSERT INTO"):
-            color = 'green'
-            bold = True
-        elif upper_query.startswith("UPDATE"):
-            color = 'yellow'
-            bold = True
-        elif upper_query.startswith("DELETE"):
-            color = 'red'
-            bold = True
-        logger.debug("DB:", query, color=color, bold=bold)
-        cursor.execute(query)
-        result = None
-        if expect_result:
-            result = cursor.fetchone()
-        self.connection.commit()
+        try:
+            self.connect()
+            cursor = self.connection.cursor()
+            color = 'blue'
+            bold = False
+            upper_query = query.upper()
+            if upper_query.startswith("INSERT INTO"):
+                color = 'green'
+                bold = True
+            elif upper_query.startswith("UPDATE"):
+                color = 'yellow'
+                bold = True
+            elif upper_query.startswith("DELETE"):
+                color = 'red'
+                bold = True
+            logger.debug("DB:", query, color=color, bold=bold)
+            cursor.execute(query)
+            result = None
+            if expect_result:
+                result = cursor.fetchone()
+            self.connection.commit()
+        except psycopg2.Error as e:
+            if isinstance(e, psycopg2.errors.InFailedSqlTransaction):
+                self.rollback()
+                print("Transaction rolled back due to error:", e)
+            else:
+                raise e
         return result
 
     def fetch(self, query):
