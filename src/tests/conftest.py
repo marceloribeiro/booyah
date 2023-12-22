@@ -53,5 +53,6 @@ def pytest_sessionstart(session):
     src_path =  os.path.join(parent_dir, 'src')
     print(f'Adding src dir {src_path} to sys path')
     sys.path.insert(0, src_path)
-    reset_database()
+    if not os.getenv('GITHUB_RUNNER') == 'yes':
+        reset_database()
     create_tables()
