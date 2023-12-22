@@ -38,8 +38,10 @@ def create_tables():
     })
     SessionStorage.table_columns = None
     print(f'ApplicationModel db {ApplicationModel.db_adapter().database}')
-    if ApplicationModel.db_adapter().database == 'postgres':
-        raise ValueError('should not use postgres database')
+
+    if not os.getenv('GITHUB_RUNNER') == 'yes':
+        if ApplicationModel.db_adapter().database == 'postgres':
+            raise ValueError('should not use postgres database')
 
 def pytest_sessionstart(session):
     print("****** Running conftest.py ******")
