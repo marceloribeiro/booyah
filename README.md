@@ -9,55 +9,7 @@ The following links detail the process of installing and setting up your first p
 
 [1. Installation](docs/install.md)
 
-
-### 2. Creating a Booyah project:
-
-You can create your first booyah project by running the following project generator command:
-
-```
-booyah new YOUR_PROJECT_NAME
-```
-
-After creating your project, cd into it's directory and run the server command:
-
-```
-cd YOUR_PROJECT_NAME
-booyah s
-```
-
-Then you should be able to access http://localhost:8000 from your browser.
-
-The project generator will also have created, among other files, a `.env` file responsible for general settings, such as the database connection info. Make sure to edit your .env file to reflect the proper database name if you want to run off of the default name:
-
-```
-DB_DATABASE=YOUR_PROJECT_NAME
-```
-
-### 3. Getting Started
-
-Booyah aims to follow the REST pattern for resources (RESTful resources), and the first way to generate one is to use booyah's own scaffold generator:
-
-```
-booyah g scaffold blog title description:text is_published:boolean
-```
-
-The command above will create a few things for you to get started:
-
-- A database migration that creates the table for blogs
-- A blog model
-- A blog serializer (for JSON based APIs)
-- A blogs controller (with index, show, new, create, edit, update, destroy actions)
-- A set of routes for the blogs resource
-- HTML views for handling the blog
-
-Once you've generated the items above, it is important to create the database, and run the migrations so that the database tables are created for Booyah's ORM:
-
-```
-booyah db create
-booyah db migrate
-```
-
-After running the command, try going to https://localhost:8000/blogs and you should be able to list, create, edit, delete blog posts right away.
+[2. Getting Started](docs/getting-started.md)
 
 ### 4. The Booyah Console
 
