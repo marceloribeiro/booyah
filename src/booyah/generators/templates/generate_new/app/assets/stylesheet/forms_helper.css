@@ -1,0 +1,24 @@
+.flash-message {
+    display: none;
+    padding: 8px 15px 8px 15px;
+}
+
+.flash-message.success {
+    background-color: green;
+    color: white;
+}
+
+.flash-message.notice {
+    background-color: blue;
+    color: white;
+}
+
+.flash-message.warning {
+    background-color: orange;
+    color: black;
+}
+
+.flash-message.error {
+    background-color: red;
+    color: white;
+}

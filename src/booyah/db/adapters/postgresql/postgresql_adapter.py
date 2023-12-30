@@ -1,6 +1,5 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-import os
 from datetime import datetime
 from booyah.logger import logger
 from booyah.db.adapters.postgresql.postgresql_schema_helper import PostgresqlSchemaHelper
@@ -18,6 +17,7 @@ class PostgresqlAdapter:
 
     def load_config(self):
         db_config = Booyah.env_config['database']
+        print(f"Connecting to database: {db_config.get('database')}")
         self.host = db_config.get('host')
         self.port = db_config.get('port')
         self.user = db_config.get('username')
@@ -33,6 +33,10 @@ class PostgresqlAdapter:
     
     def use_system_database(self):
         self.database = 'postgres'
+    
+    def rollback(self):
+        if self.connection:
+            self.connection.rollback()
 
     def connect(self):
         if self.connection:
@@ -55,32 +59,33 @@ class PostgresqlAdapter:
     def execute_without_transaction(self, query, expect_result=True):
         self.connect()
         self.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        self.connection.autocommit = True
         cursor = self.connection.cursor()
         logger.debug("DB (no transaction):", query, color='blue')
         cursor.execute(query)
         cursor.close()
+        self.connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+        self.connection.autocommit = False
         self.close_connection()
 
     def execute(self, query, expect_result=True):
         self.connect()
-        cursor = self.connection.cursor()
-        color = 'blue'
-        bold = False
-        upper_query = query.upper()
-        if upper_query.startswith("INSERT INTO"):
-            color = 'green'
-            bold = True
-        elif upper_query.startswith("UPDATE"):
-            color = 'yellow'
-            bold = True
-        elif upper_query.startswith("DELETE"):
-            color = 'red'
-            bold = True
-        logger.debug("DB:", query, color=color, bold=bold)
-        cursor.execute(query)
-        result = None
-        if expect_result:
-            result = cursor.fetchone()
+        with self.connection.cursor() as cursor:
+            color = 'blue'
+            bold = False
+            upper_query = query.upper()
+            if upper_query.startswith("INSERT INTO"):
+                color = 'green'
+                bold = True
+            elif upper_query.startswith("UPDATE"):
+                color = 'yellow'
+                bold = True
+            elif upper_query.startswith("DELETE"):
+                color = 'red'
+                bold = True
+            logger.debug("DB: %s", query, color=color, bold=bold)
+            cursor.execute(query)
+            result = cursor.fetchone() if expect_result else None
         self.connection.commit()
         return result
 
@@ -95,6 +100,8 @@ class PostgresqlAdapter:
             self.close_connection()
             return []
         records = cursor.fetchall()
+        cursor.close()
+        self.connection.commit()
         return records
 
     def insert(self, table_name, attributes):

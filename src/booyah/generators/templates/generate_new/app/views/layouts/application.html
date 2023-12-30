@@ -14,12 +14,20 @@
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1">
       <meta name="theme-color" content="#000000" />
+      <link rel="stylesheet" href="/assets/stylesheet/forms_helper.css">
       <script type="text/javascript" src="/assets/javascript/jquery-3.7.1.min.js" ></script>
       <script type="text/javascript" src="/assets/javascript/forms_helper.js" ></script>
     {% endblock %}
   </head>
 
   <body>
+    <div class="flash-messages">
+      {%- for key in flash %}
+        {% if key in ['notice', 'error', 'warning', 'info', 'success'] %}
+          <div class="flash-message {{key}}">{{flash[key]}}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
     <h1>The Booyah Project</h1>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">

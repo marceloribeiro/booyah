@@ -70,6 +70,13 @@ function addSubmitListener() {
     });
 }
 
+function showFlashMessages() {
+    setTimeout(function() {
+        $('.flash-message').slideDown('slow');
+    }, 350);
+}
+
 window.onload = function() {
     addSubmitListener();
+    showFlashMessages();
 };

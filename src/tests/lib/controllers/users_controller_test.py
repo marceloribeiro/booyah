@@ -1,19 +1,12 @@
 from booyah.controllers.users_controller import UsersController
 from booyah.models.user import User
 from booyah.helpers.request_format_helper import ContentType
-import io
-import os
 
 class TestUsersController:
     def setup_method(self):
         User.drop_table()
-        User.create_table({
-            'id': 'primary_key',
-            'name': 'string',
-            'email': 'string',
-            'created_at': 'datetime',
-            'updated_at': 'datetime'
-        })
+        User.create_table({'id': 'primary_key','name': 'string','email': 'string','created_at': 'datetime','updated_at': 'datetime'})
+        User.table_columns = None
         self._http_method = 'GET'
         self._query_string = ''
         self._wsgi_input = None
@@ -197,4 +190,4 @@ class TestUsersController:
         returned = controller.destroy()
         decoded_body = returned.response_body().decode('utf-8')
         assert len(User.where("id", user.id)) == 0
-        assert decoded_body == '{"deleted": true, "deleted_id": ' + str(user.id) + '}'
+        assert decoded_body == '{"deleted": true, "deleted_id": ' + str(user.id) + ', "flash": {}}'

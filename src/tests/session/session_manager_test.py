@@ -9,17 +9,8 @@ from cryptography.fernet import Fernet
 DEFAULT_DATA = {'name': 'johndoe'}
 
 class TestSessionManager(unittest.TestCase):
+    
     def create_table_and_record(self):
-        SessionStorage.drop_table()
-        SessionStorage.create_table({
-            'id': 'primary_key',
-            'session_id': 'string',
-            'data': 'text',
-            'expires_at': 'datetime',
-            'created_at': 'datetime',
-            'updated_at': 'datetime'
-        })
-        SessionStorage.table_columns = None
         self.session_key = "D47Gc_fnWbAz84-eRZDcG0t3OW006UArBhR0_ZtDDHs="
         record_params = {'session_id': 'abc', 'data': json.dumps({'name': 'johndoe'}), 'expires_at': datetime.utcnow() + timedelta(days=1)}
         f = Fernet(self.session_key)

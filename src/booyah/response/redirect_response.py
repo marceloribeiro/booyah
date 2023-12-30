@@ -1,4 +1,5 @@
 from booyah.logger import logger
+from booyah.session.session_manager import session_manager
 
 class RedirectResponse:
     DEFAULT_HTTP_STATUS = '303 See Other'
@@ -9,6 +10,7 @@ class RedirectResponse:
         self.redirect_to = redirect_to
 
     def response_headers(self):
+        session_manager.save_session()
         full_path = self.redirect_to
         if 'HTTP_ORIGIN' in self.environment:
             full_path = self.environment['HTTP_ORIGIN'] + self.redirect_to

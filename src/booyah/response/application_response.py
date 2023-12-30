@@ -41,6 +41,7 @@ class ApplicationResponse:
 
     def response_body(self):
         format = self.format()
+        session_manager.flash_messages.can_clean = True
         if format:
             return getattr(self, format + '_body')()
         else:

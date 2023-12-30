@@ -79,6 +79,35 @@ While cookies have some settings like (secure, path, expires, etc.) you can use 
 >        cookies_manager.set_cookie('new_cookie', 'New cookie value here', secure=True, http_only=True)
 >        return self.render({'cookies': str(self.cookies()), 'session': str(self.session)})
 
+**Flash Messages**
+You can use flash messages to show a message once, it can be in current response, to the redirected path or any future request that will show it once. We have some default flash messages handler that you can remove on change as well
+in views/layout/application.html ['notice', 'error', 'warning', 'info', 'success'], you should not do special operations
+with the self.flash dict, cause it is an especial class that extends dict, so it should not be transformed to another dict
+by a merge dict for example.
+Usages:
+
+> class HomeController(BooyahApplicationController):
+>    def index(self):
+>        self.flash['notice'] = 'Message from index page'
+>        return self.render({'text': 'Home Controller, Index Action'})
+
+
+> class HomeController(BooyahApplicationController):
+>    def index(self):
+>        self.flash.now['notice'] = 'Do not store the flash message, show only in current response'
+>        return self.render({'text': 'Home Controller, Index Action'})
+
+
+> class HomeController(BooyahApplicationController):
+>    def status(self):
+>        self.flash['non_default_flash'] = 'That should be handled by yourself'
+>        return self.redirect('/', notice='This is a notice from redirect', error='This is an error from redirect')
+
+The flash message can be access by any view, as following:
+
+> <div class="flash-message non_default_flash">{{flash['non_default_flash']}}</div>
+
+
 **Console**
 
 You can start booyah console to test models, inflections, it is a python console with booyah framework loaded.

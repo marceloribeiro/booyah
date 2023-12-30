@@ -11,7 +11,7 @@ class TestControllerHelper():
         self.environment['MATCHING_ROUTE_PARAMS'] = {}
         route = {"method": 'GET', "url": '/home', "action": 'home_controller#index', "format": '*'}
         data = get_controller_action(route, self.environment)
-        assert data['action']().json_body() == b'{"text": "Home Controller, Index Action"}'
+        assert data['action']().json_body() == b'{"text": "Home Controller, Index Action", "flash": {}}'
 
     def test_set_response_format(self):
         route = {"method": 'GET', "url": '/home', "action": 'home_controller#index', "format": 'json'}
