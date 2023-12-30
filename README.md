@@ -1,24 +1,14 @@
 ![alt TestRunner](https://github.com/marceloribeiro/booyah/actions/workflows/tests_runner.yml/badge.svg)
 
-## Welcome to BOOYAH
+## Booyah Framework
 
-Booyah is a new MVC web framework written in Python that aims to be easy and fast to use. It follows the convention over configuration paradigm introduced by Ruby on Rails.
+Booyah is a MVC web framework written in Python that aims to be easy to use while setting up projects quickly. It follows the convention over configuration paradigm introduced by Ruby on Rails.
 
-### 1. Installation
+The following links detail the process of installing and setting up your first project.
 
-We recommend setting up your own pyenv virtualenv before running booyah.
 
-```
-pyenv install 3.11.4
-pyenv virtualenv 3.11.4 YOUR_ENV_NAME
-pyenv activate YOUR_ENV_NAME
-```
+[1. Installation](docs/install.md)
 
-Once pyenv is setup, install the booyah pip package:
-
-```
-pip install booyah
-```
 
 ### 2. Creating a Booyah project:
 
