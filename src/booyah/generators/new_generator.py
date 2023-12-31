@@ -89,11 +89,12 @@ class NewGenerator(BaseGenerator):
         shutil.copy(os.path.join(source_folder, 'requirements.txt'), os.path.join(destination_folder, 'requirements.txt'))
 
         self.render_template('application', os.path.join(destination_folder, 'application.py'))
+        self.render_template('application_yml', os.path.join(destination_folder, 'config', 'application.yml'))
         print_success(f"Project '{self.project_name}' created successfully.")
 
     def render_template(self, source_template, destination_file):
         template = self.template_environment.get_template(source_template)
-        template_data = { "project_module": self.project_module }
+        template_data = { "project_module": self.project_module, "project_name": self.project_name }
         file_content = template.render(**template_data)
 
         with open(destination_file, "w") as output_file:

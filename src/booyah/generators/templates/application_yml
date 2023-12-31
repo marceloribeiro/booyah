@@ -3,18 +3,18 @@ defaults:
     host: localhost
     port: 5432
     adapter: postgresql
-    database: booyah
     username: postgres
     password:
 
 development:
   database:
     <<: *database
+    database: {{project_name}}_development
 
 test:
   database:
     <<: *database
-    database: booyah_test
+    database: {{project_name}}_test
 
 production:
   database:
@@ -22,6 +22,6 @@ production:
     host: $DB_HOST
     port: 5432
     adapter: postgresql
-    database: booyah_production
     username: $DB_USERNAME
     password: $DB_PASSWORD
+    database: {{project_name}}
