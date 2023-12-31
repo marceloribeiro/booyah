@@ -44,7 +44,6 @@ src/booyah/generators/helpers/io.py
 src/booyah/generators/helpers/system_check.py
 src/booyah/generators/templates/__init__.py
 src/booyah/generators/templates/generate_new/__init__.py
-src/booyah/generators/templates/generate_new/application.py
 src/booyah/generators/templates/generate_new/app/__init__.py
 src/booyah/generators/templates/generate_new/app/controllers/__init__.py
 src/booyah/generators/templates/generate_new/app/controllers/application_controller.py

@@ -7,8 +7,10 @@ import re
 from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root, prompt_replace
 from booyah.generators.base_generator import BaseGenerator
+from jinja2 import Environment, PackageLoader, select_autoescape
 import shutil
 from datetime import datetime
+from booyah.extensions.string import String
 
 import booyah.extensions.string
 globals()['String'] = booyah.extensions.string.String
@@ -20,10 +22,15 @@ class NewGenerator(BaseGenerator):
         args = parser.parse_args(args)
         if not args.project_name.strip():
             raise ValueError("Please type the project name")
-        
+
         self.folder_name = String(args.project_name.strip()).underscore()
         self.folder_path = os.path.join(os.getcwd(), self.folder_name)
         self.project_name = self.folder_name
+        self.project_module = String(self.project_name).underscore()
+        self.template_environment = Environment(
+            loader=PackageLoader('booyah', 'generators/templates'),
+            autoescape=select_autoescape()
+        )
 
     def perform(self):
         if not self.validate():
@@ -42,7 +49,7 @@ class NewGenerator(BaseGenerator):
             response = input(f"The folder '{self.folder_path}' already exists. Are you sure you want to use this folder to create the project? (yes/no): ")
             if response.lower() != "yes":
                 return False
-        
+
         return True
 
     def copy_booyah_version(self):
@@ -76,14 +83,22 @@ class NewGenerator(BaseGenerator):
         destination_folder = self.folder_name
 
         self.copy_folder_tree_with_prompt(source_folder, destination_folder)
-        
+
         os.rename(os.path.join(destination_folder, 'env'), os.path.join(destination_folder, '.env'))
-        shutil.copy(os.path.join(source_folder, 'application.py'), os.path.join(destination_folder, 'application.py'))
         shutil.copy(os.path.join(source_folder, '__init__.py'), os.path.join(destination_folder, '__init__.py'))
         shutil.copy(os.path.join(source_folder, 'requirements.txt'), os.path.join(destination_folder, 'requirements.txt'))
 
+        self.render_template('application', os.path.join(destination_folder, 'application.py'))
         print_success(f"Project '{self.project_name}' created successfully.")
-    
+
+    def render_template(self, source_template, destination_file):
+        template = self.template_environment.get_template(source_template)
+        template_data = { "project_module": self.project_module }
+        file_content = template.render(**template_data)
+
+        with open(destination_file, "w") as output_file:
+            output_file.write(file_content)
+
     def fill_file_vars(self):
         replace_settings = {
             os.path.join(self.folder_name, 'app', 'views', 'layouts', 'application.html'): [
