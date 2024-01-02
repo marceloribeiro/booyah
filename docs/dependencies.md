@@ -1,6 +1,4 @@
-# BOOYAH
-
-## Setup Environment
+### Dependencies
 
 Isolating dependencies is important if your projects run on different versions for the same library.
 This is where virtualenv comes to place.
