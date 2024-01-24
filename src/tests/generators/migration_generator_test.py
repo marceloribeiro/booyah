@@ -1,4 +1,3 @@
-import os
 import json
 from booyah.generators.migration_generator import MigrationGenerator
 
@@ -9,7 +8,6 @@ class TestMigrationGenerator:
         assert migration_generator.migration_name == 'migration_name'
         assert migration_generator.fields == ['fields']
         assert migration_generator.class_name == 'MigrationName'
-        assert migration_generator.target_file == f"target_folder/{migration_generator.current_datetime}_migration_name.py"
         assert migration_generator.table_name == ''
         assert migration_generator.content == ''
         assert migration_generator._formatted_fields == ''

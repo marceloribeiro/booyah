@@ -2,7 +2,7 @@ import os
 import shutil
 from booyah.generators.helpers.io import print_error, print_success
 from booyah.generators.base_generator import BaseGenerator
-from datetime import datetime
+from booyah.generators.helpers.path import new_migration_file_path
 
 BOOYAH_ATTACHMENT_FIELDS = [
     'record_id:integer',
@@ -64,7 +64,7 @@ class AttachmentsGenerator(BaseGenerator):
             print_error(f"Already have the attachments migration ({MIGRATION_TEMPLATE_NAME}).")
         else:
             source_file = os.path.join(self.booyah_root(), 'generators', 'templates', MIGRATION_TEMPLATE_NAME)
-            target_file = os.path.join(self.target_folder, f"{datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')}_{MIGRATION_TEMPLATE_NAME}")
+            target_file = new_migration_file_path(self.target_folder, MIGRATION_TEMPLATE_NAME)
             shutil.copy2(source_file, target_file)
             print_success('Migration for attachments created successfully!')
         
