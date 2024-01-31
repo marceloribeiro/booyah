@@ -1,9 +1,11 @@
-from http.cookies import SimpleCookie
-from datetime import datetime, timedelta
-import uuid
-from cryptography.fernet import Fernet
 
-DEFAULT_EXPIRATION = timedelta(days=365)
+import uuid
+from datetime import datetime, timedelta
+from http.cookies import SimpleCookie
+from cryptography.fernet import Fernet
+from booyah.framework import Booyah
+
+DEFAULT_EXPIRATION = timedelta(days=14) if not Booyah.is_booyah_project else timedelta(days=Booyah.env_config['cookies']['expiration_in_days'])
 EXPIRATION_FORMAT = '%a, %d %b %Y %H:%M:%S GMT'
 
 class CookiesManager:

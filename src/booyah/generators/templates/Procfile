@@ -1,0 +1,3 @@
+web: booyah s
+worker: celery -A booyah.jobs.jobs_manager worker --loglevel=info
+beat: celery -A booyah.jobs.jobs_manager beat --loglevel=info

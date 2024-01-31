@@ -4,7 +4,7 @@ from booyah.response.redirect_response import RedirectResponse
 from urllib.parse import parse_qs
 from booyah.logger import logger
 from booyah.application_support.action_support import ActionSupport
-from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType, parse_header, parse_multipart
+from booyah.helpers.request_format_helper import RequestFormatHelper, ContentType, parse_multipart
 from booyah.cookies.cookies_manager import cookies_manager
 from booyah.session.session_manager import session_manager
 

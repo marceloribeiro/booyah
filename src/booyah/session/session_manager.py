@@ -21,6 +21,9 @@ class SessionManager:
         expiration = cookies_manager.expiration_date('sessionid')
         self.storage.save_session(session_id, session_key, self.session, expiration)
     
+    def clear_expired(self):
+        self.storage.clear_expired()
+    
     def from_cookie(self):
         self.session = self.get_session(cookies_manager.get_cookie('sessionid'), cookies_manager.get_cookie('sessionkey'))
         if not '_flash' in self.session:

@@ -5,16 +5,28 @@ defaults:
     adapter: postgresql
     username: postgres
     password:
+  cookies: &cookies
+    expiration_in_days: 10
+  jobs: &jobs
+    broker: 'amqp://guest:guest@localhost:5672/'
 
 development:
   database:
     <<: *database
     database: {{project_name}}_development
+  cookies:
+    <<: *cookies
+  jobs:
+    <<: *jobs
 
 test:
   database:
     <<: *database
     database: {{project_name}}_test
+  cookies:
+    <<: *cookies
+  jobs:
+    <<: *jobs
 
 production:
   database:
@@ -25,3 +37,7 @@ production:
     username: $DB_USERNAME
     password: $DB_PASSWORD
     database: {{project_name}}
+  cookies:
+    <<: *cookies
+  jobs:
+    <<: *jobs

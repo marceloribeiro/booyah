@@ -1,4 +1,5 @@
 import os
+import sys
 import confuse
 from booyah.extensions.string import String
 from py_dotenv import read_dotenv
@@ -6,12 +7,14 @@ from py_dotenv import read_dotenv
 class Booyah:
     @classmethod
     def initial_config(self):
+        self.is_booyah_project = False
         self.version = '0.0.0'
         self.is_lib_test = os.getenv('BOOYAH_LIB_TEST') == 'yes'
         if not self.is_lib_test:
             try:
                 with open('.booyah_version', 'r') as version_file:
                     self.version = version_file.read().strip()
+                self.is_booyah_project = True
             except FileNotFoundError:
                 print(
                     "Error: This directory does not seem to be a Booyah project.\n"
@@ -19,7 +22,7 @@ class Booyah:
                 )
         self.root = os.getcwd()
         self.folder_name = String(os.path.basename(os.getcwd()))
-        self.name = String(os.path.basename(os.getcwd())).titleize()
+        self.name = self.folder_name.titleize()
 
     @classmethod
     def substitute_env_variables(self, config):
@@ -40,7 +43,18 @@ class Booyah:
             else:
                 result[key] = real_value
         return result
-
+    
+    @classmethod
+    def add_project_module_if_needed(self):
+        if not self.is_booyah_project:
+            return
+        try:
+            __import__(Booyah.folder_name)
+            return True
+        except ImportError:
+            sys.path.append(os.path.dirname(Booyah.root))
+            return False
+    
     @classmethod
     def configure(self):
         self.initial_config()

@@ -23,6 +23,8 @@ The following links detail the process of installing and setting up your first p
 
 [7. Generators](docs/generators.md)
 
+[8. Jobs](docs/jobs.md)
+
 
 ### Collaborating
 
