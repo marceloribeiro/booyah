@@ -16,9 +16,11 @@ License-File: LICENSE
 
 ![alt TestRunner](https://github.com/marceloribeiro/booyah/actions/workflows/tests_runner.yml/badge.svg)
 
-## Welcome to BOOYAH
+## Booyah Framework
 
-Booyah is a new MVC web framework written in Python that aims to be easy and fast to use. It follows the convention over configuration paradigm introduced by Ruby on Rails.
+Booyah is a MVC web framework written in Python that aims to be easy to use while setting up projects quickly. It follows the convention over configuration paradigm introduced by Ruby on Rails.
+
+The following links detail the process of installing and setting up your first project.
 
 ### 1. Installation
 

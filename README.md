@@ -1,169 +1,31 @@
 ![alt TestRunner](https://github.com/marceloribeiro/booyah/actions/workflows/tests_runner.yml/badge.svg)
 
-## Welcome to BOOYAH
+## Booyah Framework
 
-Booyah is a new MVC web framework written in Python that aims to be easy and fast to use. It follows the convention over configuration paradigm introduced by Ruby on Rails.
+Booyah is a MVC web framework written in Python that aims to be easy to use while setting up projects quickly. It follows the convention over configuration paradigm introduced by Ruby on Rails.
 
-### 1. Installation
+### Documentation
 
-We recommend setting up your own pyenv virtualenv before running booyah.
-
-```
-pyenv install 3.11.4
-pyenv virtualenv 3.11.4 YOUR_ENV_NAME
-pyenv activate YOUR_ENV_NAME
-```
-
-Once pyenv is setup, install the booyah pip package:
-
-```
-pip install booyah
-```
-
-### 2. Creating a Booyah project:
-
-You can create your first booyah project by running the following project generator command:
-
-```
-booyah new YOUR_PROJECT_NAME
-```
-
-After creating your project, cd into it's directory and run the server command:
-
-```
-cd YOUR_PROJECT_NAME
-booyah s
-```
-
-Then you should be able to access http://localhost:8000 from your browser.
-
-The project generator will also have created, among other files, a `.env` file responsible for general settings, such as the database connection info. Make sure to edit your .env file to reflect the proper database name if you want to run off of the default name:
-
-```
-DB_DATABASE=YOUR_PROJECT_NAME
-```
-
-### 3. Getting Started
-
-Booyah aims to follow the REST pattern for resources (RESTful resources), and the first way to generate one is to use booyah's own scaffold generator:
-
-```
-booyah g scaffold blog title description:text is_published:boolean
-```
-
-The command above will create a few things for you to get started:
-
-- A database migration that creates the table for blogs
-- A blog model
-- A blog serializer (for JSON based APIs)
-- A blogs controller (with index, show, new, create, edit, update, destroy actions)
-- A set of routes for the blogs resource
-- HTML views for handling the blog
-
-Once you've generated the items above, it is important to create the database, and run the migrations so that the database tables are created for Booyah's ORM:
-
-```
-booyah db create
-booyah db migrate
-```
-
-After running the command, try going to https://localhost:8000/blogs and you should be able to list, create, edit, delete blog posts right away.
-
-### 4. The Booyah Console
-
-Booyah comes in with a preconfigured console you can use to access your models and other classes within the framework:
-
-```
-booyah c
-
->>> blog = Blog()
->>> blog.title = 'Something'
->>> blog.description = 'Else'
->>> blog.save()
->>> blog.to_dict()
-{'created_at': '2023-09-17 20:11:55.260098', 'description': 'Else', 'id': 2, 'is_published': None, 'title': 'Something', 'updated_at': '2023-09-17 20:11:55.260129'}
->>> blog.update({"is_published": True})
-```
-
-### 5. Booyah ORM Querying
-
-Booyah ORM will provide a series of methods and features to make it easy to query your database and return the elements you need:
-
-```
-booyah c
-
->>> blogs = Blog.all()
->>> for blog in blogs:
->>> 	print(blog.title)
+The following links detail the process of installing and setting up your first project.
 
 
->>> blog = Blog.find(1)
+[1. Installation](docs/install.md)
 
->>> published_blogs = Blog.where("is_published = ?", True)
->>> published_blogs.first().title
-```
+[2. Getting Started](docs/getting-started.md)
 
-And the ORM querying object also allows for chained querying:
+[3. The Booyah Console](docs/console.md)
 
-```
->>> published_blogs_since_yesterday = Blog.where("is_published = ?", True).where("created_at >= ?", "2023-09-17 00:00:00")
-published_blogs_since_yesterday.count()
-1
-```
+[4. The Booyah ORM](docs/booyah-orm.md)
 
-Some other elements available to the querying object:
+[5. The MVC architecture](docs/booyah-mvc.md)
 
-```
->>> blogs = Blog.select('title')
->>> blogs = blogs.order('title ASC')
->>> blogs = blogs.join('users', 'blogs.user_id = users.id')
->>> blogs.count()
-1
-```
+[6. Database Operations](docs/database-operations.md)
 
-### 6. Controllers and Actions
+[7. Generators](docs/generators.md)
 
-Booyah controllers are classes defined by <CONTROLLER_NAME>Controller, and methods that work as actions, mapped via the routes file.
 
-We also implemented support for before, after and around action blocks:
-
-```
-class BlogsController:
-	before_action('authenticate_user')
-
-	def index:
-		# render the blog posts
-
-	def authenticate_user:
-		# make sure the user is authenticated or return the error
-```
-
-`before_action`, `after_action` and `around_action` calls also support configurations for specific actions:
-
-```
-class CartsController:
-	before_action('authenticate_user', only_for=['checkout']
-
-	def create:
-		# creates a new shopping cart
-
-	def checkout:
-		# checks out the cart to become a new order
-```
-
-Or you can also skip before_action that has been setup on a parent controller class (like ApplicationController for example)
-
-```
-class CartsController:
-	skip_before_action('authenticate_user', except_for=['checkout']
-
-	def create:
-		# creates a new shopping cart
-
-	def checkout:
-		# checks out the cart to become a new order
-```
-
-### 7. Collaborating
+### Collaborating
 
 You can collaborate with Booyah by forking the repo and submitting a pull request. We are very early stage so any help is welcome. We do try to follow the Rails way in Python though, so please keep that in mind.
+
+You can visit the issues tab in github for some ideas.
