@@ -3,19 +3,20 @@ import re
 from datetime import datetime
 from booyah.extensions.string import String
 from booyah.generators.helpers.io import print_error, print_success
+from booyah.generators.helpers.path import new_migration_file_path
 from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.generators.base_generator import BaseGenerator
 from booyah.generators.attachments_generator import ATTACHMENT_TYPES, attachment_import_string, attachment_config_prefix, attachment_config_string
 
 #  booyah g migration create_table_comments comments user_id:integer title content:text
 class MigrationGenerator(BaseGenerator):
+
     def __init__(self, target_folder, migration_name, fields):
         self.current_datetime = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
         self.target_folder = target_folder
         self.migration_name = String(migration_name).underscore()
         self.fields = self.prepare_fields(fields)
         self.class_name = String(self.migration_name).classify()
-        self.target_file = os.path.join(self.target_folder, self.current_datetime + '_' + self.class_name.underscore() + '.py')
         self.table_name = ''
         self.content = ''
         self._formatted_fields = ''
@@ -149,9 +150,10 @@ class MigrationGenerator(BaseGenerator):
 
     def create_file_from_template(self):
         self.load_content()
-        os.makedirs(os.path.dirname(self.target_file), exist_ok=True)
-        with open(self.target_file, "w") as output_file:
+        target_file = new_migration_file_path(self.target_folder, f"{self.class_name.underscore()}.py")
+        os.makedirs(os.path.dirname(target_file), exist_ok=True)
+        with open(target_file, "w") as output_file:
             output_file.write(self.content)
 
-        print_success(f"migration created: {self.target_file}")
+        print_success(f"migration created: {target_file}")
         return self.content
