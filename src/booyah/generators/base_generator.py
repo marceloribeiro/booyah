@@ -7,6 +7,13 @@ class BaseGenerator:
     def booyah_root(self):
         return os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
+    def remove_duplicates_preserve_order(self, input_list):
+        unique_list = []
+        for item in input_list:
+            if item not in unique_list:
+                unique_list.append(item)
+        return unique_list
+
     def should_create_file(self):
         if os.path.exists(self.target_file):
             if prompt_override_file(self.target_file) == False:

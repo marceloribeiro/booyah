@@ -1,3 +1,4 @@
+from datetime import datetime
 from booyah.db.adapters.base_adapter import BaseAdapter
 
 EQUAL_OPERATOR = '= ?'
@@ -88,7 +89,8 @@ class ModelQueryBuilder:
                         condition = f"{condition} is NULL"
                         self.where_conditions.append(condition)
                         return self
-                condition = f"{condition} = {self.sql_value(args[1])}"
+                operator = '' if ' ' in condition else " = "
+                condition = f"{condition}{operator}{self.sql_value(args[1])}"
             self.where_conditions.append(condition)
         return self
 
@@ -96,7 +98,10 @@ class ModelQueryBuilder:
         return sql.replace('?', value, 1)
     
     def sql_value(self, value):
-        if isinstance(value, str):
+        if isinstance(value, datetime):
+            sql_escaped = value.isoformat()
+            return f"\'{sql_escaped}\'"
+        elif isinstance(value, str):
             sql_escaped = value.replace("'", "''")
             return f"\'{sql_escaped}\'"
         elif isinstance(value, list):

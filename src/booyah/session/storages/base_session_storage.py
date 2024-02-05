@@ -10,3 +10,6 @@ class BaseSessionStorage:
     
     def create_storage(self):
         raise NotImplementedError("Subclasses must implement create_storage.")
+    
+    def clear_expired(self):
+        raise NotImplementedError("Subclasses must implement clear_expired.")

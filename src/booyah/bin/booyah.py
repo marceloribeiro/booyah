@@ -16,8 +16,10 @@ def run():
     new_parser = subparsers.add_parser("new", help="Create a new project with given name")
     new_parser.add_argument("project_name", help="The project name")
 
-    s_parser = subparsers.add_parser("s", help="Starts the booyah server")
-    c_parser = subparsers.add_parser("c", help="Starts the booyah console")
+    subparsers.add_parser("s", help="Starts the booyah server")
+    subparsers.add_parser("c", help="Starts the booyah console")
+    subparsers.add_parser("w", help="Starts the booyah worker")
+    subparsers.add_parser("ws", help="Starts the booyah worker scheduler")
 
     db_parser = subparsers.add_parser("db", help="Run db operations")
     db_subparsers = db_parser.add_subparsers(title="DB Operations", dest="db_command")

@@ -1,0 +1,3 @@
+@app.task
+def {{task_name}}():
+    print("Task {{task_name}} executed...")

@@ -8,7 +8,6 @@ if not current_dir_is_booyah_root():
 
 # Ready to start console (valid folder) -----------------------------------------------------
 import sys
-from py_dotenv import read_dotenv
 import os
 import importlib
 

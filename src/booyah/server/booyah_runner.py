@@ -55,3 +55,21 @@ class BooyahRunner:
 
         from booyah.server.booyah_database import BooyahDatabase
         getattr(BooyahDatabase(environment, params), f"{db_operation}_db")()
+
+    def run_w(self):
+        """
+        Starts celery worker by running celery -A booyah.jobs.jobs_manager worker --loglevel=info
+        """
+        print("Starting booyah worker...")
+        self.require_under_virtual_env()
+        python_command = f'celery -A booyah.jobs.jobs_manager worker --loglevel=info'
+        subprocess.call(python_command, shell=True)
+
+    def run_ws(self):
+        """
+        Starts celery worker scheduler by running celery -A booyah.jobs.jobs_manager beat --loglevel=info
+        """
+        print("Starting booyah worker scheduler...")
+        self.require_under_virtual_env()
+        python_command = f'celery -A booyah.jobs.jobs_manager beat --loglevel=info'
+        subprocess.call(python_command, shell=True)

@@ -3,6 +3,7 @@ import json
 from booyah.models.session_storage import SessionStorage
 from booyah.session.storages.base_session_storage import BaseSessionStorage
 from cryptography.fernet import Fernet
+from datetime import datetime
 
 class DatabaseStorage(BaseSessionStorage):
     def __init__(self):
@@ -45,3 +46,6 @@ class DatabaseStorage(BaseSessionStorage):
         else:
             self.record = SessionStorage({'session_id': session_id, 'data': data_str, 'expires_at': expiration})
         self.record.save()
+    
+    def clear_expired(self):
+        SessionStorage.where('expires_at < ', datetime.utcnow()).destroy_all()

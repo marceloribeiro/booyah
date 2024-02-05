@@ -1,6 +1,6 @@
 import os
 import argparse
-from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
+from booyah.generators.helpers.io import print_error
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root
 from booyah.generators.migration_generator import MigrationGenerator
 from booyah.generators.controller_generator import ControllerGenerator
@@ -8,6 +8,7 @@ from booyah.generators.model_generator import ModelGenerator
 from booyah.generators.scaffold_generator import ScaffoldGenerator
 from booyah.generators.attachments_generator import AttachmentsGenerator
 from booyah.generators.session_generator import SessionGenerator
+from booyah.generators.job_generator import JobGenerator
 from booyah.extensions.string import String
 
 def main(args):
@@ -30,7 +31,8 @@ def main(args):
         'model',
         'scaffold',
         'attachments',
-        'session'
+        'session',
+        'job'
     ]
 
     if args.generate not in known_generators:
@@ -49,6 +51,7 @@ def get_target_folder(generate):
         "model": "app/models",
         "scaffold": "app",
         'attachments': 'db/migrate',
-        'session': 'db/migrate'
+        'session': 'db/migrate',
+        'job': 'app/jobs'
     }
     return folders[generate]
