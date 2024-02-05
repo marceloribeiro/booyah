@@ -2,6 +2,9 @@ from celery import Celery
 from booyah.framework import Booyah
 from booyah.jobs.managers.base_job_manager import BaseJobManager
 
+DEFAULT_BROKER = 'redis://localhost:6379/0'
+DEFAULT_PROJECT = 'booyah'
+
 class CeleryJobManager(BaseJobManager):
     def __init__(self):
         Booyah.add_project_module_if_needed()
@@ -13,8 +16,8 @@ class CeleryJobManager(BaseJobManager):
         )
     
     def load_config(self):
-        self.project_name = 'booyah'
-        self.broker = 'amqp://guest:guest@localhost:5672/'
+        self.project_name = DEFAULT_PROJECT
+        self.broker = DEFAULT_BROKER
         if not Booyah.is_booyah_project:
             self.project_name = Booyah.folder_name if not Booyah.env_config['jobs']['name'] else Booyah.env_config['jobs']['name']
             self.broker = Booyah.env_config['jobs']['broker']

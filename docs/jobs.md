@@ -16,13 +16,13 @@ app/jobs/example_job.py
 To handle the tasks you need to run the following commands in your project folder:
 
 ```sh
-$ celery -A booyah.jobs.jobs_manager worker --loglevel=info
+$ booyah w
 ```
 
 and to scheduled tasks, like clean expired sessions (automatically scheduled)
 
 ```sh
-$ celery -A booyah.jobs.jobs_manager beat --loglevel=info
+$ booyah ws
 ```
 
 to add a scheduled task you may follow this example:
