@@ -8,7 +8,7 @@ class Booyah:
     @classmethod
     def initial_config(self):
         self.is_booyah_project = False
-        self.version = '0.0.0'
+        self.version = '0.0.1'
         self.is_lib_test = os.getenv('BOOYAH_LIB_TEST') == 'yes'
         if not self.is_lib_test:
             try:
@@ -32,7 +32,7 @@ class Booyah:
                 Booyah.substitute_env_variables(value)
             elif isinstance(real_value, str):
                 config[key] = os.path.expandvars(real_value)
-    
+
     @classmethod
     def config_to_dict(self, config):
         result = {}
@@ -43,7 +43,7 @@ class Booyah:
             else:
                 result[key] = real_value
         return result
-    
+
     @classmethod
     def add_project_module_if_needed(self):
         if not self.is_booyah_project:
@@ -54,7 +54,7 @@ class Booyah:
         except ImportError:
             sys.path.append(os.path.dirname(Booyah.root))
             return False
-    
+
     @classmethod
     def configure(self):
         self.initial_config()

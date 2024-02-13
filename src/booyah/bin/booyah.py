@@ -2,11 +2,11 @@
 from booyah.server.booyah_runner import BooyahRunner
 import argparse
 
-BOOYAH_COMMAND_VERSION = '1.0.0'
+BOOYAH_COMMAND_VERSION = '0.1.2'
 
 def run():
     parser = argparse.ArgumentParser(description="Booyah console HELP - Commands list")
-    parser.add_argument("--version", action="store_true", help="Show the version")
+    parser.add_argument("--version", action="store_true", help="Display current booyah version")
     subparsers = parser.add_subparsers(title="Commands", dest="command")
 
     generate_parser = subparsers.add_parser("generate", aliases=["g"], help="Generate controller with given name and actions")

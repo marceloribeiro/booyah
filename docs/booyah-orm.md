@@ -21,34 +21,36 @@ blog = Blog.create({"title": "Something nice", "description": "A longer descript
 You can start by fetching al records form the table:
 
 ```
->>> blogs = Blog.all()
->>> for blog in blogs:
->>> 	print(blog.title)
+blogs = Blog.all()
+for blog in blogs:
+	print(blog.title)
 
 ```
 
 Or find a single record by the primary key:
 
 ```
->>> blog = Blog.find(1)
+blog = Blog.find(1)
 ```
 
 Update an existing record:
 
 ```
->>> blog.update({"published": True})
+blog.update({"published": True})
 ```
 
 You can also set each attribute individually and call `save` at any time:
 
->>> blog.published = False
->>> blog.save()
+```
+blog.published = False
+blog.save()
+```
 
 Lastly, if you want to delete a record:
 
 
 ```
->>> blog.destroy()
+blog.destroy()
 ```
 
 **Querying**
@@ -56,14 +58,14 @@ Lastly, if you want to delete a record:
 Querying works using the `where` call:
 
 ```
->>> published_blogs = Blog.where("is_published = ?", True)
->>> published_blogs.first().title
+published_blogs = Blog.where("is_published = ?", True)
+published_blogs.first().title
 ```
 
 The querying object also allows for chained querying:
 
 ```
->>> published_blogs_since_yesterday = Blog.where("is_published = ?", True).where("created_at >= ?", "2023-09-17 00:00:00")
+published_blogs_since_yesterday = Blog.where("is_published = ?", True).where("created_at >= ?", "2023-09-17 00:00:00")
 published_blogs_since_yesterday.count()
 1
 ```
@@ -71,14 +73,14 @@ published_blogs_since_yesterday.count()
 Some other elements available to the querying object:
 
 ```
->>> blogs = Blog.select('title')
->>> blogs = blogs.order('title ASC')
->>> blogs = blogs.join('users', 'blogs.user_id = users.id')
+blogs = Blog.select('title')
+blogs = blogs.order('title ASC')
+blogs = blogs.join('users', 'blogs.user_id = users.id')
 ```
 
 Counting elements from a query:
 
 ```
->>> blogs.count()
+blogs.count()
 1
 ```
