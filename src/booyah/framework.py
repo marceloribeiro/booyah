@@ -7,6 +7,7 @@ from py_dotenv import read_dotenv
 class Booyah:
     @classmethod
     def initial_config(self):
+        self.is_api = False
         self.is_booyah_project = False
         self.version = '0.0.1'
         self.is_lib_test = os.getenv('BOOYAH_LIB_TEST') == 'yes'
@@ -82,5 +83,6 @@ class Booyah:
         else:
             self.env_config = {}
         self.config = config_dict
+        self.is_api = config_dict['api']
 
 Booyah.configure()

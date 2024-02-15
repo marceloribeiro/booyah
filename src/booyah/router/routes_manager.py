@@ -1,4 +1,5 @@
 from booyah.extensions.string import String
+from booyah.framework import Booyah
 
 class RoutesManager:
     def __init__(self):
@@ -13,6 +14,11 @@ class RoutesManager:
             raise ValueError("Invalid input string format")
     
     def append_route(self, method, url, name, to, controller, action, format):
+        if format == None:
+            if Booyah.is_api:
+                format = 'json'
+            else:
+                format = '*'
         action_path = to
         if controller and action:
             action_path = f"{controller}#{action}"
@@ -27,22 +33,22 @@ class RoutesManager:
             })
         return self
 
-    def get(self, url, name=None, to=None, controller=None, action=None, format='*'):
+    def get(self, url, name=None, to=None, controller=None, action=None, format=None):
         return self.append_route('GET', url, name, to, controller, action, format)
 
-    def post(self, url, name=None, to=None, controller=None, action=None, format='*'):
+    def post(self, url, name=None, to=None, controller=None, action=None, format=None):
         return self.append_route('POST', url, name, to, controller, action, format)
 
-    def put(self, url, name=None, to=None, controller=None, action=None, format='*'):
+    def put(self, url, name=None, to=None, controller=None, action=None, format=None):
         return self.append_route('PUT', url, name, to, controller, action, format)
 
-    def patch(self, url, name=None, to=None, controller=None, action=None, format='*'):
+    def patch(self, url, name=None, to=None, controller=None, action=None, format=None):
         return self.append_route('PATCH', url, name, to, controller, action, format)
 
-    def delete(self, url, name=None, to=None, controller=None, action=None, format='*'):
+    def delete(self, url, name=None, to=None, controller=None, action=None, format=None):
         return self.append_route('DELETE', url, name, to, controller, action, format)
 
-    def resources(self, resource_name, parent_module=None, parent=None, only=None, except_=None, format='*'):
+    def resources(self, resource_name, parent_module=None, parent=None, only=None, except_=None, format=None):
         name_prefix = String(resource_name).singularize()
         base_path = f'{parent}/{resource_name}' if parent else f'/{resource_name}'
         controller_path = f'{parent_module}.{resource_name}_controller' if parent_module else f'{resource_name}_controller'

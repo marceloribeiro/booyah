@@ -15,6 +15,7 @@ def run():
 
     new_parser = subparsers.add_parser("new", help="Create a new project with given name")
     new_parser.add_argument("project_name", help="The project name")
+    new_parser.add_argument("--api", action="store_true", help="Include API setup")
 
     subparsers.add_parser("s", help="Starts the booyah server")
     subparsers.add_parser("c", help="Starts the booyah console")

@@ -1,10 +1,9 @@
 # First step, adding helper folder to sys path to be able to import functions
 import os
-import sys
 import argparse
 import subprocess
 import re
-from booyah.generators.helpers.io import print_error, print_success, prompt_override_file
+from booyah.generators.helpers.io import print_error, print_success
 from booyah.generators.helpers.system_check import current_dir_is_booyah_root, prompt_replace
 from booyah.generators.base_generator import BaseGenerator
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -19,10 +18,13 @@ class NewGenerator(BaseGenerator):
     def __init__(self, args):
         parser = argparse.ArgumentParser(description='Creating New Booyah Project')
         parser.add_argument("project_name", help="The project name")
+        parser.add_argument("--api", action="store_true", help="Include API setup")
+
         args = parser.parse_args(args)
         if not args.project_name.strip():
             raise ValueError("Please type the project name")
-
+        
+        self.is_api = args.api
         self.folder_name = String(args.project_name.strip()).underscore()
         self.folder_path = os.path.join(os.getcwd(), self.folder_name)
         self.project_name = self.folder_name
@@ -79,7 +81,9 @@ class NewGenerator(BaseGenerator):
         Copy folders required to run a new booyah project
         """
 
-        source_folder = os.path.realpath(os.path.join(self.booyah_root(), 'generators', 'templates', 'generate_new'))
+        template_folder = 'generate_new' if not self.is_api else 'generate_new_api'
+        application_template = 'application_yml' if not self.is_api else 'api_application_yml'
+        source_folder = os.path.realpath(os.path.join(self.booyah_root(), 'generators', 'templates', template_folder))
         destination_folder = self.folder_name
 
         self.copy_folder_tree_with_prompt(source_folder, destination_folder)
@@ -89,7 +93,7 @@ class NewGenerator(BaseGenerator):
         shutil.copy(os.path.join(source_folder, 'requirements.txt'), os.path.join(destination_folder, 'requirements.txt'))
 
         self.render_template('application', os.path.join(destination_folder, 'application.py'))
-        self.render_template('application_yml', os.path.join(destination_folder, 'config', 'application.yml'))
+        self.render_template(application_template, os.path.join(destination_folder, 'config', 'application.yml'))
         print_success(f"Project '{self.project_name}' created successfully.")
 
     def render_template(self, source_template, destination_file):
@@ -101,12 +105,14 @@ class NewGenerator(BaseGenerator):
             output_file.write(file_content)
 
     def fill_file_vars(self):
-        replace_settings = {
-            os.path.join(self.folder_name, 'app', 'views', 'layouts', 'application.html'): [
-                ["{{ PROJECT_YEAR_HERE }}", f"{datetime.now().year}"]
-            ]
-        }
-
+        if self.is_api:
+            replace_settings = {}
+        else:
+            replace_settings = {
+                os.path.join(self.folder_name, 'app', 'views', 'layouts', 'application.html'): [
+                    ["{{ PROJECT_YEAR_HERE }}", f"{datetime.now().year}"]
+                ]
+            }
         for file_path, search_replace_list in replace_settings.items():
             try:
                 with open(file_path, 'r') as file:
