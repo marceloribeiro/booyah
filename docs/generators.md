@@ -46,3 +46,20 @@ Example:
 ```
 booyah g controller home index about contact
 ```
+
+
+**4. Migration generator**
+
+You can generate migration files by using a common migration name like following:
+
+To generate a create a table migration file, use CreateTable or create_table prefix:
+
+```
+booyah g migration create_table_comments user_id:integer title content:text
+```
+
+or
+
+```
+booyah g migration CreateTableComments user_id:integer title content:text
+```
