@@ -1,0 +1,6 @@
+{{model_name.underscore()}} = {{model_name.camelize()}}.find(self.params['id'])
+        deleted_id = {{model_name.underscore()}}.destroy()
+
+        return self.respond_to(
+            json=lambda: self.render({ "deleted": True, "deleted_id": deleted_id })
+        )

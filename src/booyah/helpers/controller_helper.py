@@ -1,15 +1,17 @@
 import importlib
 import re
+import os
+import sys
 from booyah.extensions.string import String
 from booyah.helpers.application_helper import import_current_project_folder
 from booyah.logger import logger
-import os
-import sys
+from booyah.framework import Booyah
 
 import_current_project_folder(sys)
 DEFAULT_CONTROLLER_NAME = 'application_controller'
 DEFAULT_ACTION_NAME = 'index'
 DEFAULT_RESPONSE_FORMAT = 'html'
+DEFAULT_API_RESPONSE_FORMAT = 'json'
 RESPONSE_FORMAT_HTML = 'html'
 RESPONSE_FORMAT_TEXT = 'text'
 RESPONSE_FORMAT_JSON = 'json'
@@ -20,13 +22,13 @@ def get_controller_action(route_data, environment):
 
 def set_response_format(route_data, environment):
     format_from_header = get_format_from_content_type(environment.get('HTTP_ACCEPT'))
-    if route_data["format"] != '*':
+
+    if route_data["format"] != '*' and route_data["format"] != None:
         environment['RESPONSE_FORMAT'] = route_data["format"]
     elif format_from_header != None:
         environment['RESPONSE_FORMAT'] = format_from_header
     else:
-        environment['RESPONSE_FORMAT'] = DEFAULT_RESPONSE_FORMAT
-
+        environment['RESPONSE_FORMAT'] = DEFAULT_RESPONSE_FORMAT if not Booyah.is_api else DEFAULT_API_RESPONSE_FORMAT
     return environment['RESPONSE_FORMAT']
 
 def content_types():

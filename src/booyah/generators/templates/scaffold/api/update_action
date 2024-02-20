@@ -1,0 +1,9 @@
+{{model_name.underscore()}} = {{model_name.camelize()}}.find(self.params['id'])
+        if self.is_put_request():
+            {{model_name.underscore()}}.update(self.{{model_name.underscore()}}_params())
+        else:
+            {{model_name.underscore()}}.patch_update(self.{{model_name.underscore()}}_params())
+
+        return self.respond_to(
+            json=lambda: self.render({ "{{model_name}}": {{model_name.camelize()}}Serializer({{model_name.underscore()}}).to_dict() })
+        )

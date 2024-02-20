@@ -48,22 +48,31 @@ class RoutesManager:
     def delete(self, url, name=None, to=None, controller=None, action=None, format=None):
         return self.append_route('DELETE', url, name, to, controller, action, format)
 
-    def resources(self, resource_name, parent_module=None, parent=None, only=None, except_=None, format=None):
+    def resources(self, resource_name, parent_module=None, parent=None, only=None, except_=None, format='*'):
         name_prefix = String(resource_name).singularize()
         base_path = f'{parent}/{resource_name}' if parent else f'/{resource_name}'
         controller_path = f'{parent_module}.{resource_name}_controller' if parent_module else f'{resource_name}_controller'
         
-        standard_routes = [
-            {"method": 'GET',       "url": base_path,                   "name": f'{name_prefix}_index',     "action": f'{controller_path}#index',   "format": format},
-            {"method": 'GET',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_show',      "action": f'{controller_path}#show',    "format": format},
-            {"method": 'GET',       "url": f'{base_path}/new',          "name": f'{name_prefix}_new',       "action": f'{controller_path}#new',     "format": format},
-            {"method": 'POST',      "url": base_path,                   "name": f'{name_prefix}_create',    "action": f'{controller_path}#create',  "format": format},
-            {"method": 'GET',       "url": f'{base_path}/<int:id>/edit',"name": f'{name_prefix}_edit',      "action": f'{controller_path}#edit',    "format": format},
-            {"method": 'PUT',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
-            {"method": 'PATCH',     "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
-            {"method": 'DELETE',    "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_destroy',   "action": f'{controller_path}#destroy', "format": format}
-        ]
-        
+        if Booyah.is_api:
+            standard_routes = [
+                {"method": 'GET',       "url": base_path,                   "name": f'{name_prefix}_index',     "action": f'{controller_path}#index',   "format": format},
+                {"method": 'GET',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_show',      "action": f'{controller_path}#show',    "format": format},
+                {"method": 'POST',      "url": base_path,                   "name": f'{name_prefix}_create',    "action": f'{controller_path}#create',  "format": format},
+                {"method": 'PUT',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
+                {"method": 'PATCH',     "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
+                {"method": 'DELETE',    "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_destroy',   "action": f'{controller_path}#destroy', "format": format}
+            ]
+        else:
+            standard_routes = [
+                {"method": 'GET',       "url": base_path,                   "name": f'{name_prefix}_index',     "action": f'{controller_path}#index',   "format": format},
+                {"method": 'GET',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_show',      "action": f'{controller_path}#show',    "format": format},
+                {"method": 'GET',       "url": f'{base_path}/new',          "name": f'{name_prefix}_new',       "action": f'{controller_path}#new',     "format": format},
+                {"method": 'POST',      "url": base_path,                   "name": f'{name_prefix}_create',    "action": f'{controller_path}#create',  "format": format},
+                {"method": 'GET',       "url": f'{base_path}/<int:id>/edit',"name": f'{name_prefix}_edit',      "action": f'{controller_path}#edit',    "format": format},
+                {"method": 'PUT',       "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
+                {"method": 'PATCH',     "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_update',    "action": f'{controller_path}#update',  "format": format},
+                {"method": 'DELETE',    "url": f'{base_path}/<int:id>',     "name": f'{name_prefix}_destroy',   "action": f'{controller_path}#destroy', "format": format}
+            ]
         if only is not None:
             self.routes.extend([(method, path, callback) for method, path, callback in standard_routes if method in only])
         elif except_ is not None:

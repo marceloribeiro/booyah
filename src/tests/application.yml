@@ -1,3 +1,4 @@
+api: false
 defaults:
   database: &database
     host: localhost

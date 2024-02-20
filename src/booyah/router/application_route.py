@@ -39,7 +39,6 @@ class ApplicationRoute:
 
         route_pattern = self.route_data["url"]
         matcher = RouteMatcher(route_pattern)
-
         if matcher.is_valid_url(path_info):
             environment['MATCHING_ROUTE_PARAMS'] = matcher.build_params(path_info)
             return True

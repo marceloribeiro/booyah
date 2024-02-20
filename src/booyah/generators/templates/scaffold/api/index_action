@@ -1,0 +1,4 @@
+{{model_name.underscore().pluralize()}} = {{model_name.camelize()}}.all()
+        return self.respond_to(
+            json=lambda: self.render({"{{ model_name.underscore().pluralize() }}": list(map(lambda {{model_name.underscore()}}: {{model_name.camelize()}}Serializer({{model_name.underscore()}}).to_dict(), {{model_name.underscore().pluralize()}})) })
+        )

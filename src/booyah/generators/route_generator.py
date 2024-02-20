@@ -1,8 +1,9 @@
 import os
+from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.extensions.string import String
 from booyah.generators.base_generator import BaseGenerator
-from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.generators.helpers.io import print_error, print_success
+from booyah.framework import Booyah
 
 class RouteGenerator(BaseGenerator):
     def __init__(self, target_folder):
@@ -13,7 +14,10 @@ class RouteGenerator(BaseGenerator):
         )
     
     def add_resource(self, resource_name):
-        template = self.template_environment.get_template('route_resource')
+        if Booyah.is_api:
+            template = self.template_environment.get_template('route_resource_api')
+        else:
+            template = self.template_environment.get_template('route_resource')
         params = { "resource_name": String(resource_name).underscore() }
         content = template.render(**params)
         self.add_code_if_not_exists(content)

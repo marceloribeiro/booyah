@@ -42,6 +42,7 @@ BOOYAH_ENV={BOOYAH_ENV}
     @classmethod
     def create_application_yaml(self):
         yaml_content = f"""
+api: false
 defaults:
     database: &database
         host: localhost
