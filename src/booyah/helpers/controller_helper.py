@@ -22,8 +22,9 @@ def get_controller_action(route_data, environment):
 
 def set_response_format(route_data, environment):
     format_from_header = get_format_from_content_type(environment.get('HTTP_ACCEPT'))
+    route_allows_all_formats = route_data["format"] == '*' or route_data["format"] == None
 
-    if route_data["format"] != '*' and route_data["format"] != None:
+    if not route_allows_all_formats:
         environment['RESPONSE_FORMAT'] = route_data["format"]
     elif format_from_header != None:
         environment['RESPONSE_FORMAT'] = format_from_header

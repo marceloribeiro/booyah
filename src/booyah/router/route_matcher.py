@@ -40,7 +40,7 @@ class RouteMatcher:
                 param_value = match.group(param_name)
                 if param.group('datatype') == 'int' and param_value.isdigit():
                     params[param_name] = int(param_value)
-                else:
+                elif param.group('datatype') != 'int':
                     params[param_name] = param_value
             return params
         else:
