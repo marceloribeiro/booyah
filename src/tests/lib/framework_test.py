@@ -40,8 +40,9 @@ BOOYAH_ENV={BOOYAH_ENV}
             """)
     
     @classmethod
-    def create_application_yaml(self):
+    def create_application_yaml(self, api=False):
         yaml_content = f"""
+api: {"true" if api else "false"}
 defaults:
     database: &database
         host: localhost
@@ -76,7 +77,7 @@ production:
         """
 
         self.config_folder = os.path.join(self.temp_dir, 'config')
-        os.makedirs(self.config_folder)
+        os.makedirs(self.config_folder, exist_ok=True)
 
         file_path = os.path.join(self.config_folder, 'application.yml')
         with open(file_path, 'w') as file:
@@ -115,3 +116,9 @@ production:
     
     def test_env_config(self):
         assert Booyah.env_config['database']['host'] == TEST_DB_HOST
+    
+    def test_is_api_config(self):
+        assert Booyah.is_api == False
+        self.create_application_yaml(api=True)
+        Booyah.configure()
+        assert Booyah.is_api == True

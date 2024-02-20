@@ -1,4 +1,4 @@
-{{model_name.underscore()}} = {{model_name.capitalize()}}.find(self.params['id'])
+{{model_name.underscore()}} = {{model_name.camelize()}}.find(self.params['id'])
         return self.respond_to(
           html=lambda: self.render({ "{{model_name.underscore()}}": {{model_name.underscore()}} }),
           json=lambda: self.render({ "{{model_name.underscore()}}": {{model_name.camelize()}}Serializer({{model_name.underscore()}}).to_dict() })

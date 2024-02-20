@@ -25,5 +25,9 @@ class TestRouteMatcher:
     def test_extract_param_int(self):
         assert RouteMatcher('/users/<int:id>').build_params('/users/1') == { "id": 1 }
     
+    def test_extract_invalid_param_int(self):
+        assert RouteMatcher('/users/<int:id>').build_params('/users/new') == {}
+    
     def test_extract_param_str(self):
         assert RouteMatcher('/users/<str:id>').build_params('/users/1') == { "id": "1" }
+        assert RouteMatcher('/users/<str:action>').build_params('/users/new') == { "action": "new" }

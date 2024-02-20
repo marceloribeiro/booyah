@@ -33,17 +33,15 @@ class RouteMatcher:
         escaped_pattern = f"^{escaped_pattern}$"
         route_pattern = re.compile(escaped_pattern)
         match = route_pattern.match(url)
-
         if match:
             params = {}
             for param in re.finditer(param_pattern, self.route_pattern):
                 param_name = param.group('param_name')
                 param_value = match.group(param_name)
-                if param.group('datatype') == 'int':
+                if param.group('datatype') == 'int' and param_value.isdigit():
                     params[param_name] = int(param_value)
-                else:
+                elif param.group('datatype') != 'int':
                     params[param_name] = param_value
-
             return params
         else:
             return None

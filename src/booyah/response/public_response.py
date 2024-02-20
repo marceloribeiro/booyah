@@ -8,8 +8,8 @@ class PublicResponse:
     def __init__(self, environment, status = DEFAULT_HTTP_STATUS):
         self.environment = environment
         self.file_name = os.path.join(Booyah.root, 'public', environment['PATH_INFO'][1:])
-        self.load_file_content()
         self.status = status
+        self.load_file_content()
 
     def response_headers(self):
         return [

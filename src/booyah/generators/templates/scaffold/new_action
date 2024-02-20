@@ -1,2 +1,2 @@
-{{model_name.underscore()}} = {{model_name.capitalize()}}({})
+{{model_name.underscore()}} = {{model_name.camelize()}}({})
         return self.render({"{{model_name.underscore()}}": {{model_name.underscore()}}})

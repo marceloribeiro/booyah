@@ -1,0 +1,4 @@
+{{model_name.underscore()}} = {{model_name.camelize()}}.create(self.{{model_name.underscore()}}_params())
+        return self.respond_to(
+            json=lambda: self.render({ "{{model_name.underscore()}}": {{model_name.camelize()}}Serializer({{model_name.underscore()}}).to_dict() })
+        )

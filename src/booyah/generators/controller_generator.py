@@ -1,9 +1,10 @@
 import os
+from jinja2 import Environment, PackageLoader, select_autoescape
 from booyah.extensions.string import String
+from booyah.framework import Booyah
 from booyah.generators.helpers.io import print_error, print_success
 from booyah.generators.base_generator import BaseGenerator
 from booyah.generators.attachments_generator import file_extensions_for, is_file_field
-from jinja2 import Environment, PackageLoader, select_autoescape
 
 #  booyah g controller home main contact
 class ControllerGenerator(BaseGenerator):
@@ -29,10 +30,14 @@ class ControllerGenerator(BaseGenerator):
         if not self.should_create_file():
             return False
         if self.scaffold and len(self.actions) == 0:
-            self.actions = ['index', 'show', 'new', 'create', 'edit', 'update', 'destroy']
+            if Booyah.is_api:
+                self.actions = ['index', 'show', 'create', 'update', 'destroy']
+            else:
+                self.actions = ['index', 'show', 'new', 'create', 'edit', 'update', 'destroy']
         self.load_content()
         self.create_controller_from_template()
-        self.create_views_from_template()
+        if not Booyah.is_api:
+            self.create_views_from_template()
 
     def format_attributes(self, attributes):
         formatted = []
@@ -58,7 +63,7 @@ class ControllerGenerator(BaseGenerator):
             "model_name": self.model_name,
             "actions": self.actions,
             "action_content": self.get_scaffold_content('action') if self.scaffold else {},
-            "view_content": self.get_scaffold_content('view') if self.scaffold else {},
+            "view_content": self.get_scaffold_content('view') if self.scaffold and not Booyah.is_api else {},
             'model_attributes': self.model_attributes if self.scaffold else [],
             "model_attributes_names": self.get_model_attributes_names(),
             "permit_attributes": self.get_permit_attributes_names(),
@@ -73,14 +78,14 @@ class ControllerGenerator(BaseGenerator):
 
     def get_scaffold_content(self, mode):
         content = {}
-
-        for action in (self.actions + ['form', 'form_multipart']):
+        all_actions = self.actions + ([] if Booyah.is_api else ['form', 'form_multipart'])
+        for action in all_actions:
             if mode == 'view' and action in ['create', 'update', 'destroy']:
                 continue
 
             skeleton_name = f"{action}_{mode}"
             contents = self.get_template_content(
-                'generators/templates/scaffold',
+                'generators/templates/scaffold' + ('/api' if Booyah.is_api else ''),
                 skeleton_name,
                 {
                     "controller_name": self.class_name,

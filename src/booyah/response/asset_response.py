@@ -8,8 +8,8 @@ class AssetResponse:
     def __init__(self, environment, status = DEFAULT_HTTP_STATUS):
         self.environment = environment
         self.file_name = os.path.join(Booyah.root, 'app', environment['PATH_INFO'][1:])
-        self.load_file_content()
         self.status = status
+        self.load_file_content()
 
     def response_headers(self):
         return [
@@ -33,7 +33,7 @@ class AssetResponse:
         except FileNotFoundError:
             self.status = "404 Not Found"
             self.file_bytes = b""
-            print(f"File '{file_path}' not found.")
+            print(f"File '{self.file_name}' not found.")
         except Exception as e:
             self.status = "500 Internal Server Error"
             self.file_bytes = b""

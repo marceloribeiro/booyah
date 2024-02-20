@@ -30,7 +30,6 @@ class ApplicationRouter:
 
     def respond(self, environment):
         logger.debug(environment['REQUEST_METHOD'] + ':', environment['PATH_INFO'])
-
         if environment['PATH_INFO'].startswith("/assets"):
             return AssetResponse(environment)
 
